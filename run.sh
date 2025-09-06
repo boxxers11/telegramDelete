@@ -71,7 +71,7 @@ for i in {1..30}; do
 done
 
 # Give Python server extra time to fully initialize
-sleep 2
+sleep 5
 
 # Install npm dependencies if node_modules doesn't exist
 if [ ! -d "node_modules" ]; then
