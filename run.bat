@@ -65,6 +65,12 @@ goto wait_loop
 :: Give Python server extra time to fully initialize
 timeout /t 2 /nobreak >nul
 
+:: Install npm dependencies if node_modules doesn't exist
+if not exist "node_modules" (
+    echo 📦 Installing npm dependencies...
+    npm install
+)
+
 :: Start React dev server
 npm run dev
 

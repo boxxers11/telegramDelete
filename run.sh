@@ -73,6 +73,12 @@ done
 # Give Python server extra time to fully initialize
 sleep 2
 
+# Install npm dependencies if node_modules doesn't exist
+if [ ! -d "node_modules" ]; then
+    echo "📦 Installing npm dependencies..."
+    npm install
+fi
+
 # Start React dev server
 npm run dev &
 REACT_PID=$!
