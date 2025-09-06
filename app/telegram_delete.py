@@ -40,6 +40,7 @@ class ChatResult:
 @dataclass
 class OperationResult:
     chats: List[ChatResult]
+    messages: List[Dict] = None
     total_chats_processed: int
     total_chats_skipped: int
     total_candidates: int
@@ -310,10 +311,24 @@ class TelegramDeleter:
                 # Count candidate messages
                 candidates = []
                 try:
+                    participants_count = await self.get_participants_count(entity)
                     async for msg in self.iter_user_messages(entity, after_dt, before_dt, filters.limit_per_chat):
                         candidates.append(msg.id)
+                        # Store message details for preview
+                        if not hasattr(self, 'found_messages'):
+                            self.found_messages = []
+                        
+                        self.found_messages.append({
+                            'id': msg.id,
+                            'chat_id': entity.id,
+                            'chat_title': getattr(entity, 'title', getattr(entity, 'first_name', 'Unknown')),
+                            'chat_type': "Private" if isinstance(entity, User) else "Group",
+                            'date': msg.date.isoformat() if msg.date else '',
+                            'content': msg.message or '[Media]',
+                            'media_type': 'Media' if msg.media else None,
+                            'participants_count': participants_count
+                        })
                     
-                    participants_count = await self.get_participants_count(entity)
                     chat_type = "Private" if isinstance(entity, User) else "Group"
                     
                     result = ChatResult(
@@ -352,6 +367,7 @@ class TelegramDeleter:
             
         return OperationResult(
             chats=results,
+            messages=getattr(self, 'found_messages', []),
             total_chats_processed=total_processed,
             total_chats_skipped=total_skipped,
             total_candidates=total_candidates,
