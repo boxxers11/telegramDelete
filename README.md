@@ -1,66 +1,64 @@
 # Telegram Message Deleter
 
-A local web application for safely deleting your own Telegram messages across multiple groups and chats with **multi-account support** (up to 5 accounts).
+אפליקציה מקומית למחיקה בטוחה של ההודעות שלך בטלגרם עם תמיכה ב-5 חשבונות.
 
-## 🌐 Online Demo
+## 🌐 דמו אונליין
 
-You can view the interface demo at: https://local-telegram-messa-cgvs.bolt.host
+אתה יכול לראות את הממשק בכתובת: https://local-telegram-messa-cgvs.bolt.host
 
-**Note**: The online demo only shows the user interface. To actually connect to Telegram and manage messages, you must download and run the application locally as described below.
+**חשוב**: הדמו האונליין מציג רק את הממשק. כדי להתחבר לטלגרם ולמחוק הודעות, חובה להוריד ולהריץ את האפליקציה מקומית.
 
-## ⚠️ Important Disclaimers
+## ⚠️ הסברים חשובים
 
-- **Legal Compliance**: You are responsible for ensuring compliance with Telegram's Terms of Service and all applicable local laws
-- **Data Safety**: This tool only deletes YOUR OWN messages and automatically skips groups with 10 or fewer members
-- **Local Operation**: Everything runs locally on your machine - no data is sent to external servers
-- **Backup Recommended**: Consider backing up important messages before deletion
+- **אחריות משפטית**: אתה אחראי לוודא שאתה עומד בתנאי השימוש של טלגרם ובחוקים המקומיים
+- **בטיחות מידע**: הכלי מוחק רק את ההודעות שלך ומדלג אוטומטית על קבוצות עם 10 חברים או פחות
+- **פעולה מקומית**: הכל רץ על המחשב שלך - שום מידע לא נשלח לשרתים חיצוניים
+- **גיבוי מומלץ**: כדאי לגבות הודעות חשובות לפני המחיקה
 
-## 📥 Download and Setup
+## 📥 הורדה והתקנה - צעד אחרי צעד
 
-The online demo is for preview only. To use the actual Telegram functionality:
+הדמו האונליין הוא רק לתצוגה. כדי להשתמש בפונקציונליות האמיתית:
 
-1. **Download the project files** (all Python server files and dependencies)
-2. **Follow the setup instructions below** to run locally
-3. **The local version will have full Telegram integration**
+### שלב 1: הורדת הקבצים
+1. **הורד את כל קבצי הפרויקט** (כולל שרת Python ותלויות)
+2. **חלץ את הקבצים** לתיקייה במחשב שלך
+3. **פתח טרמינל/Command Prompt** בתיקייה הזו
 
-## 🚀 Quick Start
+### שלב 2: קבלת נתוני API של טלגרם
+1. **היכנס ל-** https://my.telegram.org
+2. **התחבר עם מספר הטלפון שלך**
+3. **לך ל-"API Development Tools"**
+4. **צור אפליקציה חדשה** ושמור את:
+   - **API ID** (מספר)
+   - **API Hash** (מחרוזת ארוכה)
 
-### Prerequisites
-- Python 3.10 or higher
-- Telegram API credentials (get from https://my.telegram.org)
+### שלב 3: הפעלת האפליקציה
 
-### Setup Steps
+**במק/לינוקס:**
+```bash
+chmod +x run.sh
+./run.sh
+```
 
-1. **Get Telegram API Credentials**
-   - Go to https://my.telegram.org
-   - Log in with your phone number
-   - Go to "API Development Tools"
-   - Create an application and note your `API ID` and `API Hash`
+**בווינדוס:**
+```cmd
+run.bat
+```
 
-2. **Install and Run**
-   
-   **On Mac/Linux:**
-   ```bash
-   ./run.sh
-   ```
-   
-   **On Windows:**
-   ```cmd
-   run.bat
-   ```
+### שלב 4: פתיחת האפליקציה
+1. **השרת יתחיל ב-** http://127.0.0.1:8000
+2. **הממשק יפתח ב-** http://localhost:5173 (בדרך כלל נפתח אוטומטית)
+3. **אם לא נפתח אוטומטית** - פתח את הכתובת בדפדפן
 
-3. **First Time Setup**
-   - The Python server will start at http://127.0.0.1:8000
-   - Open the React UI at the URL shown in the terminal (usually http://localhost:5173)
-   - Use the web interface to add accounts and manage operations
-   - All login codes and 2FA passwords are entered through the web interface
+### שלב 5: הוספת חשבון
+1. **לחץ על "Add Account"**
+2. **מלא את הפרטים:**
+   - **Label**: שם לחשבון (למשל "אישי")
+   - **API ID**: המספר מהשלב 2
+   - **API Hash**: המחרוזת מהשלב 2
+   - **Phone**: מספר הטלפון שלך (עם +)
+3. **לחץ "Add Account"**
 
-4. **Use the Application**
-   - **Add accounts**: Use the Account Management section to add up to 5 Telegram accounts
-   - **Authenticate**: Connect each account by entering verification codes from Telegram
-   - **Configure preferences**: Set your deletion filters and options
-   - **Per-account operations**: Use "Scan" or "Delete" buttons for individual accounts
-   - **Global operations**: Use "Scan All Accounts" or "Delete All Accounts" for bulk operations
 
 ## 🔧 Features
 
