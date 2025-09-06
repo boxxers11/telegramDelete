@@ -74,7 +74,8 @@ function App() {
 
   const checkServerConnection = async () => {
     try {
-      const response = await fetch('/api/accounts', {
+      // First try the proxy route
+      let response = await fetch('/api/accounts', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -82,38 +83,33 @@ function App() {
       });
       
       if (response.ok) {
-        // Server is running, load accounts normally
         const accountsData = await response.json();
         setAccounts(accountsData);
         setIsDemoMode(false);
-        setError(''); // Clear any previous errors
+        setError('');
+        console.log('✅ Connected via proxy');
+        return;
+      }
+      
+      // If proxy fails, try direct connection
+      response = await fetch('http://127.0.0.1:8000/accounts', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (response.ok) {
+        const accountsData = await response.json();
+        setAccounts(accountsData);
+        setIsDemoMode(false);
+        setError('');
+        console.log('✅ Connected directly to Python server');
       } else {
         throw new Error('Server not responding');
       }
     } catch (err) {
-      console.log('Server connection failed, trying direct connection...');
-      
-      // Try direct connection to Python server
-      try {
-        const directResponse = await fetch('http://127.0.0.1:8000/accounts', {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-        
-        if (directResponse.ok) {
-          const accountsData = await directResponse.json();
-          setAccounts(accountsData);
-          setIsDemoMode(false);
-          setError('');
-          return;
-        }
-      } catch (directErr) {
-        console.log('Direct connection also failed');
-      }
-      
-      // Both connections failed, switch to demo mode
+      console.log('❌ Server connection failed:', err);
       setIsDemoMode(true);
       setShowDemoModal(true);
       loadAccountsFromStorage();
@@ -152,7 +148,8 @@ function App() {
 
   const saveAccountsToServer = async (accountData: any) => {
     try {
-      const response = await fetch('/api/accounts', {
+      // Try proxy first
+      let response = await fetch('/api/accounts', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -160,20 +157,29 @@ function App() {
         body: JSON.stringify(accountData)
       });
 
+      // If proxy fails, try direct
       if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Server error ${response.status}: ${errorText}`);
+        response = await fetch('http://127.0.0.1:8000/accounts', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(accountData)
+        });
+      }
+
+      if (!response.ok) {
+        throw new Error(`Server error ${response.status}`);
       }
 
       const data = await response.json();
       if (data.success) {
-        await checkServerConnection(); // Reload from server
+        await checkServerConnection();
         return true;
       } else {
         throw new Error(data.error || 'Failed to add account');
       }
     } catch (err) {
-      console.error('Server error:', err);
       throw err;
     }
   };
