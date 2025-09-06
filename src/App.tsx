@@ -233,18 +233,7 @@ function App() {
       saveAccountsToStorage(updatedAccounts);
       setSuccess('Account removed from demo');
     } else {
-      // Remove from server
-      fetch(`/api/accounts/${accountId}`, { method: 'DELETE' })
-        .then(response => response.json())
-        .then(data => {
-          if (data.success) {
-            checkServerConnection();
-            setSuccess('Account removed successfully');
-          } else {
-            setError(data.error || 'Failed to remove account');
-          }
-        })
-        .catch(err => setError(`Network error: ${err.message}`));
+      removeAccountFromServer(accountId);
     }
   };
 
