@@ -234,16 +234,13 @@ function App() {
     }
   };
   const connectAccount = (accountId: string) => {
-    if (isDemoMode) {
-      setError('This is a demo version. To actually connect to Telegram, you need to run the Python server locally.');
-      return;
-    }
-    
     connectAccountToServer(accountId);
   };
 
   const connectAccountToServer = async (accountId: string) => {
     setAccountOperations(prev => ({...prev, [accountId]: {...prev[accountId], connecting: true}}));
+    setError('');
+    setSuccess('');
     
     try {
       const response = await fetch(`/api/accounts/${accountId}/connect`, {
@@ -260,6 +257,7 @@ function App() {
         if (data.status === 'CODE_SENT') {
           setLoginData({...loginData, accountId});
           setShowLoginModal(true);
+          setSuccess('Verification code sent to your Telegram app!');
         } else if (data.status === 'OK') {
           await checkServerConnection();
           setSuccess(`Connected successfully as @${data.username}`);
@@ -307,16 +305,13 @@ function App() {
     }
   };
   const scanAccount = (accountId: string) => {
-    if (isDemoMode) {
-      setError('This is a demo version. To actually scan messages, you need to run the Python server locally.');
-      return;
-    }
-    
     scanAccountMessages(accountId);
   };
 
   const scanAccountMessages = async (accountId: string) => {
     setAccountOperations(prev => ({...prev, [accountId]: {...prev[accountId], scanning: true}}));
+    setError('');
+    setSuccess('');
     
     const payload = {
       include_private: filters.include_private,
@@ -352,11 +347,6 @@ function App() {
     }
   };
   const deleteAccount = (accountId: string) => {
-    if (isDemoMode) {
-      setError('This is a demo version. To actually delete messages, you need to run the Python server locally.');
-      return;
-    }
-    
     if (!confirm('Are you sure you want to delete messages from this account? This cannot be undone.')) {
       return;
     }
@@ -366,6 +356,8 @@ function App() {
 
   const deleteAccountMessages = async (accountId: string) => {
     setAccountOperations(prev => ({...prev, [accountId]: {...prev[accountId], deleting: true}}));
+    setError('');
+    setSuccess('');
     
     const payload = {
       include_private: filters.include_private,
@@ -401,16 +393,13 @@ function App() {
     }
   };
   const scanAllAccounts = () => {
-    if (isDemoMode) {
-      setError('This is a demo version. To actually scan messages, you need to run the Python server locally.');
-      return;
-    }
-    
     scanAllAccountsMessages();
   };
 
   const scanAllAccountsMessages = async () => {
     setLoading(true);
+    setError('');
+    setSuccess('');
     
     const payload = {
       include_private: filters.include_private,
@@ -446,11 +435,6 @@ function App() {
     }
   };
   const deleteAllAccounts = () => {
-    if (isDemoMode) {
-      setError('This is a demo version. To actually delete messages, you need to run the Python server locally.');
-      return;
-    }
-    
     if (!confirm('Are you sure you want to delete messages from ALL authenticated accounts? This cannot be undone.')) {
       return;
     }
@@ -460,6 +444,8 @@ function App() {
 
   const deleteAllAccountsMessages = async () => {
     setLoading(true);
+    setError('');
+    setSuccess('');
     
     const payload = {
       include_private: filters.include_private,
@@ -621,14 +607,23 @@ function App() {
                         <div className="flex items-center space-x-2">
                           <button
                             onClick={() => connectAccount(account.id)}
-                            disabled={accountOperations[account.id]?.connecting}
-                            className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors"
+                            disabled={accountOperations[account.id]?.connecting || account.is_authenticated}
+                            className={`px-3 py-1 text-white text-sm rounded transition-colors ${
+                              account.is_authenticated 
+                                ? 'bg-green-600 cursor-not-allowed' 
+                                : 'bg-blue-600 hover:bg-blue-700'
+                            }`}
                           >
-                            {accountOperations[account.id]?.connecting ? 'Connecting...' : 'Connect'}
+                            {account.is_authenticated 
+                              ? `✓ @${account.username}` 
+                              : accountOperations[account.id]?.connecting 
+                                ? 'Connecting...' 
+                                : 'Connect'
+                            }
                           </button>
                           <button
                             onClick={() => scanAccount(account.id)}
-                            disabled={accountOperations[account.id]?.scanning}
+                            disabled={accountOperations[account.id]?.scanning || !account.is_authenticated}
                             className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700 transition-colors"
                           >
                             <Search className="w-3 h-3 mr-1 inline" />
@@ -636,7 +631,7 @@ function App() {
                           </button>
                           <button
                             onClick={() => deleteAccount(account.id)}
-                            disabled={accountOperations[account.id]?.deleting}
+                            disabled={accountOperations[account.id]?.deleting || !account.is_authenticated}
                             className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700 transition-colors"
                           >
                             <Trash2 className="w-3 h-3 mr-1 inline" />
