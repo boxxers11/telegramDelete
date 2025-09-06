@@ -62,6 +62,9 @@ timeout /t 1 /nobreak >nul
 goto wait_loop
 
 :start_react
+:: Give Python server extra time to fully initialize
+timeout /t 2 /nobreak >nul
+
 :: Start React dev server
 npm run dev
 

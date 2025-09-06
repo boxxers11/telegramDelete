@@ -70,6 +70,9 @@ for i in {1..30}; do
     sleep 1
 done
 
+# Give Python server extra time to fully initialize
+sleep 2
+
 # Start React dev server
 npm run dev &
 REACT_PID=$!
