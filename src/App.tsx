@@ -51,7 +51,8 @@ function App() {
   
   const [loginData, setLoginData] = useState({
     code: '',
-    password: ''
+    password: '',
+    accountId: ''
   });
   
   const [filters, setFilters] = useState({
@@ -67,6 +68,8 @@ function App() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isDemoMode, setIsDemoMode] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [accountOperations, setAccountOperations] = useState<{[key: string]: any}>({});
 
   useEffect(() => {
     // ניקוי localStorage ו-sessionStorage ברענון הדף
@@ -167,17 +170,17 @@ function App() {
     setError('');
     setSuccess('');
     
-    const newId = `acc_${Date.now()}`;
-    const account: Account = {
-      id: newId,
-      label: newAccount.label,
-      api_id: newAccount.api_id,
-      api_hash: newAccount.api_hash,
-      phone: newAccount.phone,
-      is_authenticated: false
-    };
 
     if (isDemoMode) {
+      const newId = `acc_${Date.now()}`;
+      const account: Account = {
+        id: newId,
+        label: newAccount.label,
+        api_id: newAccount.api_id,
+        api_hash: newAccount.api_hash,
+        phone: newAccount.phone,
+        is_authenticated: false
+      };
       // Demo mode - save to localStorage
       const updatedAccounts = [...accounts, account];
       saveAccountsToStorage(updatedAccounts);
@@ -212,56 +215,285 @@ function App() {
     }
   };
 
+  const removeAccountFromServer = async (accountId: string) => {
+    try {
+      const response = await fetch(`/api/accounts/${accountId}`, {
+        method: 'DELETE'
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        await checkServerConnection();
+        setSuccess('Account removed successfully');
+      } else {
+        setError(data.error || 'Failed to remove account');
+      }
+    } catch (err: any) {
+      setError(`Network error: ${err.message}`);
+    }
+  };
   const connectAccount = (accountId: string) => {
     if (isDemoMode) {
       setError('This is a demo version. To actually connect to Telegram, you need to run the Python server locally.');
       return;
     }
     
-    // Real server connection logic would go here
-    setError('Server connection functionality will be implemented here');
+    connectAccountToServer(accountId);
   };
 
+  const connectAccountToServer = async (accountId: string) => {
+    setAccountOperations(prev => ({...prev, [accountId]: {...prev[accountId], connecting: true}}));
+    
+    try {
+      const response = await fetch(`/api/accounts/${accountId}/connect`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({})
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        if (data.status === 'CODE_SENT') {
+          setLoginData({...loginData, accountId});
+          setShowLoginModal(true);
+        } else if (data.status === 'OK') {
+          await checkServerConnection();
+          setSuccess(`Connected successfully as @${data.username}`);
+        }
+      } else {
+        setError(data.error || 'Connection failed');
+      }
+    } catch (err: any) {
+      setError(`Network error: ${err.message}`);
+    } finally {
+      setAccountOperations(prev => ({...prev, [accountId]: {...prev[accountId], connecting: false}}));
+    }
+  };
+
+  const completeLogin = async () => {
+    if (!loginData.code) {
+      setError('Please enter verification code');
+      return;
+    }
+    
+    try {
+      const response = await fetch(`/api/accounts/${loginData.accountId}/connect`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          code: loginData.code,
+          password: loginData.password || null
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (data.success && data.status === 'OK') {
+        setShowLoginModal(false);
+        setLoginData({ code: '', password: '', accountId: '' });
+        await checkServerConnection();
+        setSuccess(`Connected successfully as @${data.username}`);
+      } else {
+        setError(data.error || 'Login failed');
+      }
+    } catch (err: any) {
+      setError(`Network error: ${err.message}`);
+    }
+  };
   const scanAccount = (accountId: string) => {
     if (isDemoMode) {
       setError('This is a demo version. To actually scan messages, you need to run the Python server locally.');
       return;
     }
     
-    // Real scan logic would go here
-    setError('Scan functionality will be implemented here');
+    scanAccountMessages(accountId);
   };
 
+  const scanAccountMessages = async (accountId: string) => {
+    setAccountOperations(prev => ({...prev, [accountId]: {...prev[accountId], scanning: true}}));
+    
+    const payload = {
+      include_private: filters.include_private,
+      chat_name_filters: filters.chat_name_filters,
+      after: filters.after || null,
+      before: filters.before || null,
+      limit_per_chat: filters.limit_per_chat ? parseInt(filters.limit_per_chat) : null,
+      revoke: filters.revoke,
+      test_mode: filters.test_mode
+    };
+    
+    try {
+      const response = await fetch(`/api/accounts/${accountId}/scan`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload)
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        setResults(data.result);
+        setSuccess('Scan completed successfully');
+      } else {
+        setError(data.error || 'Scan failed');
+      }
+    } catch (err: any) {
+      setError(`Network error: ${err.message}`);
+    } finally {
+      setAccountOperations(prev => ({...prev, [accountId]: {...prev[accountId], scanning: false}}));
+    }
+  };
   const deleteAccount = (accountId: string) => {
     if (isDemoMode) {
       setError('This is a demo version. To actually delete messages, you need to run the Python server locally.');
       return;
     }
     
-    // Real delete logic would go here
-    setError('Delete functionality will be implemented here');
+    if (!confirm('Are you sure you want to delete messages from this account? This cannot be undone.')) {
+      return;
+    }
+    
+    deleteAccountMessages(accountId);
   };
 
+  const deleteAccountMessages = async (accountId: string) => {
+    setAccountOperations(prev => ({...prev, [accountId]: {...prev[accountId], deleting: true}}));
+    
+    const payload = {
+      include_private: filters.include_private,
+      chat_name_filters: filters.chat_name_filters,
+      after: filters.after || null,
+      before: filters.before || null,
+      limit_per_chat: filters.limit_per_chat ? parseInt(filters.limit_per_chat) : null,
+      revoke: filters.revoke,
+      test_mode: filters.test_mode
+    };
+    
+    try {
+      const response = await fetch(`/api/accounts/${accountId}/delete`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload)
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        setResults(data.result);
+        setSuccess('Delete operation completed successfully');
+      } else {
+        setError(data.error || 'Delete failed');
+      }
+    } catch (err: any) {
+      setError(`Network error: ${err.message}`);
+    } finally {
+      setAccountOperations(prev => ({...prev, [accountId]: {...prev[accountId], deleting: false}}));
+    }
+  };
   const scanAllAccounts = () => {
     if (isDemoMode) {
       setError('This is a demo version. To actually scan messages, you need to run the Python server locally.');
       return;
     }
     
-    // Real scan all logic would go here
-    setError('Scan all functionality will be implemented here');
+    scanAllAccountsMessages();
   };
 
+  const scanAllAccountsMessages = async () => {
+    setLoading(true);
+    
+    const payload = {
+      include_private: filters.include_private,
+      chat_name_filters: filters.chat_name_filters,
+      after: filters.after || null,
+      before: filters.before || null,
+      limit_per_chat: filters.limit_per_chat ? parseInt(filters.limit_per_chat) : null,
+      revoke: filters.revoke,
+      test_mode: filters.test_mode
+    };
+    
+    try {
+      const response = await fetch('/api/scan_all', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload)
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        setResults(data);
+        setSuccess('Scan all completed successfully');
+      } else {
+        setError(data.error || 'Scan all failed');
+      }
+    } catch (err: any) {
+      setError(`Network error: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
   const deleteAllAccounts = () => {
     if (isDemoMode) {
       setError('This is a demo version. To actually delete messages, you need to run the Python server locally.');
       return;
     }
     
-    // Real delete all logic would go here
-    setError('Delete all functionality will be implemented here');
+    if (!confirm('Are you sure you want to delete messages from ALL authenticated accounts? This cannot be undone.')) {
+      return;
+    }
+    
+    deleteAllAccountsMessages();
   };
 
+  const deleteAllAccountsMessages = async () => {
+    setLoading(true);
+    
+    const payload = {
+      include_private: filters.include_private,
+      chat_name_filters: filters.chat_name_filters,
+      after: filters.after || null,
+      before: filters.before || null,
+      limit_per_chat: filters.limit_per_chat ? parseInt(filters.limit_per_chat) : null,
+      revoke: filters.revoke,
+      test_mode: filters.test_mode
+    };
+    
+    try {
+      const response = await fetch('/api/delete_all', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload)
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        setResults(data);
+        setSuccess('Delete all completed successfully');
+      } else {
+        setError(data.error || 'Delete all failed');
+      }
+    } catch (err: any) {
+      setError(`Network error: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
   const authenticatedAccounts = accounts.filter(acc => acc.is_authenticated);
 
   return (
@@ -389,23 +621,26 @@ function App() {
                         <div className="flex items-center space-x-2">
                           <button
                             onClick={() => connectAccount(account.id)}
+                            disabled={accountOperations[account.id]?.connecting}
                             className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors"
                           >
-                            Connect
+                            {accountOperations[account.id]?.connecting ? 'Connecting...' : 'Connect'}
                           </button>
                           <button
                             onClick={() => scanAccount(account.id)}
+                            disabled={accountOperations[account.id]?.scanning}
                             className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700 transition-colors"
                           >
                             <Search className="w-3 h-3 mr-1 inline" />
-                            Scan
+                            {accountOperations[account.id]?.scanning ? 'Scanning...' : 'Scan'}
                           </button>
                           <button
                             onClick={() => deleteAccount(account.id)}
+                            disabled={accountOperations[account.id]?.deleting}
                             className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700 transition-colors"
                           >
                             <Trash2 className="w-3 h-3 mr-1 inline" />
-                            Delete
+                            {accountOperations[account.id]?.deleting ? 'Deleting...' : 'Delete'}
                           </button>
                           <button
                             onClick={() => removeAccount(account.id)}
@@ -438,18 +673,20 @@ function App() {
                 <div className="flex flex-wrap gap-4">
                   <button
                     onClick={scanAllAccounts}
+                    disabled={loading}
                     className="flex items-center px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
                   >
                     <Search className="w-4 h-4 mr-2" />
-                    Scan All Accounts
+                    {loading ? 'Scanning...' : 'Scan All Accounts'}
                   </button>
                   
                   <button
                     onClick={deleteAllAccounts}
+                    disabled={loading}
                     className="flex items-center px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
                   >
                     <Trash2 className="w-4 h-4 mr-2" />
-                    Delete All Accounts
+                    {loading ? 'Deleting...' : 'Delete All Accounts'}
                   </button>
                 </div>
 
