@@ -86,11 +86,34 @@ function App() {
         const accountsData = await response.json();
         setAccounts(accountsData);
         setIsDemoMode(false);
+        setError(''); // Clear any previous errors
       } else {
         throw new Error('Server not responding');
       }
     } catch (err) {
-      // Server not running, switch to demo mode
+      console.log('Server connection failed, trying direct connection...');
+      
+      // Try direct connection to Python server
+      try {
+        const directResponse = await fetch('http://127.0.0.1:8000/accounts', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        
+        if (directResponse.ok) {
+          const accountsData = await directResponse.json();
+          setAccounts(accountsData);
+          setIsDemoMode(false);
+          setError('');
+          return;
+        }
+      } catch (directErr) {
+        console.log('Direct connection also failed');
+      }
+      
+      // Both connections failed, switch to demo mode
       setIsDemoMode(true);
       setShowDemoModal(true);
       loadAccountsFromStorage();
