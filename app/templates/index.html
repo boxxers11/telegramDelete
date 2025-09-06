@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram Message Deleter</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <link href="/static/style.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div x-data="telegramApp()" x-init="init()" class="container mx-auto px-4 py-8 max-w-4xl">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">Telegram Message Deleter</h1>
+            <p class="text-gray-600">Delete your own messages across Telegram groups safely - Multi-Account Support</p>
+            <div class="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <p class="text-sm text-yellow-800">
+                    <strong>⚠️ Important:</strong> You are responsible for compliance with Telegram's Terms of Service and local laws. 
+                    This tool only deletes YOUR OWN messages and always skips groups with 10 or fewer members.
+                </p>
+            </div>
+        </div>
+
+        <!-- Accounts Management Section -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4">Account Management</h2>
+            
+            <!-- Accounts List -->
+            <div x-show="accounts.length > 0" class="mb-6">
+                <h3 class="text-lg font-medium mb-3">Your Accounts</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full border-collapse border border-gray-300">
+                        <thead>
+                            <tr class="bg-gray-50">
+                                <th class="border border-gray-300 px-4 py-2 text-left">Label</th>
+                                <th class="border border-gray-300 px-4 py-2 text-left">Phone</th>
+                                <th class="border border-gray-300 px-4 py-2 text-left">Status</th>
+                                <th class="border border-gray-300 px-4 py-2 text-left">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template x-for="account in accounts" :key="account.id">
+                                <tr>
+                                    <td class="border border-gray-300 px-4 py-2" x-text="account.label"></td>
+                                    <td class="border border-gray-300 px-4 py-2" x-text="account.phone"></td>
+                                    <td class="border border-gray-300 px-4 py-2">
+                                        <span x-show="!account.is_authenticated" class="text-red-600">Not connected</span>
+                                        <span x-show="account.is_authenticated" class="text-green-600">
+                                            Logged in as @<span x-text="account.username"></span>
+                                        </span>
+                                    </td>
+                                    <td class="border border-gray-300 px-4 py-2">
+                                        <div class="flex flex-wrap gap-2">
+                                            <!-- Connect/Login -->
+                                            <button 
+                                                x-show="!account.is_authenticated"
+                                                @click="connectAccount(account.id)"
+                                                :disabled="accountOperations[account.id]?.connecting"
+                                                class="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 disabled:bg-gray-400"
+                                            >
+                                                <span x-show="!accountOperations[account.id]?.connecting">Connect</span>
+                                                <span x-show="accountOperations[account.id]?.connecting">Connecting...</span>
+                                            </button>
+                                            
+                                            <!-- Scan -->
+                                            <button 
+                                                x-show="account.is_authenticated"
+                                                @click="scanAccount(account.id)"
+                                                :disabled="accountOperations[account.id]?.scanning"
+                                                class="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700 disabled:bg-gray-400"
+                                            >
+                                                <span x-show="!accountOperations[account.id]?.scanning">Scan</span>
+                                                <span x-show="accountOperations[account.id]?.scanning">Scanning...</span>
+                                            </button>
+                                            
+                                            <!-- Delete -->
+                                            <button 
+                                                x-show="account.is_authenticated"
+                                                @click="deleteAccount(account.id)"
+                                                :disabled="accountOperations[account.id]?.deleting"
+                                                class="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700 disabled:bg-gray-400"
+                                            >
+                                                <span x-show="!accountOperations[account.id]?.deleting">Delete</span>
+                                                <span x-show="accountOperations[account.id]?.deleting">Deleting...</span>
+                                            </button>
+                                            
+                                            <!-- Remove -->
+                                            <button 
+                                                @click="removeAccount(account.id)"
+                                                class="px-3 py-1 bg-gray-600 text-white text-sm rounded hover:bg-gray-700"
+                                            >
+                                                Remove
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Add Account Form -->
+            <div x-show="accounts.length < 5" class="mb-4">
+                <h3 class="text-lg font-medium mb-3">Add New Account</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Label</label>
+                        <input 
+                            type="text" 
+                            x-model="newAccount.label"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="Personal, Work, etc."
+                        >
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">API ID</label>
+                        <input 
+                            type="number" 
+                            x-model="newAccount.api_id"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="123456789"
+                        >
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">API Hash</label>
+                        <input 
+                            type="text" 
+                            x-model="newAccount.api_hash"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="abcdef..."
+                        >
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                        <input 
+                            type="text" 
+                            x-model="newAccount.phone"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="+1234567890"
+                        >
+                    </div>
+                </div>
+                <button 
+                    @click="addAccount()"
+                    :disabled="addingAccount || !newAccount.label || !newAccount.api_id || !newAccount.api_hash || !newAccount.phone"
+                    class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                >
+                    <span x-show="!addingAccount">Add Account</span>
+                    <span x-show="addingAccount">Adding...</span>
+                </button>
+            </div>
+            
+            <div x-show="accounts.length >= 5" class="p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+                <p class="text-yellow-800 text-sm">Maximum of 5 accounts reached.</p>
+            </div>
+            
+            <div x-show="accountError" class="mt-4 p-3 bg-red-50 border border-red-200 rounded-md">
+                <p class="text-red-700 text-sm" x-text="accountError"></p>
+            </div>
+        </div>
+        
+        <!-- Login Modal for Account Connection -->
+        <div x-show="showLoginModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+                <h3 class="text-lg font-semibold mb-4">Complete Login</h3>
+                <p class="text-sm text-gray-600 mb-4">Enter the verification code sent to your Telegram app:</p>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Verification Code</label>
+                        <input 
+                            type="text" 
+                            x-model="loginData.code"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="12345"
+                        >
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">2FA Password (if enabled)</label>
+                        <input 
+                            type="password" 
+                            x-model="loginData.password"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="Optional"
+                        >
+                    </div>
+                </div>
+                
+                <div class="flex justify-end space-x-3 mt-6">
+                    <button 
+                        @click="showLoginModal = false"
+                        class="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
+                    >
+                        Cancel
+                    </button>
+                    <button 
+                        @click="completeLogin()"
+                        :disabled="!loginData.code"
+                        class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400"
+                    >
+                        Complete Login
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Authentication Section -->
+        <div x-show="accounts.length === 0" class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4">Authentication</h2>
+            <p class="text-gray-600 mb-4">No accounts configured. Please add an account above to get started.</p>
+        </div>
+        
+        <div x-show="accounts.length === 0" class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4">Legacy Single Account Mode</h2>
+            
+            <div x-show="!authStatus" class="space-y-4">
+                <p class="text-sm text-gray-600 mb-4">
+                    Get your API ID and Hash from <a href="https://my.telegram.org" class="text-blue-600 hover:underline" target="_blank">https://my.telegram.org</a>
+                </p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">API ID</label>
+                        <input 
+                            type="number" 
+                            x-model="apiId"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="123456789"
+                        >
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">API Hash</label>
+                        <input 
+                            type="text" 
+                            x-model="apiHash"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="abcdef1234567890abcdef1234567890"
+                        >
+                    </div>
+                </div>
+                
+                <button 
+                    @click="connect()"
+                    :disabled="connecting || !apiId || !apiHash"
+                    class="w-full md:w-auto px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                >
+                    <span x-show="!connecting">Save & Connect</span>
+                    <span x-show="connecting">Connecting...</span>
+                </button>
+            </div>
+            
+            <div x-show="authStatus" class="flex items-center space-x-2">
+                <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                <span class="text-green-700 font-medium">Connected as <span x-text="authStatus"></span></span>
+            </div>
+            
+            <div x-show="authError" class="mt-4 p-3 bg-red-50 border border-red-200 rounded-md">
+                <p class="text-red-700 text-sm" x-text="authError"></p>
+            </div>
+        </div>
+
+        <!-- Operations Section -->
+        <div x-show="accounts.length > 0" class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4">Message Deletion Options</h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Left Column: Basic Options -->
+                <div class="space-y-4">
+                    <div>
+                        <label class="flex items-center space-x-2">
+                            <input type="checkbox" x-model="includePrivate" class="rounded">
+                            <span class="text-sm font-medium">Include private 1:1 chats</span>
+                        </label>
+                        <p class="text-xs text-gray-500 mt-1">By default, only groups are processed</p>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Chat name filter</label>
+                        <input 
+                            type="text" 
+                            x-model="chatNameFilter"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="work, project, team (comma-separated)"
+                        >
+                        <p class="text-xs text-gray-500 mt-1">Only process chats with names containing these terms</p>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Messages per chat limit</label>
+                        <input 
+                            type="number" 
+                            x-model.number="limitPerChat"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="Optional limit"
+                            min="1"
+                        >
+                    </div>
+                </div>
+                
+                <!-- Right Column: Date & Advanced Options -->
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">After date (YYYY-MM-DD)</label>
+                        <input 
+                            type="date" 
+                            x-model="afterDate"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Before date (YYYY-MM-DD)</label>
+                        <input 
+                            type="date" 
+                            x-model="beforeDate"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                    </div>
+                    
+                    <div class="space-y-2">
+                        <label class="flex items-center space-x-2">
+                            <input type="checkbox" x-model="revoke" class="rounded">
+                            <span class="text-sm font-medium">Delete for everyone (revoke)</span>
+                        </label>
+                        
+                        <label class="flex items-center space-x-2">
+                            <input type="checkbox" x-model="testMode" class="rounded">
+                            <span class="text-sm font-medium">Test mode (first 5 chats only)</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="mt-6 flex flex-wrap gap-3">
+                <button 
+                    @click="scanAllAccounts()"
+                    :disabled="operating || !hasAuthenticatedAccounts()"
+                    class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                >
+                    <span x-show="!operating || operationType !== 'scan_all'">🔍 Scan All Accounts</span>
+                    <span x-show="operating && operationType === 'scan_all'">Scanning All...</span>
+                </button>
+                
+                <button 
+                    @click="deleteAllAccounts()"
+                    :disabled="operating || !hasAuthenticatedAccounts()"
+                    class="px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                >
+                    <span x-show="!operating || operationType !== 'delete_all'">🗑️ Delete All Accounts</span>
+                    <span x-show="operating && operationType === 'delete_all'">Deleting All...</span>
+                </button>
+                
+                <!-- Legacy single account buttons -->
+                <div x-show="authStatus" class="flex gap-3">
+                    <button 
+                        @click="scanMessages()"
+                        :disabled="operating"
+                        class="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                    >
+                        <span x-show="!operating || operationType !== 'scan'">🔍 Scan Legacy Account</span>
+                        <span x-show="operating && operationType === 'scan'">Scanning...</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div x-show="!hasAuthenticatedAccounts() && accounts.length > 0" class="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+                <p class="text-yellow-800 text-sm">No authenticated accounts. Please connect at least one account to use global operations.</p>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div x-show="results" class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-semibold mb-4">Results</h2>
+            
+            <!-- Multi-Account Results -->
+            <div x-show="results?.accounts" class="mb-6">
+                <h3 class="font-medium mb-3">Results by Account</h3>
+                <template x-for="accountResult in results?.accounts || []" :key="accountResult.account_id">
+                    <div class="mb-4 p-4 border border-gray-200 rounded-lg">
+                        <h4 class="font-medium mb-2">
+                            Account: <span x-text="accountResult.username || accountResult.account_id"></span>
+                            <span x-show="accountResult.error" class="text-red-600 text-sm ml-2">
+                                (Error: <span x-text="accountResult.error"></span>)
+                            </span>
+                        </h4>
+                        
+                        <div x-show="accountResult.data" class="space-y-2">
+                            <!-- Account Summary -->
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm bg-gray-50 p-3 rounded">
+                                <div>
+                                    <span class="text-gray-600">Processed:</span>
+                                    <span class="font-medium" x-text="accountResult.data?.summary?.total_chats_processed || 0"></span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-600">Skipped:</span>
+                                    <span class="font-medium" x-text="accountResult.data?.summary?.total_chats_skipped || 0"></span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-600">Candidates:</span>
+                                    <span class="font-medium" x-text="accountResult.data?.summary?.total_candidates || 0"></span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-600">Deleted:</span>
+                                    <span class="font-medium text-red-600" x-text="accountResult.data?.summary?.total_deleted || 0"></span>
+                                </div>
+                            </div>
+                            
+                            <!-- Account Chats (collapsed by default) -->
+                            <details class="mt-2">
+                                <summary class="cursor-pointer text-sm text-blue-600 hover:text-blue-800">
+                                    View chat details (<span x-text="accountResult.data?.chats?.length || 0"></span> chats)
+                                </summary>
+                                <div class="mt-2 space-y-2">
+                                    <template x-for="chat in accountResult.data?.chats || []" :key="chat.id">
+                                        <div class="p-2 bg-gray-50 rounded text-sm">
+                                            <div class="font-medium" x-text="chat.title"></div>
+                                            <div class="flex space-x-4 text-gray-600">
+                                                <span x-text="chat.type"></span>
+                                                <span x-text="chat.participants_count + ' members'"></span>
+                                                <span x-text="chat.candidates_found + ' candidates'"></span>
+                                                <span x-show="chat.deleted > 0" class="text-red-600 font-medium" x-text="chat.deleted + ' deleted'"></span>
+                                            </div>
+                                            <div x-show="chat.error" class="text-red-600" x-text="chat.error"></div>
+                                            <div x-show="chat.skipped_reason" class="text-orange-600">
+                                                Skipped: <span x-text="chat.skipped_reason"></span>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </div>
+                            </details>
+                        </div>
+                    </div>
+                </template>
+            </div>
+            
+            <!-- Summary -->
+            <div x-show="results?.summary" class="mb-6 p-4 bg-gray-50 rounded-lg">
+                <h3 class="font-medium mb-2">Summary</h3>
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm">
+                    <div x-show="results?.summary?.accounts_processed !== undefined">
+                        <span class="text-gray-600">Accounts:</span>
+                        <span class="font-medium" x-text="results?.summary?.accounts_processed || 0"></span>
+                    </div>
+                    <div x-show="results?.summary?.skipped_not_authenticated !== undefined">
+                        <span class="text-gray-600">Not Auth:</span>
+                        <span class="font-medium" x-text="results?.summary?.skipped_not_authenticated || 0"></span>
+                    </div>
+                    <div>
+                        <span class="text-gray-600">Processed:</span>
+                        <span class="font-medium" x-text="results?.summary?.total_chats_processed || 0"></span>
+                    </div>
+                    <div>
+                        <span class="text-gray-600">Skipped:</span>
+                        <span class="font-medium" x-text="results?.summary?.total_chats_skipped || 0"></span>
+                    </div>
+                    <div>
+                        <span class="text-gray-600">Candidates:</span>
+                        <span class="font-medium" x-text="results?.summary?.total_candidates || 0"></span>
+                    </div>
+                    <div>
+                        <span class="text-gray-600">Deleted:</span>
+                        <span class="font-medium text-red-600" x-text="results?.summary?.total_deleted || 0"></span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Chat Results -->
+            <div x-show="results?.chats && !results?.accounts" class="space-y-3 mb-6">
+                <h3 class="font-medium">Processed Chats</h3>
+                <template x-for="chat in results?.chats || []" :key="chat.id">
+                    <div class="p-3 border border-gray-200 rounded-lg">
+                        <div class="flex justify-between items-start">
+                            <div class="flex-1">
+                                <h4 class="font-medium" x-text="chat.title"></h4>
+                                <div class="flex space-x-4 text-sm text-gray-600 mt-1">
+                                    <span x-text="chat.type"></span>
+                                    <span x-text="chat.participants_count + ' members'"></span>
+                                    <span x-text="chat.candidates_found + ' candidates'"></span>
+                                    <span x-show="chat.deleted > 0" class="text-red-600 font-medium" x-text="chat.deleted + ' deleted'"></span>
+                                </div>
+                                <div x-show="chat.error" class="text-red-600 text-sm mt-1" x-text="chat.error"></div>
+                                <div x-show="chat.skipped_reason" class="text-orange-600 text-sm mt-1">
+                                    Skipped: <span x-text="chat.skipped_reason"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+            
+            <!-- Logs -->
+            <div x-show="results?.logs && results.logs.length > 0">
+                <h3 class="font-medium mb-2">Operation Log</h3>
+                <div class="bg-gray-900 text-gray-100 p-4 rounded-lg max-h-64 overflow-y-auto text-sm font-mono">
+                    <template x-for="log in results?.logs || []" :key="log">
+                        <div x-text="log"></div>
+                    </template>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function telegramApp() {
+            return {
+                // Auth state
+                apiId: '',
+                apiHash: '',
+                authStatus: '{{ auth_status or "" }}',
+                authError: '',
+                connecting: false,
+                
+                // Account management
+                accounts: [],
+                newAccount: {
+                    label: '',
+                    api_id: '',
+                    api_hash: '',
+                    phone: ''
+                },
+                addingAccount: false,
+                accountError: '',
+                accountOperations: {},
+                showLoginModal: false,
+                loginData: {
+                    code: '',
+                    password: '',
+                    accountId: ''
+                },
+                
+                // Filter options
+                includePrivate: false,
+                chatNameFilter: '',
+                afterDate: '',
+                beforeDate: '',
+                limitPerChat: null,
+                revoke: true,
+                testMode: false,
+                
+                // Operation state
+                operating: false,
+                operationType: '',
+                results: null,
+                
+                async init() {
+                    await this.loadAccounts();
+                },
+                
+                async loadAccounts() {
+                    try {
+                        const response = await fetch('/accounts');
+                        this.accounts = await response.json();
+                    } catch (error) {
+                        console.error('Error loading accounts:', error);
+                    }
+                },
+                
+                hasAuthenticatedAccounts() {
+                    return this.accounts.some(acc => acc.is_authenticated);
+                },
+                
+                async connect() {
+                    if (!this.apiId || !this.apiHash) {
+                        this.authError = 'Please enter both API ID and API Hash';
+                        return;
+                    }
+                    
+                    this.connecting = true;
+                    this.authError = '';
+                    
+                    try {
+                        const response = await fetch('/connect', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                api_id: parseInt(this.apiId),
+                                api_hash: this.apiHash
+                            })
+                        });
+                        
+                        const data = await response.json();
+                        
+                        if (data.success) {
+                            this.authStatus = data.username;
+                            this.authError = '';
+                        } else {
+                            this.authError = data.error || 'Connection failed';
+                        }
+                    } catch (error) {
+                        this.authError = 'Network error: ' + error.message;
+                    } finally {
+                        this.connecting = false;
+                    }
+                },
+                
+                async addAccount() {
+                    if (!this.newAccount.label || !this.newAccount.api_id || !this.newAccount.api_hash || !this.newAccount.phone) {
+                        this.accountError = 'Please fill in all fields';
+                        return;
+                    }
+                    
+                    this.addingAccount = true;
+                    this.accountError = '';
+                    
+                    try {
+                        const response = await fetch('/accounts', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                label: this.newAccount.label,
+                                api_id: parseInt(this.newAccount.api_id),
+                                api_hash: this.newAccount.api_hash,
+                                phone: this.newAccount.phone
+                            })
+                        });
+                        
+                        const data = await response.json();
+                        
+                        if (data.success) {
+                            this.newAccount = { label: '', api_id: '', api_hash: '', phone: '' };
+                            await this.loadAccounts();
+                        } else {
+                            this.accountError = data.error || 'Failed to add account';
+                        }
+                    } catch (error) {
+                        this.accountError = 'Network error: ' + error.message;
+                    } finally {
+                        this.addingAccount = false;
+                    }
+                },
+                
+                async connectAccount(accountId) {
+                    this.accountOperations[accountId] = { ...this.accountOperations[accountId], connecting: true };
+                    
+                    try {
+                        const response = await fetch(`/accounts/${accountId}/connect`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({})
+                        });
+                        
+                        const data = await response.json();
+                        
+                        if (data.success) {
+                            if (data.status === 'CODE_SENT') {
+                                this.loginData.accountId = accountId;
+                                this.showLoginModal = true;
+                            } else if (data.status === 'OK') {
+                                await this.loadAccounts();
+                            }
+                        } else {
+                            this.accountError = data.error || 'Connection failed';
+                        }
+                    } catch (error) {
+                        this.accountError = 'Network error: ' + error.message;
+                    } finally {
+                        this.accountOperations[accountId] = { ...this.accountOperations[accountId], connecting: false };
+                    }
+                },
+                
+                async completeLogin() {
+                    if (!this.loginData.code) {
+                        return;
+                    }
+                    
+                    try {
+                        const response = await fetch(`/accounts/${this.loginData.accountId}/connect`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                code: this.loginData.code,
+                                password: this.loginData.password || null
+                            })
+                        });
+                        
+                        const data = await response.json();
+                        
+                        if (data.success && data.status === 'OK') {
+                            this.showLoginModal = false;
+                            this.loginData = { code: '', password: '', accountId: '' };
+                            await this.loadAccounts();
+                        } else {
+                            this.accountError = data.error || 'Login failed';
+                        }
+                    } catch (error) {
+                        this.accountError = 'Network error: ' + error.message;
+                    }
+                },
+                
+                async removeAccount(accountId) {
+                    if (!confirm('Are you sure you want to remove this account? This will delete the session file.')) {
+                        return;
+                    }
+                    
+                    try {
+                        const response = await fetch(`/accounts/${accountId}`, {
+                            method: 'DELETE'
+                        });
+                        
+                        const data = await response.json();
+                        
+                        if (data.success) {
+                            await this.loadAccounts();
+                        } else {
+                            this.accountError = data.error || 'Failed to remove account';
+                        }
+                    } catch (error) {
+                        this.accountError = 'Network error: ' + error.message;
+                    }
+                },
+                
+                async scanAccount(accountId) {
+                    this.accountOperations[accountId] = { ...this.accountOperations[accountId], scanning: true };
+                    
+                    const payload = {
+                        include_private: this.includePrivate,
+                        chat_name_filters: this.chatNameFilter,
+                        after: this.afterDate || null,
+                        before: this.beforeDate || null,
+                        limit_per_chat: this.limitPerChat || null,
+                        revoke: this.revoke,
+                        test_mode: this.testMode
+                    };
+                    
+                    try {
+                        const response = await fetch(`/accounts/${accountId}/scan`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(payload)
+                        });
+                        
+                        const data = await response.json();
+                        
+                        if (data.success) {
+                            this.results = data.result;
+                        } else {
+                            this.results = {
+                                logs: [data.error || 'Scan failed']
+                            };
+                        }
+                    } catch (error) {
+                        this.results = {
+                            logs: ['Network error: ' + error.message]
+                        };
+                    } finally {
+                        this.accountOperations[accountId] = { ...this.accountOperations[accountId], scanning: false };
+                    }
+                },
+                
+                async deleteAccount(accountId) {
+                    if (!confirm('Are you sure you want to delete messages from this account? This cannot be undone.')) {
+                        return;
+                    }
+                    
+                    this.accountOperations[accountId] = { ...this.accountOperations[accountId], deleting: true };
+                    
+                    const payload = {
+                        include_private: this.includePrivate,
+                        chat_name_filters: this.chatNameFilter,
+                        after: this.afterDate || null,
+                        before: this.beforeDate || null,
+                        limit_per_chat: this.limitPerChat || null,
+                        revoke: this.revoke,
+                        test_mode: this.testMode
+                    };
+                    
+                    try {
+                        const response = await fetch(`/accounts/${accountId}/delete`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(payload)
+                        });
+                        
+                        const data = await response.json();
+                        
+                        if (data.success) {
+                            this.results = data.result;
+                        } else {
+                            this.results = {
+                                logs: [data.error || 'Delete failed']
+                            };
+                        }
+                    } catch (error) {
+                        this.results = {
+                            logs: ['Network error: ' + error.message]
+                        };
+                    } finally {
+                        this.accountOperations[accountId] = { ...this.accountOperations[accountId], deleting: false };
+                    }
+                },
+                
+                async scanMessages() {
+                    await this.performOperation('scan');
+                },
+                
+                async deleteMessages() {
+                    if (!confirm('Are you sure you want to delete messages? This cannot be undone.')) {
+                        return;
+                    }
+                    await this.performOperation('delete');
+                },
+                
+                async scanAllAccounts() {
+                    await this.performMultiAccountOperation('scan_all');
+                },
+                
+                async deleteAllAccounts() {
+                    if (!confirm('Are you sure you want to delete messages from ALL authenticated accounts? This cannot be undone.')) {
+                        return;
+                    }
+                    await this.performMultiAccountOperation('delete_all');
+                },
+                
+                async performMultiAccountOperation(type) {
+                    this.operating = true;
+                    this.operationType = type;
+                    this.results = null;
+                    
+                    const payload = {
+                        include_private: this.includePrivate,
+                        chat_name_filters: this.chatNameFilter,
+                        after: this.afterDate || null,
+                        before: this.beforeDate || null,
+                        limit_per_chat: this.limitPerChat || null,
+                        revoke: this.revoke,
+                        test_mode: this.testMode
+                    };
+                    
+                    try {
+                        const response = await fetch(`/${type}`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(payload)
+                        });
+                        
+                        const data = await response.json();
+                        
+                        if (data.success) {
+                            this.results = data;
+                        } else {
+                            this.results = {
+                                logs: [data.error || `${type} failed`]
+                            };
+                        }
+                    } catch (error) {
+                        this.results = {
+                            logs: ['Network error: ' + error.message]
+                        };
+                    } finally {
+                        this.operating = false;
+                        this.operationType = '';
+                    }
+                },
+                
+                async performOperation(type) {
+                    this.operating = true;
+                    this.operationType = type;
+                    this.results = null;
+                    
+                    const payload = {
+                        include_private: this.includePrivate,
+                        chat_name_filters: this.chatNameFilter,
+                        after: this.afterDate || null,
+                        before: this.beforeDate || null,
+                        limit_per_chat: this.limitPerChat || null,
+                        revoke: this.revoke,
+                        test_mode: this.testMode
+                    };
+                    
+                    try {
+                        const response = await fetch(`/${type}`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(payload)
+                        });
+                        
+                        const data = await response.json();
+                        
+                        if (data.success) {
+                            this.results = data.result;
+                        } else {
+                            this.results = {
+                                logs: [data.error || `${type} failed`]
+                            };
+                        }
+                    } catch (error) {
+                        this.results = {
+                            logs: ['Network error: ' + error.message]
+                        };
+                    } finally {
+                        this.operating = false;
+                        this.operationType = '';
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>
