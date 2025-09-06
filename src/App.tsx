@@ -924,6 +924,140 @@ function App() {
           </div>
         )}
         
+        {/* Login Modal */}
+        {showLoginModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-xl max-w-md w-full p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold">Complete Login</h3>
+                <button onClick={() => setShowLoginModal(false)} className="text-gray-400 hover:text-gray-600">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <p className="text-sm text-gray-600 mb-4">
+                Enter the verification code sent to your Telegram app:
+              </p>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Verification Code</label>
+                  <input
+                    type="text"
+                    value={loginData.code}
+                    onChange={(e) => setLoginData({...loginData, code: e.target.value})}
+                    placeholder="12345"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">2FA Password (if enabled)</label>
+                  <input
+                    type="password"
+                    value={loginData.password}
+                    onChange={(e) => setLoginData({...loginData, password: e.target.value})}
+                    placeholder="Optional"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end space-x-3 mt-6">
+                <button
+                  onClick={() => setShowLoginModal(false)}
+                  className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={completeLogin}
+                  disabled={!loginData.code}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400"
+                >
+                  Complete Login
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {/* Results Display */}
+        {results && (
+          <div className="mt-8 bg-white rounded-xl shadow-lg p-6">
+            <h3 className="text-xl font-semibold text-gray-900 mb-4">Operation Results</h3>
+            
+            {/* Summary */}
+            {results.summary && (
+              <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+                <h4 className="font-medium mb-2">Summary</h4>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                  <div>
+                    <span className="text-gray-600">Processed:</span>
+                    <span className="font-medium ml-1">{results.summary.total_chats_processed || 0}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Skipped:</span>
+                    <span className="font-medium ml-1">{results.summary.total_chats_skipped || 0}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Candidates:</span>
+                    <span className="font-medium ml-1">{results.summary.total_candidates || 0}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Deleted:</span>
+                    <span className="font-medium text-red-600 ml-1">{results.summary.total_deleted || 0}</span>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            {/* Chat Results */}
+            {results.chats && results.chats.length > 0 && (
+              <div className="space-y-3">
+                <h4 className="font-medium">Processed Chats</h4>
+                {results.chats.map((chat) => (
+                  <div key={chat.id} className="p-3 border border-gray-200 rounded-lg">
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <h5 className="font-medium">{chat.title}</h5>
+                        <div className="flex space-x-4 text-sm text-gray-600 mt-1">
+                          <span>{chat.type}</span>
+                          <span>{chat.participants_count} members</span>
+                          <span>{chat.candidates_found} candidates</span>
+                          {chat.deleted > 0 && (
+                            <span className="text-red-600 font-medium">{chat.deleted} deleted</span>
+                          )}
+                        </div>
+                        {chat.error && (
+                          <div className="text-red-600 text-sm mt-1">{chat.error}</div>
+                        )}
+                        {chat.skipped_reason && (
+                          <div className="text-orange-600 text-sm mt-1">
+                            Skipped: {chat.skipped_reason}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            
+            {/* Logs */}
+            {results.logs && results.logs.length > 0 && (
+              <div className="mt-6">
+                <h4 className="font-medium mb-2">Operation Log</h4>
+                <div className="bg-gray-900 text-gray-100 p-4 rounded-lg max-h-64 overflow-y-auto text-sm font-mono">
+                  {results.logs.map((log, index) => (
+                    <div key={index}>{log}</div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+        
         {/* Demo Mode Welcome Modal */}
         {showDemoModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
