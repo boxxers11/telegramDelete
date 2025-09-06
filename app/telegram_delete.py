@@ -7,7 +7,7 @@ from telethon import TelegramClient, errors
 from telethon.tl.types import Chat, Channel, User, Message
 from telethon.tl.functions.channels import GetFullChannelRequest
 from telethon.tl.functions.messages import GetFullChatRequest
-from telethon.errors import FloodWaitError, RpcCallFailError
+from telethon.errors import FloodWaitError, RpcCallFailError, SessionPasswordNeededError
 
 logger = logging.getLogger(__name__)
 
@@ -53,6 +53,39 @@ class TelegramDeleter:
         self.api_hash = api_hash
         self.client = None
         self.logs = []
+        self.status_callback = None
+    
+    def set_status_callback(self, callback):
+        """Set callback function for status updates"""
+        self.status_callback = callback
+    
+    def update_status(self, status: str, data: Dict = None):
+        """Update status and call callback if set"""
+        self.log(status)
+        if self.status_callback:
+            self.status_callback(status, data or {})
+    
+    async def safe_api_call(self, method, *args, max_retries=3, **kwargs):
+        """Safely call Telegram API with flood wait handling"""
+        for attempt in range(max_retries):
+            try:
+                return await method(*args, **kwargs)
+            except FloodWaitError as e:
+                wait_time = e.seconds
+                self.update_status(f"Rate limited. Waiting {wait_time} seconds...", {
+                    'type': 'flood_wait',
+                    'wait_time': wait_time,
+                    'attempt': attempt + 1,
+                    'max_retries': max_retries
+                })
+                await asyncio.sleep(wait_time + 1)  # Add 1 second buffer
+            except Exception as e:
+                if attempt == max_retries - 1:
+                    raise
+                self.log(f"API call failed (attempt {attempt + 1}): {e}")
+                await asyncio.sleep(2 ** attempt)  # Exponential backoff
+        
+        raise Exception(f"Failed after {max_retries} attempts")
     
     def log(self, message: str):
         """Add a timestamped log entry"""
@@ -61,8 +94,8 @@ class TelegramDeleter:
         self.logs.append(log_entry)
         logger.info(message)
     
-    async def connect(self) -> Dict[str, Any]:
-        """Connect to Telegram and authenticate"""
+    async def connect(self, phone: str = None) -> Dict[str, Any]:
+        """Connect to Telegram"""
         try:
             self.client = TelegramClient(
                 self.session_name, 
@@ -70,24 +103,68 @@ class TelegramDeleter:
                 self.api_hash
             )
             
-            await self.client.start()
+            await self.client.connect()
             
             if not await self.client.is_user_authorized():
-                return {"success": False, "error": "Not authenticated"}
+                if phone:
+                    # Send code request
+                    await self.safe_api_call(self.client.send_code_request, phone)
+                    return {
+                        "success": True, 
+                        "status": "CODE_SENT",
+                        "message": "Verification code sent to your Telegram app"
+                    }
+                else:
+                    return {"success": False, "error": "Phone number required"}
             
-            me = await self.client.get_me()
+            me = await self.safe_api_call(self.client.get_me)
             username = me.username or f"{me.first_name} {me.last_name or ''}".strip()
             
             self.log(f"Connected as @{username}")
             
             return {
                 "success": True, 
+                "status": "AUTHENTICATED",
                 "username": username,
                 "user_id": me.id
             }
             
         except Exception as e:
             error_msg = f"Connection failed: {str(e)}"
+            self.log(error_msg)
+            return {"success": False, "error": error_msg}
+    
+    async def sign_in_with_code(self, phone: str, code: str, password: str = None) -> Dict[str, Any]:
+        """Sign in with verification code and optional 2FA password"""
+        try:
+            if not self.client:
+                return {"success": False, "error": "Client not connected"}
+            
+            try:
+                await self.safe_api_call(self.client.sign_in, phone=phone, code=code)
+            except SessionPasswordNeededError:
+                if not password:
+                    return {
+                        "success": False, 
+                        "error": "2FA_REQUIRED",
+                        "message": "Two-factor authentication password required"
+                    }
+                await self.safe_api_call(self.client.sign_in, password=password)
+            
+            me = await self.safe_api_call(self.client.get_me)
+            username = me.username or f"{me.first_name} {me.last_name or ''}".strip()
+            
+            self.log(f"Successfully authenticated as @{username}")
+            
+            return {
+                "success": True,
+                "status": "AUTHENTICATED", 
+                "username": username,
+                "user_id": me.id
+            }
+            
+        except Exception as e:
+            error_msg = f"Sign in failed: {str(e)}"
             self.log(error_msg)
             return {"success": False, "error": error_msg}
     
@@ -98,7 +175,7 @@ class TelegramDeleter:
                 if entity.megagroup:
                     # Supergroup
                     try:
-                        full = await self.client(GetFullChannelRequest(channel=entity))
+                        full = await self.safe_api_call(self.client, GetFullChannelRequest(channel=entity))
                         return getattr(full.full_chat, 'participants_count', 0)
                     except Exception:
                         pass
@@ -108,14 +185,14 @@ class TelegramDeleter:
             elif isinstance(entity, Chat):
                 # Basic group
                 try:
-                    full = await self.client(GetFullChatRequest(chat_id=entity.id))
+                    full = await self.safe_api_call(self.client, GetFullChatRequest(chat_id=entity.id))
                     return getattr(full.full_chat, 'participants_count', 0)
                 except Exception:
                     pass
             
             # Fallback: estimate by counting participants (up to 15 for safety)
             count = 0
-            async for _ in self.client.iter_participants(entity, limit=15):
+            async for _ in self.safe_api_call(self.client.iter_participants, entity, limit=15):
                 count += 1
                 if count > 10:  # If more than 10, we don't need exact count
                     break
@@ -136,7 +213,7 @@ class TelegramDeleter:
         count = 0
         
         try:
-            async for msg in self.client.iter_messages(entity, from_user='me'):
+            async for msg in self.safe_api_call(self.client.iter_messages, entity, from_user='me'):
                 # Check date filters
                 msg_date = msg.date.replace(tzinfo=None) if msg.date else None
                 
@@ -214,7 +291,7 @@ class TelegramDeleter:
             dialogs_limit = 5 if filters.test_mode else None
             dialog_count = 0
             
-            async for dialog in self.client.iter_dialogs():
+            async for dialog in self.safe_api_call(self.client.iter_dialogs):
                 if dialogs_limit and dialog_count >= dialogs_limit:
                     break
                 
@@ -227,6 +304,8 @@ class TelegramDeleter:
                     total_skipped += 1
                     self.log(f"Skipped {getattr(entity, 'title', 'Unknown')}: {skip_reason}")
                     continue
+                
+                self.update_status(f"Scanning {getattr(entity, 'title', 'Unknown')}...")
                 
                 # Count candidate messages
                 candidates = []
@@ -250,11 +329,11 @@ class TelegramDeleter:
                     total_processed += 1
                     total_candidates += len(candidates)
                     
-                    self.log(f"Found {len(candidates)} messages in {result.title}")
+                    self.update_status(f"Found {len(candidates)} messages in {result.title}")
                     
                 except Exception as e:
                     error_msg = f"Error scanning {getattr(entity, 'title', 'Unknown')}: {str(e)}"
-                    self.log(error_msg)
+                    self.update_status(error_msg)
                     result = ChatResult(
                         id=entity.id,
                         title=getattr(entity, 'title', 'Unknown'),
@@ -266,10 +345,10 @@ class TelegramDeleter:
                     )
                     results.append(result)
             
-            self.log(f"Scan complete: {total_processed} chats processed, {total_skipped} skipped")
+            self.update_status(f"Scan complete: {total_processed} chats processed, {total_skipped} skipped")
             
         except Exception as e:
-            self.log(f"Scan failed: {str(e)}")
+            self.update_status(f"Scan failed: {str(e)}")
             
         return OperationResult(
             chats=results,
@@ -286,7 +365,7 @@ class TelegramDeleter:
             return await self.scan(filters)
         
         self.logs = []
-        self.log("Starting deletion operation...")
+        self.update_status("Starting deletion operation...")
         
         if not self.client:
             return OperationResult([], 0, 0, 0, 0, ["Not connected to Telegram"])
@@ -305,7 +384,7 @@ class TelegramDeleter:
             dialogs_limit = 5 if filters.test_mode else None
             dialog_count = 0
             
-            async for dialog in self.client.iter_dialogs():
+            async for dialog in self.safe_api_call(self.client.iter_dialogs):
                 if dialogs_limit and dialog_count >= dialogs_limit:
                     break
                 
@@ -316,8 +395,10 @@ class TelegramDeleter:
                 
                 if not should_process:
                     total_skipped += 1
-                    self.log(f"Skipped {getattr(entity, 'title', 'Unknown')}: {skip_reason}")
+                    self.update_status(f"Skipped {getattr(entity, 'title', 'Unknown')}: {skip_reason}")
                     continue
+                
+                self.update_status(f"Processing {getattr(entity, 'title', 'Unknown')}...")
                 
                 # Collect and delete messages
                 candidates = []
@@ -327,6 +408,7 @@ class TelegramDeleter:
                     
                     deleted_count = 0
                     if candidates:
+                        self.update_status(f"Deleting {len(candidates)} messages from {getattr(entity, 'title', 'Unknown')}...")
                         deleted_count = await self._delete_batches(entity, candidates, filters.revoke)
                     
                     participants_count = await self.get_participants_count(entity)
@@ -346,11 +428,11 @@ class TelegramDeleter:
                     total_candidates += len(candidates)
                     total_deleted += deleted_count
                     
-                    self.log(f"Deleted {deleted_count}/{len(candidates)} messages in {result.title}")
+                    self.update_status(f"Deleted {deleted_count}/{len(candidates)} messages in {result.title}")
                     
                 except Exception as e:
                     error_msg = f"Error processing {getattr(entity, 'title', 'Unknown')}: {str(e)}"
-                    self.log(error_msg)
+                    self.update_status(error_msg)
                     result = ChatResult(
                         id=entity.id,
                         title=getattr(entity, 'title', 'Unknown'),
@@ -362,10 +444,10 @@ class TelegramDeleter:
                     )
                     results.append(result)
             
-            self.log(f"Operation complete: {total_deleted} messages deleted from {total_processed} chats")
+            self.update_status(f"Operation complete: {total_deleted} messages deleted from {total_processed} chats")
             
         except Exception as e:
-            self.log(f"Delete operation failed: {str(e)}")
+            self.update_status(f"Delete operation failed: {str(e)}")
             
         return OperationResult(
             chats=results,
@@ -386,18 +468,18 @@ class TelegramDeleter:
             
             while True:
                 try:
-                    await self.client.delete_messages(entity, batch, revoke=revoke)
+                    await self.safe_api_call(self.client.delete_messages, entity, batch, revoke=revoke)
                     deleted += len(batch)
                     break
                 except FloodWaitError as e:
                     wait_seconds = getattr(e, 'seconds', 30)
-                    self.log(f"Rate limited, waiting {wait_seconds} seconds...")
+                    self.update_status(f"Rate limited, waiting {wait_seconds} seconds...")
                     await asyncio.sleep(wait_seconds + 1)
                 except RpcCallFailError as e:
-                    self.log(f"RPC error deleting batch: {e}")
+                    self.update_status(f"RPC error deleting batch: {e}")
                     break
                 except Exception as e:
-                    self.log(f"Error deleting batch: {e}")
+                    self.update_status(f"Error deleting batch: {e}")
                     break
         
         return deleted

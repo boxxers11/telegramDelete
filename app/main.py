@@ -158,35 +158,30 @@ async def connect_account(account_id: str, data: ConnectAccountRequest):
         return {"success": False, "error": "Account not found"}
     
     try:
-        # Connect to Telegram
-        await account_deleter.connect()
-        
-        # Check if already authenticated
-        if await account_deleter.client.is_user_authorized():
-            me = await account_deleter.client.get_me()
-            username = me.username or f"{me.first_name} {me.last_name or ''}".strip()
-            return {"success": True, "status": "OK", "username": username}
-        
-        # If no code provided, send code
-        if not data.code:
-            account = account_store.get_account(account_id)
-            await account_deleter.client.send_code_request(account.phone)
-            return {"success": True, "status": "CODE_SENT"}
-        
-        # Sign in with code (and optional password)
         account = account_store.get_account(account_id)
-        await account_deleter.client.sign_in(
-            phone=account.phone,
-            code=data.code,
-            password=data.password
-        )
+        if not account:
+            return {"success": False, "error": "Account not found"}
         
-        me = await account_deleter.client.get_me()
-        username = me.username or f"{me.first_name} {me.last_name or ''}".strip()
-        return {"success": True, "status": "OK", "username": username}
+        # Connect to Telegram
+        result = await account_deleter.connect(account.phone)
+        
+        if result["success"] and result.get("status") == "CODE_SENT":
+            return result
+        elif result["success"] and result.get("status") == "AUTHENTICATED":
+            return result
+        
+        # If code provided, try to sign in
+        if data.code:
+            result = await account_deleter.sign_in_with_code(
+                phone=account.phone,
+                code=data.code,
+                password=data.password
+            )
+            return result
+        
+        return result
         
     except Exception as e:
-        return {"success": False, "error": str(e)}
 
 @app.post("/accounts/{account_id}/scan")
 async def scan_account_messages(account_id: str, data: OperationRequest):
