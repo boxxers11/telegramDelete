@@ -69,6 +69,10 @@ function App() {
   const [isDemoMode, setIsDemoMode] = useState(false);
 
   useEffect(() => {
+    // ניקוי localStorage ו-sessionStorage ברענון הדף
+    localStorage.removeItem('telegram_accounts_demo');
+    sessionStorage.clear();
+
     checkServerConnection();
   }, []);
 
@@ -82,8 +86,6 @@ function App() {
         setIsDemoMode(false);
         setError('');
         setSuccess('');
-        // Clear any demo data from localStorage
-        localStorage.removeItem('telegram_accounts_demo');
         console.log('✅ Server mode active - connected to Python backend');
       } else {
         throw new Error(`Server responded with ${response.status}`);
