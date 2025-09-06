@@ -348,6 +348,10 @@ function App() {
       
       if (data.success) {
         setResults(data.result);
+        // If messages are available, show preview option
+        if (data.result.messages && data.result.messages.length > 0) {
+          setPreviewMessages(data.result.messages);
+        }
         setSuccess('Scan completed successfully');
         setOperationStatus(prev => ({...prev, [accountId]: `Scan complete - ${data.result.summary.total_candidates} messages found`}));
       } else {
