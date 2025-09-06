@@ -32,12 +32,12 @@ source venv/bin/activate
 
 # Ensure pip is available in the virtual environment
 echo "🔧 Ensuring pip is available..."
-python -m ensurepip --upgrade
+python3 -m ensurepip --upgrade
 
 # Install dependencies
 echo "📥 Installing dependencies..."
-python -m pip install --upgrade pip
-python -m pip install -r requirements.txt
+python3 -m pip install --upgrade pip
+python3 -m pip install -r requirements.txt
 
 # Create session directory if it doesn't exist
 mkdir -p sessions
@@ -52,7 +52,7 @@ echo "To stop the servers, press Ctrl+C"
 cd "$(dirname "$0")"
 
 # Start Python server in background
-python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload &
+python3 -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload &
 PYTHON_PID=$!
 
 # Wait for Python server to be ready
