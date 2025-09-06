@@ -70,6 +70,8 @@ function App() {
   const [isDemoMode, setIsDemoMode] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [accountOperations, setAccountOperations] = useState<{[key: string]: any}>({});
+  const [operationStatus, setOperationStatus] = useState<{[key: string]: string}>({});
+  const [operationProgress, setOperationProgress] = useState<{[key: string]: any}>({});
 
   useEffect(() => {
     // ניקוי localStorage ו-sessionStorage ברענון הדף
@@ -239,6 +241,7 @@ function App() {
 
   const connectAccountToServer = async (accountId: string) => {
     setAccountOperations(prev => ({...prev, [accountId]: {...prev[accountId], connecting: true}}));
+    setOperationStatus(prev => ({...prev, [accountId]: 'Connecting to Telegram...'}));
     setError('');
     setSuccess('');
     
@@ -257,16 +260,24 @@ function App() {
         if (data.status === 'CODE_SENT') {
           setLoginData({...loginData, accountId});
           setShowLoginModal(true);
-          setSuccess('Verification code sent to your Telegram app!');
-        } else if (data.status === 'OK') {
+          setSuccess(data.message || 'Verification code sent to your Telegram app!');
+          setOperationStatus(prev => ({...prev, [accountId]: 'Code sent - check Telegram app'}));
+        } else if (data.status === 'AUTHENTICATED') {
           await checkServerConnection();
           setSuccess(`Connected successfully as @${data.username}`);
+          setOperationStatus(prev => ({...prev, [accountId]: `Connected as @${data.username}`}));
         }
       } else {
-        setError(data.error || 'Connection failed');
+        if (data.error === '2FA_REQUIRED') {
+          setError('Two-factor authentication required. Please enter your 2FA password.');
+        } else {
+          setError(data.error || 'Connection failed');
+        }
+        setOperationStatus(prev => ({...prev, [accountId]: 'Connection failed'}));
       }
     } catch (err: any) {
       setError(`Network error: ${err.message}`);
+      setOperationStatus(prev => ({...prev, [accountId]: 'Network error'}));
     } finally {
       setAccountOperations(prev => ({...prev, [accountId]: {...prev[accountId], connecting: false}}));
     }
@@ -310,6 +321,7 @@ function App() {
 
   const scanAccountMessages = async (accountId: string) => {
     setAccountOperations(prev => ({...prev, [accountId]: {...prev[accountId], scanning: true}}));
+    setOperationStatus(prev => ({...prev, [accountId]: 'Starting scan...'}));
     setError('');
     setSuccess('');
     
@@ -337,11 +349,14 @@ function App() {
       if (data.success) {
         setResults(data.result);
         setSuccess('Scan completed successfully');
+        setOperationStatus(prev => ({...prev, [accountId]: `Scan complete - ${data.result.summary.total_candidates} messages found`}));
       } else {
         setError(data.error || 'Scan failed');
+        setOperationStatus(prev => ({...prev, [accountId]: 'Scan failed'}));
       }
     } catch (err: any) {
       setError(`Network error: ${err.message}`);
+      setOperationStatus(prev => ({...prev, [accountId]: 'Network error'}));
     } finally {
       setAccountOperations(prev => ({...prev, [accountId]: {...prev[accountId], scanning: false}}));
     }
@@ -356,6 +371,7 @@ function App() {
 
   const deleteAccountMessages = async (accountId: string) => {
     setAccountOperations(prev => ({...prev, [accountId]: {...prev[accountId], deleting: true}}));
+    setOperationStatus(prev => ({...prev, [accountId]: 'Starting deletion...'}));
     setError('');
     setSuccess('');
     
@@ -383,11 +399,14 @@ function App() {
       if (data.success) {
         setResults(data.result);
         setSuccess('Delete operation completed successfully');
+        setOperationStatus(prev => ({...prev, [accountId]: `Deletion complete - ${data.result.summary.total_deleted} messages deleted`}));
       } else {
         setError(data.error || 'Delete failed');
+        setOperationStatus(prev => ({...prev, [accountId]: 'Deletion failed'}));
       }
     } catch (err: any) {
       setError(`Network error: ${err.message}`);
+      setOperationStatus(prev => ({...prev, [accountId]: 'Network error'}));
     } finally {
       setAccountOperations(prev => ({...prev, [accountId]: {...prev[accountId], deleting: false}}));
     }
@@ -621,6 +640,11 @@ function App() {
                                 : 'Connect'
                             }
                           </button>
+                          {operationStatus[account.id] && (
+                            <div className="text-xs text-gray-600 max-w-32 truncate">
+                              {operationStatus[account.id]}
+                            </div>
+                          )}
                           <button
                             onClick={() => scanAccount(account.id)}
                             disabled={accountOperations[account.id]?.scanning || !account.is_authenticated}
@@ -955,6 +979,9 @@ function App() {
                     placeholder="Optional"
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Only required if you have two-factor authentication enabled
+                  </p>
                 </div>
               </div>
 
