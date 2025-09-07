@@ -1,0 +1,91 @@
+diff --git a/app/telegram_delete.py b/app/telegram_delete.py
+index 1234567..abcdefg 100644
+--- a/app/telegram_delete.py
++++ b/app/telegram_delete.py
+@@ -150,6 +150,11 @@ class TelegramDeleter:
+             if not self.client:
+                 self.client = TelegramClient(
+                     self.session_name, 
+                     self.api_id, 
+                     self.api_hash
+                 )
+                 await self.client.connect()
+                 if not self.client:
+                     return {"success": False, "error": "Client not connected"}
+             
++            # Clean the code - remove spaces and ensure it's exactly 5 digits
++            clean_code = ''.join(filter(str.isdigit, code))
++            if len(clean_code) != 5:
++                return {"success": False, "error": f"Invalid code format. Expected 5 digits, got {len(clean_code)}"}
++            
+             try:
+-                self.log(f"Signing in with code: {code}")
+-                await self.safe_api_call(self.client.sign_in, phone=phone, code=code)
++                self.log(f"Signing in with code: {clean_code}")
++                await self.safe_api_call(self.client.sign_in, phone=phone, code=clean_code)
+                 self.log("Sign in with code successful")
+             except SessionPasswordNeededError:
+                 self.log("2FA password required")
+                 if not password:
+                     return {
+                         "success": False, 
+                         "error": "2FA_REQUIRED",
+                         "message": "Two-factor authentication password required"
+                     }
+                 self.log("Attempting sign in with 2FA password")
+                 await self.safe_api_call(self.client.sign_in, password=password)
+                 self.log("2FA sign in successful")
++            except errors.PhoneCodeInvalidError:
++                self.log("Invalid verification code")
++                return {"success": False, "error": "Invalid verification code. Please check the code from your Telegram app and try again."}
++            except errors.PhoneCodeExpiredError:
++                self.log("Verification code expired")
++                return {"success": False, "error": "Verification code expired. Please connect again to get a new code."}
++            except errors.PasswordHashInvalidError:
++                self.log("Invalid 2FA password")
++                return {"success": False, "error": "Invalid 2FA password. Please try again."}
+
+diff --git a/app/main.py b/app/main.py
+index 1234567..abcdefg 100644
+--- a/app/main.py
++++ b/app/main.py
+@@ -120,6 +120,9 @@ async def connect_account(account_id: str, data: ConnectAccountRequest):
+         # If code provided, try to sign in
+         if data.code:
+             logger.info(f"Attempting sign in with code for account {account_id}")
++            # Clean the code input
++            clean_code = data.code.replace(' ', '').strip()
++            data.code = clean_code
+             sign_in_result = await account_deleter.sign_in_with_code(
+                 phone=account.phone,
+                 code=data.code,
+
+diff --git a/src/App.tsx b/src/App.tsx
+index 1234567..abcdefg 100644
+--- a/src/App.tsx
++++ b/src/App.tsx
+@@ -250,6 +250,12 @@ function App() {
+   const completeLogin = async () => {
+     if (!loginData.code) {
+       setError('Please enter verification code');
+       return;
+     }
++    
++    // Clean the code input
++    const cleanCode = loginData.code.replace(/\s/g, '');
++    if (cleanCode.length !== 5) {
++      setError('Verification code must be exactly 5 digits');
++      return;
++    }
+     
+     setError('');
+     setSuccess('');
+@@ -260,7 +266,7 @@ function App() {
+           'Content-Type': 'application/json',
+         },
+         body: JSON.stringify({
+-          code: loginData.code,
++          code: cleanCode,
+           password: loginData.password || null
+         })
+       });
