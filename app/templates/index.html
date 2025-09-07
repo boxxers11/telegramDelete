@@ -654,7 +654,6 @@
                         if (data.success) {
                             if (data.status === 'CODE_SENT') {
                                 this.loginData.accountId = accountId;
-                                this.loginData.phone_code_hash = data.phone_code_hash;
                                 this.showLoginModal = true;
                             } else if (data.status === 'OK') {
                                 await this.loadAccounts();
@@ -690,7 +689,7 @@
                         
                         if (data.success && data.status === 'OK') {
                             this.showLoginModal = false;
-                            this.loginData = { code: '', password: '', accountId: '' };
+                            this.loginData = { code: '', password: '', accountId: '', phone_code_hash: '' };
                             await this.loadAccounts();
                         } else {
                             this.accountError = data.error || 'Login failed';
