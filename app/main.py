@@ -94,16 +94,18 @@ async def index(request: Request):
 
 @app.get("/accounts")
 async def get_accounts():
-    """Get all accounts without checking authentication status to avoid heavy operations"""
+    """Get all accounts with basic authentication status"""
     accounts_data = []
     for account in account_store.get_all_accounts():
+        # Quick check if session file exists
+        session_exists = os.path.exists(f"{account.session_path}.session")
         accounts_data.append({
             "id": account.id,
             "label": account.label,
             "phone": account.phone,
             "api_id": account.api_id,
             "api_hash": account.api_hash,
-            "is_authenticated": False,  # Will be checked when needed
+            "is_authenticated": session_exists,  # Basic check
             "username": None
         })
     return accounts_data
