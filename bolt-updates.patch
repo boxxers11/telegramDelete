@@ -10,11 +10,55 @@ index 1234567..abcdefg 100644
      password: Optional[str] = None
  
  class ConnectRequest(BaseModel):
-@@ -110,6 +111,7 @@ async def connect_account(account_id: str, data: ConnectAccountRequest):
+@@ -100,7 +101,7 @@ async def connect_account(account_id: str, data: ConnectAccountRequest):
+         if not account:
+             return {"success": False, "error": "Account not found"}
+         
+-        # If code provided, try to sign in with code and phone_code_hash
++        # If code provided, try to sign in with code
+         if data.code and data.phone_code_hash:
+             logger.info(f"Attempting sign in with code for account {account_id}")
              sign_in_result = await account_deleter.sign_in_with_code(
-                 phone=account.phone,
-                 code=data.code,
-+                phone_code_hash=data.phone_code_hash,
+@@ -110,7 +111,7 @@ async def connect_account(account_id: str, data: ConnectAccountRequest):
                  password=data.password
              )
              logger.info(f"Sign in result: {sign_in_result}")
+-            return sign_in_result
++            return sign_in_result
+         else:
+             # No code provided, send verification code and return phone_code_hash
+             logger.info(f"Sending verification code for account {account_id}")
+diff --git a/app/templates/index.html b/app/templates/index.html
+index 1234567..abcdefg 100644
+--- a/app/templates/index.html
++++ b/app/templates/index.html
+@@ -450,6 +450,7 @@
+                         body: JSON.stringify({
+                             code: this.loginData.code,
++                            phone_code_hash: this.loginData.phone_code_hash,
+                             password: this.loginData.password || null
+                         })
+                     });
+@@ -470,6 +471,7 @@
+                 connectAccount(accountId) {
+                     this.accountOperations[accountId] = { ...this.accountOperations[accountId], connecting: true };
+                     
++                    // Store phone_code_hash when we get it from connect
+                     try {
+                         const response = await fetch(`/accounts/${accountId}/connect`, {
+                             method: 'POST',
+@@ -484,6 +486,7 @@
+                         if (data.success) {
+                             if (data.status === 'CODE_SENT') {
+                                 this.loginData.accountId = accountId;
++                                this.loginData.phone_code_hash = data.phone_code_hash;
+                                 this.showLoginModal = true;
+                             } else if (data.status === 'OK') {
+                                 await this.loadAccounts();
+@@ -500,6 +503,7 @@
+                 loginData: {
+                     code: '',
+                     password: '',
++                    phone_code_hash: '',
+                     accountId: ''
+                 },
