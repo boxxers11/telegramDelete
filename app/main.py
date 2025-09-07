@@ -160,6 +160,9 @@ async def connect_account(account_id: str, data: ConnectAccountRequest):
             logger.info(f"Sending verification code for account {account_id}")
             connect_result = await account_deleter.connect(account.phone)
             logger.info(f"Connect result: {connect_result}")
+            # If code expired, we need to send a new one
+            if connect_result.get('success') and connect_result.get('status') == 'CODE_SENT':
+                logger.info(f"New verification code sent for account {account_id}")
             return connect_result
         
     except Exception as e:
