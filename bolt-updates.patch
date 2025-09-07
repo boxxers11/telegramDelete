@@ -57,7 +57,6 @@ index 1234567..abcdefg 100644
                  self.log("Sign in with code successful")
              except SessionPasswordNeededError:
                  self.log("2FA password required")
-
 diff --git a/app/main.py b/app/main.py
 index 1234567..abcdefg 100644
 --- a/app/main.py
@@ -80,7 +79,6 @@ index 1234567..abcdefg 100644
                  password=data.password
              )
              logger.info(f"Sign in result: {sign_in_result}")
-
 diff --git a/src/App.tsx b/src/App.tsx
 index 1234567..abcdefg 100644
 --- a/src/App.tsx
