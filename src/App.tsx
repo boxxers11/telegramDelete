@@ -994,12 +994,13 @@ function App() {
                     type="text"
                     value={loginData.code}
                     onChange={(e) => setLoginData({...loginData, code: e.target.value})}
-                    placeholder="Enter 5-digit code"
+                    placeholder="12345"
                     maxLength={5}
+                    pattern="[0-9]{5}"
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                   <p className="text-xs text-gray-500 mt-1">
-                    The code should be exactly 5 digits
+                    Enter the 5-digit code from your Telegram app (without spaces)
                   </p>
                 </div>
                 
