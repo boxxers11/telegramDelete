@@ -2,7 +2,22 @@ diff --git a/app/telegram_delete.py b/app/telegram_delete.py
 index 1234567..abcdefg 100644
 --- a/app/telegram_delete.py
 +++ b/app/telegram_delete.py
-@@ -150,6 +150,11 @@ class TelegramDeleter:
+@@ -85,11 +85,13 @@ class TelegramDeleter:
+             if not await self.client.is_user_authorized():
+                 if phone:
+                     # Send code request
+                     self.log(f"Sending verification code to {phone}")
+-                    await self.safe_api_call(self.client.send_code_request, phone)
++                    sent_code = await self.safe_api_call(self.client.send_code_request, phone)
+                     self.log("Verification code sent successfully")
+                     return {
+                         "success": True, 
+                         "status": "CODE_SENT",
++                        "phone_code_hash": sent_code.phone_code_hash,
+                         "message": "Verification code sent to your Telegram app"
+                     }
+                 else:
+@@ -120,6 +122,11 @@ class TelegramDeleter:
              if not self.client:
                  self.client = TelegramClient(
                      self.session_name, 
@@ -10,82 +25,96 @@ index 1234567..abcdefg 100644
                      self.api_hash
                  )
                  await self.client.connect()
-                 if not self.client:
-                     return {"success": False, "error": "Client not connected"}
-             
-+            # Clean the code - remove spaces and ensure it's exactly 5 digits
-+            clean_code = ''.join(filter(str.isdigit, code))
-+            if len(clean_code) != 5:
-+                return {"success": False, "error": f"Invalid code format. Expected 5 digits, got {len(clean_code)}"}
 +            
++            if not self.client:
++                return {"success": False, "error": "Client not connected"}
+             
+             # Clean the code - remove spaces and ensure it's exactly 5 digits
+             clean_code = ''.join(filter(str.isdigit, code))
+@@ -128,7 +135,7 @@ class TelegramDeleter:
+             
              try:
--                self.log(f"Signing in with code: {code}")
--                await self.safe_api_call(self.client.sign_in, phone=phone, code=code)
-+                self.log(f"Signing in with code: {clean_code}")
-+                await self.safe_api_call(self.client.sign_in, phone=phone, code=clean_code)
+                 self.log(f"Signing in with code: {clean_code}")
+-                await self.safe_api_call(self.client.sign_in, phone=phone, code=clean_code)
++                await self.safe_api_call(self.client.sign_in, phone=phone, code=clean_code, phone_code_hash=phone_code_hash)
                  self.log("Sign in with code successful")
              except SessionPasswordNeededError:
                  self.log("2FA password required")
-                 if not password:
-                     return {
-                         "success": False, 
-                         "error": "2FA_REQUIRED",
-                         "message": "Two-factor authentication password required"
-                     }
-                 self.log("Attempting sign in with 2FA password")
-                 await self.safe_api_call(self.client.sign_in, password=password)
-                 self.log("2FA sign in successful")
-+            except errors.PhoneCodeInvalidError:
-+                self.log("Invalid verification code")
-+                return {"success": False, "error": "Invalid verification code. Please check the code from your Telegram app and try again."}
-+            except errors.PhoneCodeExpiredError:
-+                self.log("Verification code expired")
-+                return {"success": False, "error": "Verification code expired. Please connect again to get a new code."}
-+            except errors.PasswordHashInvalidError:
-+                self.log("Invalid 2FA password")
-+                return {"success": False, "error": "Invalid 2FA password. Please try again."}
+@@ -165,7 +172,7 @@ class TelegramDeleter:
+             return {"success": False, "error": error_msg}
+     
+-    async def sign_in_with_code(self, phone: str, code: str, password: str = None) -> Dict[str, Any]:
++    async def sign_in_with_code(self, phone: str, code: str, password: str = None, phone_code_hash: str = None) -> Dict[str, Any]:
+         """Sign in with verification code and optional 2FA password"""
+         try:
+             if not self.client:
+@@ -185,7 +192,7 @@ class TelegramDeleter:
+             
+             try:
+                 self.log(f"Signing in with code: {clean_code}")
+-                await self.safe_api_call(self.client.sign_in, phone=phone, code=clean_code)
++                await self.safe_api_call(self.client.sign_in, phone=phone, code=clean_code, phone_code_hash=phone_code_hash)
+                 self.log("Sign in with code successful")
+             except SessionPasswordNeededError:
+                 self.log("2FA password required")
 
 diff --git a/app/main.py b/app/main.py
 index 1234567..abcdefg 100644
 --- a/app/main.py
 +++ b/app/main.py
-@@ -120,6 +120,9 @@ async def connect_account(account_id: str, data: ConnectAccountRequest):
-         # If code provided, try to sign in
+@@ -25,6 +25,7 @@ class CreateAccountRequest(BaseModel):
+ 
+ class ConnectAccountRequest(BaseModel):
+     code: Optional[str] = None
++    phone_code_hash: Optional[str] = None
+     password: Optional[str] = None
+ 
+ class ConnectRequest(BaseModel):
+@@ -110,6 +111,7 @@ async def connect_account(account_id: str, data: ConnectAccountRequest):
          if data.code:
              logger.info(f"Attempting sign in with code for account {account_id}")
-+            # Clean the code input
-+            clean_code = data.code.replace(' ', '').strip()
-+            data.code = clean_code
              sign_in_result = await account_deleter.sign_in_with_code(
                  phone=account.phone,
                  code=data.code,
++                phone_code_hash=data.phone_code_hash,
+                 password=data.password
+             )
+             logger.info(f"Sign in result: {sign_in_result}")
 
 diff --git a/src/App.tsx b/src/App.tsx
 index 1234567..abcdefg 100644
 --- a/src/App.tsx
 +++ b/src/App.tsx
-@@ -250,6 +250,12 @@ function App() {
-   const completeLogin = async () => {
-     if (!loginData.code) {
-       setError('Please enter verification code');
-       return;
-     }
-+    
-+    // Clean the code input
-+    const cleanCode = loginData.code.replace(/\s/g, '');
-+    if (cleanCode.length !== 5) {
-+      setError('Verification code must be exactly 5 digits');
-+      return;
-+    }
-     
-     setError('');
-     setSuccess('');
-@@ -260,7 +266,7 @@ function App() {
-           'Content-Type': 'application/json',
+@@ -40,6 +40,7 @@ function App() {
+   const [loginData, setLoginData] = useState({
+     code: '',
+     password: '',
++    phone_code_hash: '',
+     accountId: ''
+   });
+   
+@@ -200,7 +201,8 @@ function App() {
+       if (data.success) {
+         if (data.status === 'CODE_SENT') {
+-          setLoginData({...loginData, accountId});
++          setLoginData({...loginData, accountId, phone_code_hash: data.phone_code_hash || ''});
+           setShowLoginModal(true);
+           setSuccess(data.message || 'Verification code sent to your Telegram app!');
+           setOperationStatus(prev => ({...prev, [accountId]: 'Code sent - check Telegram app'}));
+@@ -267,6 +269,7 @@ function App() {
          },
          body: JSON.stringify({
--          code: loginData.code,
-+          code: cleanCode,
+           code: cleanCode,
++          phone_code_hash: loginData.phone_code_hash,
            password: loginData.password || null
          })
        });
+@@ -275,7 +278,7 @@ function App() {
+       
+       if (data.success && data.status === 'AUTHENTICATED') {
+         setShowLoginModal(false);
+-        setLoginData({ code: '', password: '', accountId: '' });
++        setLoginData({ code: '', password: '', phone_code_hash: '', accountId: '' });
+         await checkServerConnection();
+         setSuccess(`Connected successfully as @${data.username}`);
+       } else {
