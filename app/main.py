@@ -141,34 +141,31 @@ async def connect_account(account_id: str, data: ConnectAccountRequest):
     account_deleter = get_deleter_for_account(account_id)
     if not account_deleter:
         return {"success": False, "error": "Account not found"}
+    
     try:
         account = account_store.get_account(account_id)
         if not account:
             return {"success": False, "error": "Account not found"}
         
-        # Connect to Telegram client if not connected yet
-        connect_result = await account_deleter.connect(account.phone)
-        
-        # If code was just sent, return phone_code_hash for next step
-        if connect_result.get("status") == "CODE_SENT":
-            return {"success": True, "status": "CODE_SENT", "phone_code_hash": connect_result.get("phone_code_hash")}
-        
-        # If already authenticated
-        if connect_result.get("status") == "AUTHENTICATED":
-            return connect_result
-        
-        # If code and phone_code_hash provided, sign in
-        if data.code and data.phone_code_hash:
+        # If code provided, try to sign in
+        if data.code:
+            logger.info(f"Attempting sign in with code for account {account_id}")
             sign_in_result = await account_deleter.sign_in_with_code(
                 phone=account.phone,
                 code=data.code,
-                phone_code_hash=data.phone_code_hash,
-                password=data.password,
+                password=data.password
             )
+            logger.info(f"Sign in result: {sign_in_result}")
             return sign_in_result
+        else:
+            # No code provided, send verification code
+            logger.info(f"Sending verification code for account {account_id}")
+            connect_result = await account_deleter.connect(account.phone)
+            logger.info(f"Connect result: {connect_result}")
+            return connect_result
         
-        return connect_result
     except Exception as e:
+        logger.error(f"Error connecting account {account_id}: {e}")
         return {"success": False, "error": str(e)}
 
 @app.post("/accounts/{account_id}/scan")

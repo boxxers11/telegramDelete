@@ -142,20 +142,30 @@ class TelegramDeleter:
         """Sign in with verification code and optional 2FA password"""
         try:
             if not self.client:
-                await self.connect()
+                self.client = TelegramClient(
+                    self.session_name, 
+                    self.api_id, 
+                    self.api_hash
+                )
+                await self.client.connect()
                 if not self.client:
                     return {"success": False, "error": "Client not connected"}
             
+            # Clean the code - remove spaces and ensure it's exactly 5 digits
+            clean_code = ''.join(filter(str.isdigit, code))
+            if len(clean_code) != 5:
+                return {"success": False, "error": f"Invalid code format. Expected 5 digits, got {len(clean_code)}"}
+            
             try:
-                self.log(f"Signing in with code: {code}")
-                await self.safe_api_call(self.client.sign_in, phone=phone, code=code)
+                self.log(f"Signing in with code: {clean_code}")
+                await self.safe_api_call(self.client.sign_in, phone=phone, code=clean_code)
                 self.log("Sign in with code successful")
             except SessionPasswordNeededError:
                 self.log("2FA password required")
                 if not password:
                     return {
                         "success": False, 
-                        "error": "Two-factor authentication password required",
+                        "error": "2FA_REQUIRED",
                         "message": "Two-factor authentication password required"
                     }
                 self.log("Attempting sign in with 2FA password")
@@ -163,13 +173,13 @@ class TelegramDeleter:
                 self.log("2FA sign in successful")
             except errors.PhoneCodeInvalidError:
                 self.log("Invalid verification code")
-                return {"success": False, "error": "Invalid verification code. Please try again."}
+                return {"success": False, "error": "Invalid verification code. Please check the code from your Telegram app and try again."}
             except errors.PhoneCodeExpiredError:
                 self.log("Verification code expired")
-                return {"success": False, "error": "Verification code expired. Please request a new one."}
-            except errors.SessionPasswordNeededError:
-                self.log("2FA password needed but not provided")
-                return {"success": False, "error": "Two-factor authentication password required"}
+                return {"success": False, "error": "Verification code expired. Please connect again to get a new code."}
+            except errors.PasswordHashInvalidError:
+                self.log("Invalid 2FA password")
+                return {"success": False, "error": "Invalid 2FA password. Please try again."}
             
             me = await self.safe_api_call(self.client.get_me)
             username = me.username or f"{me.first_name} {me.last_name or ''}".strip()
@@ -178,7 +188,7 @@ class TelegramDeleter:
             
             return {
                 "success": True,
-                "status": "OK", 
+                "status": "AUTHENTICATED", 
                 "username": username,
                 "user_id": me.id
             }
