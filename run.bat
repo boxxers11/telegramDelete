@@ -63,7 +63,7 @@ goto wait_loop
 
 :start_react
 :: Give Python server extra time to fully initialize
-timeout /t 5 /nobreak >nul
+timeout /t 10 /nobreak >nul
 
 :: Install npm dependencies if node_modules doesn't exist
 if not exist "node_modules" (
