@@ -107,11 +107,6 @@ async def get_accounts():
             "username": None
         })
     return accounts_data
-    accounts_data = []
-    for account in account_store.get_all_accounts():
-        account_deleter = get_deleter_for_account(account.id)
-        is_authenticated = False
-        username = None
 
 @app.post("/accounts")
 async def create_account(data: CreateAccountRequest):
@@ -147,18 +142,19 @@ async def connect_account(account_id: str, data: ConnectAccountRequest):
         if not account:
             return {"success": False, "error": "Account not found"}
         
-        # If code provided, try to sign in
-        if data.code:
+        # If code provided, try to sign in with code and phone_code_hash
+        if data.code and data.phone_code_hash:
             logger.info(f"Attempting sign in with code for account {account_id}")
             sign_in_result = await account_deleter.sign_in_with_code(
                 phone=account.phone,
                 code=data.code,
+                phone_code_hash=data.phone_code_hash,
                 password=data.password
             )
             logger.info(f"Sign in result: {sign_in_result}")
             return sign_in_result
         else:
-            # No code provided, send verification code
+            # No code provided, send verification code and return phone_code_hash
             logger.info(f"Sending verification code for account {account_id}")
             connect_result = await account_deleter.connect(account.phone)
             logger.info(f"Connect result: {connect_result}")
