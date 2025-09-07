@@ -45,9 +45,9 @@
                                     <td class="border border-gray-300 px-4 py-2" x-text="account.label"></td>
                                     <td class="border border-gray-300 px-4 py-2" x-text="account.phone"></td>
                                     <td class="border border-gray-300 px-4 py-2">
-                                        <span x-show="!account.is_authenticated" class="text-red-600">Not connected</span>
+                                        <span x-show="!account.is_authenticated" class="text-red-600">לא מחובר</span>
                                         <span x-show="account.is_authenticated" class="text-green-600">
-                                            Logged in as @<span x-text="account.username"></span>
+                                            מחובר בתור @<span x-text="account.username"></span>
                                         </span>
                                     </td>
                                     <td class="border border-gray-300 px-4 py-2">
@@ -57,10 +57,10 @@
                                                 x-show="!account.is_authenticated"
                                                 @click="connectAccount(account.id)"
                                                 :disabled="accountOperations[account.id]?.connecting || false"
-                                                class="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 disabled:bg-gray-400"
+                                                class="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
                                             >
-                                                <span x-show="!accountOperations[account.id]?.connecting">Connect</span>
-                                                <span x-show="accountOperations[account.id]?.connecting">Connecting...</span>
+                                                <span x-show="!accountOperations[account.id]?.connecting">התחבר</span>
+                                                <span x-show="accountOperations[account.id]?.connecting">מתחבר...</span>
                                             </button>
                                             
                                             <!-- Scan -->
