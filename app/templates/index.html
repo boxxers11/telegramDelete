@@ -661,7 +661,7 @@
                                 this.loginData.accountId = accountId;
                                 this.loginData.phone_code_hash = data.phone_code_hash;
                                 this.showLoginModal = true;
-                            } else if (data.status === 'OK') {
+                            } else if (data.status === 'AUTHENTICATED') {
                                 await this.loadAccounts();
                             }
                         } else {
@@ -694,7 +694,7 @@
                         
                         const data = await response.json();
                         
-                        if (data.success && data.status === 'OK') {
+                        if (data.success && data.status === 'AUTHENTICATED') {
                             this.showLoginModal = false;
                             this.loginData = { code: '', password: '', accountId: '', phone_code_hash: '' };
                             await this.loadAccounts();
