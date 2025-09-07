@@ -94,28 +94,24 @@ async def index(request: Request):
 
 @app.get("/accounts")
 async def get_accounts():
+    """Get all accounts without checking authentication status to avoid heavy operations"""
+    accounts_data = []
+    for account in account_store.get_all_accounts():
+        accounts_data.append({
+            "id": account.id,
+            "label": account.label,
+            "phone": account.phone,
+            "api_id": account.api_id,
+            "api_hash": account.api_hash,
+            "is_authenticated": False,  # Will be checked when needed
+            "username": None
+        })
+    return accounts_data
     accounts_data = []
     for account in account_store.get_all_accounts():
         account_deleter = get_deleter_for_account(account.id)
         is_authenticated = False
         username = None
-        if account_deleter and account_deleter.client:
-            try:
-                await account_deleter.connect()
-                if await account_deleter.client.is_user_authorized():
-                    is_authenticated = True
-                    me = await account_deleter.client.get_me()
-                    username = me.username
-            except Exception:
-                pass
-        accounts_data.append({
-            "id": account.id,
-            "label": account.label,
-            "phone": account.phone,
-            "is_authenticated": is_authenticated,
-            "username": username
-        })
-    return accounts_data
 
 @app.post("/accounts")
 async def create_account(data: CreateAccountRequest):
