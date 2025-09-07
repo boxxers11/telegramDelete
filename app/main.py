@@ -98,7 +98,7 @@ async def get_accounts():
         account_deleter = get_deleter_for_account(account.id)
         is_authenticated = False
         username = None
-        if account_deleter and account_deleter.client:
+        if account_deleter:
             try:
                 status = await account_deleter.check_authorization_status()
                 is_authenticated = status.get("is_authenticated", False)
