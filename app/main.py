@@ -26,7 +26,7 @@ class CreateAccountRequest(BaseModel):
 
 class ConnectAccountRequest(BaseModel):
     code: Optional[str] = None
-    phone_code_hash: Optional[str] = None  # Added phone_code_hash
+    phone_code_hash: Optional[str] = None
     password: Optional[str] = None
 
 class ConnectRequest(BaseModel):
