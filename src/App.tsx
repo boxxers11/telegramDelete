@@ -289,6 +289,9 @@ function App() {
       return;
     }
     
+    setError('');
+    setSuccess('');
+    
     try {
       const response = await fetch(`/api/accounts/${loginData.accountId}/connect`, {
         method: 'POST',
@@ -303,13 +306,17 @@ function App() {
       
       const data = await response.json();
       
-      if (data.success && data.status === 'OK') {
+      if (data.success && (data.status === 'OK' || data.status === 'AUTHENTICATED')) {
         setShowLoginModal(false);
         setLoginData({ code: '', password: '', accountId: '' });
         await checkServerConnection();
         setSuccess(`Connected successfully as @${data.username}`);
       } else {
-        setError(data.error || 'Login failed');
+        if (data.error === 'Two-factor authentication password required') {
+          setError('Please enter your 2FA password below and try again');
+        } else {
+          setError(data.error || 'Login failed');
+        }
       }
     } catch (err: any) {
       setError(`Network error: ${err.message}`);
@@ -964,9 +971,14 @@ function App() {
                 </button>
               </div>
 
-              <p className="text-sm text-gray-600 mb-4">
-                Enter the verification code sent to your Telegram app:
-              </p>
+              <div className="mb-4">
+                <p className="text-sm text-gray-600 mb-2">
+                  Enter the verification code sent to your Telegram app:
+                </p>
+                <p className="text-xs text-blue-600">
+                  Check your Telegram app for a message from Telegram with a 5-digit code
+                </p>
+              </div>
 
               <div className="space-y-4">
                 <div>
@@ -975,9 +987,13 @@ function App() {
                     type="text"
                     value={loginData.code}
                     onChange={(e) => setLoginData({...loginData, code: e.target.value})}
-                    placeholder="12345"
+                    placeholder="Enter 5-digit code"
+                    maxLength={5}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
+                  <p className="text-xs text-gray-500 mt-1">
+                    The code should be exactly 5 digits
+                  </p>
                 </div>
                 
                 <div>
@@ -994,6 +1010,12 @@ function App() {
                   </p>
                 </div>
               </div>
+              
+              {error && (
+                <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md">
+                  <p className="text-red-700 text-sm">{error}</p>
+                </div>
+              )}
 
               <div className="flex justify-end space-x-3 mt-6">
                 <button
