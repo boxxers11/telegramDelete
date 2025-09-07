@@ -91,12 +91,12 @@ function App() {
         setIsDemoMode(false);
         setError('');
         setSuccess('');
-        console.log('✅ Server mode active - connected to Python backend');
+        console.log('✅ Server mode active - connected to Python backend', accountsData);
       } else {
         throw new Error(`Server responded with ${response.status}`);
       }
     } catch (err) {
-      console.log('❌ Server connection failed, switching to demo mode:', err);
+      console.log('❌ Server connection failed, switching to demo mode. To use full functionality, run the Python server locally using run.sh (Mac/Linux) or run.bat (Windows)');
       setIsDemoMode(true);
       loadAccountsFromStorage();
     }
@@ -535,7 +535,13 @@ function App() {
               <Server className="w-5 h-5 text-blue-600 mt-0.5 mr-3 flex-shrink-0" />
               <div className="text-sm text-blue-800">
                 <p className="font-semibold mb-1">Demo Mode Active</p>
-                <p>Python server not detected. You're viewing the demo interface. To use actual Telegram functionality, download the project and run the Python server locally using <code className="bg-blue-100 px-1 rounded">run.sh</code> (Mac/Linux) or <code className="bg-blue-100 px-1 rounded">run.bat</code> (Windows).</p>
+                <p>Python server not detected. You're viewing the demo interface only. <strong>To use actual Telegram functionality:</strong></p>
+                <ol className="list-decimal list-inside mt-2 space-y-1">
+                  <li>Download the project files from GitHub</li>
+                  <li>Install Python 3.10+ and Node.js</li>
+                  <li>Run <code className="bg-blue-100 px-1 rounded">run.sh</code> (Mac/Linux) or <code className="bg-blue-100 px-1 rounded">run.bat</code> (Windows)</li>
+                  <li>Get your Telegram API credentials from <a href="https://my.telegram.org" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">my.telegram.org</a></li>
+                </ol>
               </div>
             </div>
           </div>
