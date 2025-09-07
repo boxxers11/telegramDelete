@@ -100,11 +100,9 @@ async def get_accounts():
         username = None
         if account_deleter and account_deleter.client:
             try:
-                await account_deleter.connect()
-                if await account_deleter.client.is_user_authorized():
-                    is_authenticated = True
-                    me = await account_deleter.client.get_me()
-                    username = me.username
+                status = await account_deleter.check_authorization_status()
+                is_authenticated = status.get("is_authenticated", False)
+                username = status.get("username")
             except Exception:
                 pass
         accounts_data.append({
@@ -148,12 +146,16 @@ async def connect_account(account_id: str, data: ConnectAccountRequest):
         account = account_store.get_account(account_id)
         if not account:
             return {"success": False, "error": "Account not found"}
-        result = await account_deleter.connect(account.phone)
+        
+        if data.code:
+            # If we have a code, try to sign in with it
             logger.info(f"Attempting sign in with code for account {account_id}")
             result = await account_deleter.sign_in_with_code(
+                phone=account.phone,
         # If we have a code, try to sign in with it
                 code=data.code,
                 password=data.password
+            )
             logger.info(f"Sign in result: {result}")
             return result
         else:
