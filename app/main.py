@@ -3,16 +3,13 @@ import asyncio
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, date
 from typing import Optional, List
-
 from fastapi import FastAPI, Request, Form, HTTPException
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, JSONResponse
 from pydantic import BaseModel
-
 import uvicorn
 import logging
-
 from .telegram_delete import TelegramDeleter, Filters
 from .accounts import account_store, Account
 from .telegram_client_factory import get_deleter_for_account
@@ -96,24 +93,33 @@ async def index(request: Request):
 
 @app.get("/accounts")
 async def get_accounts():
-    """Get all accounts with their authentication status"""
     accounts_data = []
     for account in account_store.get_all_accounts():
+        account_deleter = get_deleter_for_account(account.id)
+        is_authenticated = False
+        username = None
+        if account_deleter and account_deleter.client:
+            try:
+                await account_deleter.connect()
+                if await account_deleter.client.is_user_authorized():
+                    is_authenticated = True
+                    me = await account_deleter.client.get_me()
+                    username = me.username
+            except Exception:
+                pass
         accounts_data.append({
             "id": account.id,
             "label": account.label,
             "phone": account.phone,
-            "api_id": account.api_id,
-            "api_hash": account.api_hash,
-            "is_authenticated": False,  # Will be checked when connecting
-            "username": None
+            "is_authenticated": is_authenticated,
+            "username": username
         })
     return accounts_data
 
 @app.post("/accounts")
 async def create_account(data: CreateAccountRequest):
     try:
-        account = account_store.create(
+        account = account_store.create_account(
             label=data.label,
             api_id=data.api_id,
             api_hash=data.api_hash,
