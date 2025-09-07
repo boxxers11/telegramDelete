@@ -654,6 +654,7 @@
                         if (data.success) {
                             if (data.status === 'CODE_SENT') {
                                 this.loginData.accountId = accountId;
+                                this.loginData.phone_code_hash = data.phone_code_hash;
                                 this.showLoginModal = true;
                             } else if (data.status === 'OK') {
                                 await this.loadAccounts();
@@ -681,6 +682,7 @@
                             },
                             body: JSON.stringify({
                                 code: this.loginData.code,
+                                phone_code_hash: this.loginData.phone_code_hash,
                                 password: this.loginData.password || null
                             })
                         });
