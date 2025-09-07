@@ -149,19 +149,24 @@ async def connect_account(account_id: str, data: ConnectAccountRequest):
         if not account:
             return {"success": False, "error": "Account not found"}
         result = await account_deleter.connect(account.phone)
-        if result["success"] and result.get("status") == "CODE_SENT":
-            return result
-        elif result["success"] and result.get("status") == "AUTHENTICATED":
-            return result
-        if data.code:
-            res = await account_deleter.sign_in_with_code(
-                phone=account.phone,
+            logger.info(f"Attempting sign in with code for account {account_id}")
+            result = await account_deleter.sign_in_with_code(
+        # If we have a code, try to sign in with it
                 code=data.code,
-                password=data.password,
-            )
-            return res
-        return result
+                password=data.password
+            logger.info(f"Sign in result: {result}")
+            return result
+        else:
+            # Initial connection - send code
+            logger.info(f"Sending code to {account.phone}")
+            result = await account_deleter.connect(account.phone)
+            logger.info(f"Connect result: {result}")
+            return result
+            
     except Exception as e:
+        logger.error(f"Error in connect_account: {e}")
+        import traceback
+        traceback.print_exc()
         return {"success": False, "error": str(e)}
 
 @app.post("/accounts/{account_id}/scan")
