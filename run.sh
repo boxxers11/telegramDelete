@@ -71,7 +71,7 @@ for i in {1..30}; do
 done
 
 # Give Python server extra time to fully initialize
-sleep 10
+sleep 5
 
 # Install npm dependencies if node_modules doesn't exist
 if [ ! -d "node_modules" ]; then
@@ -79,6 +79,7 @@ if [ ! -d "node_modules" ]; then
     npm install
 fi
 
+echo "🌐 Starting React development server..."
 # Start React dev server
 npm run dev &
 REACT_PID=$!
