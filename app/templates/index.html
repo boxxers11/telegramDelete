@@ -562,7 +562,9 @@
                 async loadAccounts() {
                     try {
                         const response = await fetch('/accounts');
+                        console.log('Response status:', response.status);
                         const accountsData = await response.json();
+                        console.log('Accounts data:', accountsData);
                         // Make sure is_authenticated is properly set
                         this.accounts = accountsData.map(acc => ({
                             ...acc,
@@ -570,6 +572,7 @@
                         }));
                     } catch (error) {
                         console.error('Error loading accounts:', error);
+                        this.accountError = 'Cannot connect to server. Please make sure the Python server is running.';
                     }
                 },
                 
