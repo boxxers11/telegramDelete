@@ -72,6 +72,8 @@ function App() {
   const [accountOperations, setAccountOperations] = useState<{[key: string]: any}>({});
   const [operationStatus, setOperationStatus] = useState<{[key: string]: string}>({});
   const [operationProgress, setOperationProgress] = useState<{[key: string]: any}>({});
+  const [previewMessages, setPreviewMessages] = useState<any[]>([]);
+  const [showPreview, setShowPreview] = useState(false);
 
   useEffect(() => {
     // ניקוי localStorage ו-sessionStorage ברענון הדף
@@ -80,6 +82,53 @@ function App() {
 
     checkServerConnection();
   }, []);
+
+  // Mock data for demo mode
+  const generateMockResults = () => {
+    return {
+      chats: [
+        {
+          id: 1,
+          title: "Work Group",
+          type: "Group",
+          participants_count: 25,
+          candidates_found: 15,
+          deleted: 0
+        },
+        {
+          id: 2,
+          title: "Family Chat",
+          type: "Group", 
+          participants_count: 8,
+          candidates_found: 0,
+          deleted: 0,
+          skipped_reason: "Group has ≤10 members (safety protection)"
+        },
+        {
+          id: 3,
+          title: "John Doe",
+          type: "User",
+          participants_count: 1,
+          candidates_found: 23,
+          deleted: 0
+        }
+      ],
+      summary: {
+        total_chats_processed: 3,
+        total_chats_skipped: 1,
+        total_candidates: 38,
+        total_deleted: 0
+      },
+      logs: [
+        "[14:30:15] Starting message scan...",
+        "[14:30:16] Connected to Telegram successfully",
+        "[14:30:17] Scanning Work Group - found 15 messages",
+        "[14:30:18] Skipping Family Chat - only 8 members (safety protection)",
+        "[14:30:19] Scanning John Doe - found 23 messages",
+        "[14:30:20] Scan completed - 38 messages found across 3 chats"
+      ]
+    };
+  };
 
   const checkServerConnection = async () => {
     try {
@@ -96,9 +145,10 @@ function App() {
         throw new Error(`Server responded with ${response.status}`);
       }
     } catch (err) {
-      console.log('❌ Server connection failed, switching to demo mode. To use full functionality, run the Python server locally using run.sh (Mac/Linux) or run.bat (Windows)');
+      console.log('❌ Server connection failed, switching to demo mode.');
       setIsDemoMode(true);
       loadAccountsFromStorage();
+      setShowDemoModal(true);
     }
   };
 
@@ -330,7 +380,21 @@ function App() {
     }
   };
   const scanAccount = (accountId: string) => {
-    scanAccountMessages(accountId);
+    if (isDemoMode) {
+      // Demo mode - show mock results
+      setAccountOperations(prev => ({...prev, [accountId]: {...prev[accountId], scanning: true}}));
+      setOperationStatus(prev => ({...prev, [accountId]: 'Demo scan in progress...'}));
+      
+      setTimeout(() => {
+        const mockResults = generateMockResults();
+        setResults(mockResults);
+        setSuccess('Demo scan completed! This shows what real results would look like.');
+        setOperationStatus(prev => ({...prev, [accountId]: `Demo scan complete - ${mockResults.summary.total_candidates} messages found`}));
+        setAccountOperations(prev => ({...prev, [accountId]: {...prev[accountId], scanning: false}}));
+      }, 2000);
+    } else {
+      scanAccountMessages(accountId);
+    }
   };
 
   const scanAccountMessages = async (accountId: string) => {
@@ -380,11 +444,41 @@ function App() {
     }
   };
   const deleteAccount = (accountId: string) => {
-    if (!confirm('Are you sure you want to delete messages from this account? This cannot be undone.')) {
-      return;
+    if (isDemoMode) {
+      if (!confirm('This is demo mode - no real deletion will occur. Continue with demo?')) {
+        return;
+      }
+      // Demo mode - show mock results
+      setAccountOperations(prev => ({...prev, [accountId]: {...prev[accountId], deleting: true}}));
+      setOperationStatus(prev => ({...prev, [accountId]: 'Demo deletion in progress...'}));
+      
+      setTimeout(() => {
+        const mockResults = generateMockResults();
+        mockResults.summary.total_deleted = 38;
+        mockResults.chats.forEach(chat => {
+          if (chat.candidates_found > 0) {
+            chat.deleted = chat.candidates_found;
+          }
+        });
+        mockResults.logs = [
+          "[14:35:15] Starting message deletion...",
+          "[14:35:16] Connected to Telegram successfully", 
+          "[14:35:17] Deleting 15 messages from Work Group",
+          "[14:35:18] Skipping Family Chat - only 8 members (safety protection)",
+          "[14:35:19] Deleting 23 messages from John Doe",
+          "[14:35:20] Deletion completed - 38 messages deleted"
+        ];
+        setResults(mockResults);
+        setSuccess('Demo deletion completed! This shows what real results would look like.');
+        setOperationStatus(prev => ({...prev, [accountId]: `Demo deletion complete - ${mockResults.summary.total_deleted} messages deleted`}));
+        setAccountOperations(prev => ({...prev, [accountId]: {...prev[accountId], deleting: false}}));
+      }, 3000);
+    } else {
+      if (!confirm('Are you sure you want to delete messages from this account? This cannot be undone.')) {
+        return;
+      }
+      deleteAccountMessages(accountId);
     }
-    
-    deleteAccountMessages(accountId);
   };
 
   const deleteAccountMessages = async (accountId: string) => {
@@ -430,7 +524,19 @@ function App() {
     }
   };
   const scanAllAccounts = () => {
-    scanAllAccountsMessages();
+    if (isDemoMode) {
+      setLoading(true);
+      setTimeout(() => {
+        const mockResults = generateMockResults();
+        mockResults.summary.total_chats_processed = 6;
+        mockResults.summary.total_candidates = 76;
+        setResults(mockResults);
+        setSuccess('Demo scan all completed! This shows results from multiple accounts.');
+        setLoading(false);
+      }, 3000);
+    } else {
+      scanAllAccountsMessages();
+    }
   };
 
   const scanAllAccountsMessages = async () => {
@@ -472,11 +578,31 @@ function App() {
     }
   };
   const deleteAllAccounts = () => {
-    if (!confirm('Are you sure you want to delete messages from ALL authenticated accounts? This cannot be undone.')) {
-      return;
+    if (isDemoMode) {
+      if (!confirm('This is demo mode - no real deletion will occur. Continue with demo?')) {
+        return;
+      }
+      setLoading(true);
+      setTimeout(() => {
+        const mockResults = generateMockResults();
+        mockResults.summary.total_chats_processed = 6;
+        mockResults.summary.total_candidates = 76;
+        mockResults.summary.total_deleted = 76;
+        mockResults.chats.forEach(chat => {
+          if (chat.candidates_found > 0) {
+            chat.deleted = chat.candidates_found;
+          }
+        });
+        setResults(mockResults);
+        setSuccess('Demo delete all completed! This shows results from multiple accounts.');
+        setLoading(false);
+      }, 4000);
+    } else {
+      if (!confirm('Are you sure you want to delete messages from ALL authenticated accounts? This cannot be undone.')) {
+        return;
+      }
+      deleteAllAccountsMessages();
     }
-    
-    deleteAllAccountsMessages();
   };
 
   const deleteAllAccountsMessages = async () => {
@@ -651,12 +777,17 @@ function App() {
                           <button
                             onClick={() => connectAccount(account.id)}
                             disabled={accountOperations[account.id]?.connecting || account.is_authenticated}
-                            className={`px-3 py-1 text-white text-sm rounded transition-colors ${
+                            className={`px-3 py-1 text-white text-sm rounded transition-colors flex items-center ${
                               account.is_authenticated 
                                 ? 'bg-green-600 cursor-not-allowed' 
-                                : 'bg-blue-600 hover:bg-blue-700'
+                                : accountOperations[account.id]?.connecting
+                                  ? 'bg-blue-400 cursor-not-allowed'
+                                  : 'bg-blue-600 hover:bg-blue-700'
                             }`}
                           >
+                            {accountOperations[account.id]?.connecting && (
+                              <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-1"></div>
+                            )}
                             {account.is_authenticated 
                               ? `✓ @${account.username}` 
                               : accountOperations[account.id]?.connecting 
@@ -664,24 +795,33 @@ function App() {
                                 : 'Connect'
                             }
                           </button>
-                          {operationStatus[account.id] && (
-                            <div className="text-xs text-gray-600 max-w-32 truncate">
-                              {operationStatus[account.id]}
-                            </div>
-                          )}
                           <button
                             onClick={() => scanAccount(account.id)}
                             disabled={accountOperations[account.id]?.scanning || !account.is_authenticated}
-                            className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700 transition-colors"
+                            className={`px-3 py-1 text-white text-sm rounded transition-colors flex items-center ${
+                              accountOperations[account.id]?.scanning || (!account.is_authenticated && !isDemoMode)
+                                ? 'bg-gray-400 cursor-not-allowed'
+                                : 'bg-green-600 hover:bg-green-700'
+                            }`}
                           >
+                            {accountOperations[account.id]?.scanning && (
+                              <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-1"></div>
+                            )}
                             <Search className="w-3 h-3 mr-1 inline" />
                             {accountOperations[account.id]?.scanning ? 'Scanning...' : 'Scan'}
                           </button>
                           <button
                             onClick={() => deleteAccount(account.id)}
                             disabled={accountOperations[account.id]?.deleting || !account.is_authenticated}
-                            className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700 transition-colors"
+                            className={`px-3 py-1 text-white text-sm rounded transition-colors flex items-center ${
+                              accountOperations[account.id]?.deleting || (!account.is_authenticated && !isDemoMode)
+                                ? 'bg-gray-400 cursor-not-allowed'
+                                : 'bg-red-600 hover:bg-red-700'
+                            }`}
                           >
+                            {accountOperations[account.id]?.deleting && (
+                              <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-1"></div>
+                            )}
                             <Trash2 className="w-3 h-3 mr-1 inline" />
                             {accountOperations[account.id]?.deleting ? 'Deleting...' : 'Delete'}
                           </button>
@@ -693,6 +833,11 @@ function App() {
                           </button>
                         </div>
                       </div>
+                      {operationStatus[account.id] && (
+                        <div className="mt-2 text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded">
+                          {operationStatus[account.id]}
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -717,8 +862,13 @@ function App() {
                   <button
                     onClick={scanAllAccounts}
                     disabled={loading}
-                    className="flex items-center px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                    className={`flex items-center px-6 py-3 text-white rounded-lg transition-colors ${
+                      loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'
+                    }`}
                   >
+                    {loading && (
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    )}
                     <Search className="w-4 h-4 mr-2" />
                     {loading ? 'Scanning...' : 'Scan All Accounts'}
                   </button>
@@ -726,15 +876,20 @@ function App() {
                   <button
                     onClick={deleteAllAccounts}
                     disabled={loading}
-                    className="flex items-center px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                    className={`flex items-center px-6 py-3 text-white rounded-lg transition-colors ${
+                      loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-red-600 hover:bg-red-700'
+                    }`}
                   >
+                    {loading && (
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    )}
                     <Trash2 className="w-4 h-4 mr-2" />
                     {loading ? 'Deleting...' : 'Delete All Accounts'}
                   </button>
                 </div>
 
                 <p className="text-sm text-gray-600 mt-3">
-                  {isDemoMode ? 'Demo mode - no real functionality' : 'Server mode - full functionality available'} - {accounts.length} account{accounts.length !== 1 ? 's' : ''} configured
+                  {isDemoMode ? 'Demo mode - showing mock results for demonstration' : 'Server mode - full functionality available'} - {accounts.length} account{accounts.length !== 1 ? 's' : ''} configured
                 </p>
               </div>
             )}
@@ -870,19 +1025,34 @@ function App() {
                   </div>
                   <div className="bg-gray-50 p-3 rounded">
                     <div className="font-medium text-gray-900">Status</div>
-                    <div className="text-sm text-gray-600">Demo Mode</div>
+                    <div className="text-sm text-gray-600">{isDemoMode ? 'Demo Mode' : 'Server Mode'}</div>
                   </div>
                 </div>
 
-                <div className="text-sm text-gray-600">
-                  <p>This is a demonstration interface. To see actual results:</p>
-                  <ul className="list-disc list-inside mt-2 space-y-1">
-                    <li>Download and run the Python server locally</li>
-                    <li>Add your Telegram API credentials</li>
-                    <li>Connect your accounts with verification codes</li>
-                    <li>Run scan or delete operations</li>
-                  </ul>
-                </div>
+                {isDemoMode ? (
+                  <div className="text-sm text-gray-600">
+                    <p className="font-medium text-blue-900 mb-2">Try the demo:</p>
+                    <ul className="list-disc list-inside space-y-1">
+                      <li>Add demo accounts above</li>
+                      <li>Click "Scan" or "Delete" to see mock results</li>
+                      <li>All operations show realistic demonstrations</li>
+                      <li>No real Telegram connections are made</li>
+                    </ul>
+                    <p className="mt-3 text-xs text-gray-500">
+                      For real functionality, download and run the Python server locally.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="text-sm text-gray-600">
+                    <p className="font-medium text-green-900 mb-2">Server connected:</p>
+                    <ul className="list-disc list-inside space-y-1">
+                      <li>Add your real Telegram accounts</li>
+                      <li>Connect with verification codes</li>
+                      <li>Scan and delete actual messages</li>
+                      <li>Full functionality available</li>
+                    </ul>
+                  </div>
+                )}
               </div>
             </div>
           </div>
