@@ -49,6 +49,8 @@
                                         <span x-show="account.is_authenticated" class="text-green-600">
                                             מחובר בתור @<span x-text="account.username"></span>
                                         </span>
+                                        <!-- Status indicator -->
+                                        <div x-show="operationStatus[account.id]" class="text-xs text-blue-600 mt-1" x-text="operationStatus[account.id]"></div>
                                     </td>
                                     <td class="border border-gray-300 px-4 py-2">
                                         <div class="flex flex-wrap gap-2">
@@ -57,10 +59,21 @@
                                                 x-show="!account.is_authenticated"
                                                 @click="connectAccount(account.id)"
                                                 :disabled="accountOperations[account.id]?.connecting || false"
-                                                class="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                                                class="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed relative"
                                             >
-                                                <span x-show="!accountOperations[account.id]?.connecting">התחבר</span>
-                                                <span x-show="accountOperations[account.id]?.connecting">מתחבר...</span>
+                                                <span x-show="!accountOperations[account.id]?.connecting" class="flex items-center">
+                                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0"></path>
+                                                    </svg>
+                                                    התחבר
+                                                </span>
+                                                <span x-show="accountOperations[account.id]?.connecting" class="flex items-center">
+                                                    <svg class="animate-spin w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24">
+                                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                    </svg>
+                                                    מתחבר...
+                                                </span>
                                             </button>
                                             
                                             <!-- Scan -->
@@ -68,10 +81,21 @@
                                                 x-show="account.is_authenticated"
                                                 @click="scanAccount(account.id)"
                                                 :disabled="accountOperations[account.id]?.scanning"
-                                                class="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700 disabled:bg-gray-400"
+                                                class="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700 disabled:bg-gray-400 relative"
                                             >
-                                                <span x-show="!accountOperations[account.id]?.scanning">Scan</span>
-                                                <span x-show="accountOperations[account.id]?.scanning">Scanning...</span>
+                                                <span x-show="!accountOperations[account.id]?.scanning" class="flex items-center">
+                                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                                    </svg>
+                                                    Scan
+                                                </span>
+                                                <span x-show="accountOperations[account.id]?.scanning" class="flex items-center">
+                                                    <svg class="animate-spin w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24">
+                                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                    </svg>
+                                                    Scanning...
+                                                </span>
                                             </button>
                                             
                                             <!-- Delete -->
@@ -79,10 +103,21 @@
                                                 x-show="account.is_authenticated"
                                                 @click="deleteAccount(account.id)"
                                                 :disabled="accountOperations[account.id]?.deleting"
-                                                class="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700 disabled:bg-gray-400"
+                                                class="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700 disabled:bg-gray-400 relative"
                                             >
-                                                <span x-show="!accountOperations[account.id]?.deleting">Delete</span>
-                                                <span x-show="accountOperations[account.id]?.deleting">Deleting...</span>
+                                                <span x-show="!accountOperations[account.id]?.deleting" class="flex items-center">
+                                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                    </svg>
+                                                    Delete
+                                                </span>
+                                                <span x-show="accountOperations[account.id]?.deleting" class="flex items-center">
+                                                    <svg class="animate-spin w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24">
+                                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                    </svg>
+                                                    Deleting...
+                                                </span>
                                             </button>
                                             
                                             <!-- Remove -->
@@ -554,13 +589,21 @@
                 operating: false,
                 operationType: '',
                 results: null,
+                operationStatus: {},
+                realTimeStatus: {},
                 
                 async init() {
                     await this.loadAccounts();
+                    // Initialize status tracking
+                    this.accounts.forEach(acc => {
+                        this.operationStatus[acc.id] = '';
+                        this.realTimeStatus[acc.id] = '';
+                    });
                 },
                 
                 async loadAccounts() {
                     try {
+                        this.updateGlobalStatus('Loading accounts...');
                         const response = await fetch('/accounts');
                         console.log('Response status:', response.status);
                         const accountsData = await response.json();
@@ -570,10 +613,23 @@
                             ...acc,
                             is_authenticated: acc.is_authenticated || false
                         }));
+                        this.updateGlobalStatus(`Loaded ${this.accounts.length} accounts`);
+                        setTimeout(() => this.updateGlobalStatus(''), 2000);
                     } catch (error) {
                         console.error('Error loading accounts:', error);
                         this.accountError = 'Cannot connect to server. Please make sure the Python server is running.';
+                        this.updateGlobalStatus('Failed to connect to server');
                     }
+                },
+                
+                updateGlobalStatus(message) {
+                    // You can add a global status display here if needed
+                    console.log('Global Status:', message);
+                },
+                
+                updateAccountStatus(accountId, status) {
+                    this.operationStatus[accountId] = status;
+                    console.log(`Account ${accountId}:`, status);
                 },
                 
                 hasAuthenticatedAccounts() {
@@ -656,6 +712,7 @@
                 
                 async connectAccount(accountId) {
                     this.accountOperations[accountId] = { ...this.accountOperations[accountId], connecting: true };
+                    this.updateAccountStatus(accountId, 'Initializing connection...');
                     
                     try {
                         const response = await fetch(`/accounts/${accountId}/connect`, {
@@ -670,16 +727,20 @@
                         
                         if (data.success) {
                             if (data.status === 'CODE_SENT') {
+                                this.updateAccountStatus(accountId, 'Code sent - check Telegram app');
                                 this.loginData.accountId = accountId;
                                 this.loginData.phone_code_hash = data.phone_code_hash;
                                 this.showLoginModal = true;
                             } else if (data.status === 'AUTHENTICATED') {
+                                this.updateAccountStatus(accountId, `Connected as @${data.username}`);
                                 await this.loadAccounts();
                             }
                         } else {
+                            this.updateAccountStatus(accountId, 'Connection failed');
                             this.accountError = data.error || 'Connection failed';
                         }
                     } catch (error) {
+                        this.updateAccountStatus(accountId, 'Network error');
                         this.accountError = 'Network error: ' + error.message;
                     } finally {
                         this.accountOperations[accountId] = { ...this.accountOperations[accountId], connecting: false };
@@ -749,6 +810,7 @@
                 
                 async scanAccount(accountId) {
                     this.accountOperations[accountId] = { ...this.accountOperations[accountId], scanning: true };
+                    this.updateAccountStatus(accountId, 'Starting scan...');
                     
                     const payload = {
                         include_private: this.includePrivate,
@@ -761,6 +823,7 @@
                     };
                     
                     try {
+                        this.updateAccountStatus(accountId, 'Connecting to Telegram...');
                         const response = await fetch(`/accounts/${accountId}/scan`, {
                             method: 'POST',
                             headers: {
@@ -773,17 +836,27 @@
                         
                         if (data.success) {
                             this.results = data.result;
+                            const totalFound = data.result.summary?.total_candidates || 0;
+                            this.updateAccountStatus(accountId, `Scan complete - ${totalFound} messages found`);
                         } else {
+                            this.updateAccountStatus(accountId, 'Scan failed');
                             this.results = {
                                 logs: [data.error || 'Scan failed']
                             };
                         }
                     } catch (error) {
+                        this.updateAccountStatus(accountId, 'Network error during scan');
                         this.results = {
                             logs: ['Network error: ' + error.message]
                         };
                     } finally {
                         this.accountOperations[accountId] = { ...this.accountOperations[accountId], scanning: false };
+                        // Clear status after 5 seconds
+                        setTimeout(() => {
+                            if (!this.accountOperations[accountId]?.scanning && !this.accountOperations[accountId]?.deleting) {
+                                this.updateAccountStatus(accountId, '');
+                            }
+                        }, 5000);
                     }
                 },
                 
@@ -793,6 +866,7 @@
                     }
                     
                     this.accountOperations[accountId] = { ...this.accountOperations[accountId], deleting: true };
+                    this.updateAccountStatus(accountId, 'Starting deletion...');
                     
                     const payload = {
                         include_private: this.includePrivate,
@@ -805,6 +879,7 @@
                     };
                     
                     try {
+                        this.updateAccountStatus(accountId, 'Connecting to Telegram...');
                         const response = await fetch(`/accounts/${accountId}/delete`, {
                             method: 'POST',
                             headers: {
@@ -817,17 +892,27 @@
                         
                         if (data.success) {
                             this.results = data.result;
+                            const totalDeleted = data.result.summary?.total_deleted || 0;
+                            this.updateAccountStatus(accountId, `Deletion complete - ${totalDeleted} messages deleted`);
                         } else {
+                            this.updateAccountStatus(accountId, 'Deletion failed');
                             this.results = {
                                 logs: [data.error || 'Delete failed']
                             };
                         }
                     } catch (error) {
+                        this.updateAccountStatus(accountId, 'Network error during deletion');
                         this.results = {
                             logs: ['Network error: ' + error.message]
                         };
                     } finally {
                         this.accountOperations[accountId] = { ...this.accountOperations[accountId], deleting: false };
+                        // Clear status after 10 seconds for delete operations
+                        setTimeout(() => {
+                            if (!this.accountOperations[accountId]?.scanning && !this.accountOperations[accountId]?.deleting) {
+                                this.updateAccountStatus(accountId, '');
+                            }
+                        }, 10000);
                     }
                 },
                 
