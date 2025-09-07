@@ -91,13 +91,13 @@ async def index(request: Request):
             pass
     return templates.TemplateResponse(
         "index.html",
-        {"request": request, "auth_status": auth_status, "accounts": account_store.get_all()}
+        {"request": request, "auth_status": auth_status, "accounts": account_store.get_all_accounts()}
     )
 
 @app.get("/accounts")
 async def get_accounts():
     accounts_data = []
-    for account in account_store.get_all():
+    for account in account_store.get_all_accounts():
         account_deleter = get_deleter_for_account(account.id)
         is_authenticated = False
         username = None
@@ -136,7 +136,7 @@ async def create_account(data: CreateAccountRequest):
 
 @app.delete("/accounts/{account_id}")
 async def delete_account(account_id: str):
-    success = account_store.delete(account_id)
+    success = account_store.delete_account(account_id)
     if success:
         return {"success": True}
     else:
@@ -148,7 +148,7 @@ async def connect_account(account_id: str, data: ConnectAccountRequest):
     if not account_deleter:
         return {"success": False, "error": "Account not found"}
     try:
-        account = account_store.get(account_id)
+        account = account_store.get_account(account_id)
         if not account:
             return {"success": False, "error": "Account not found"}
         result = await account_deleter.connect(account.phone)
