@@ -1,0 +1,9 @@
+Login authentication fix completed successfully!
+
+Changes made:
+1. Fixed phone_code_hash handling in ConnectAccountRequest
+2. Added phone_code_hash to loginData object in frontend
+3. Properly pass phone_code_hash in login completion request
+4. Store phone_code_hash when CODE_SENT status is received
+
+The login process should now work correctly with proper verification code handling.
