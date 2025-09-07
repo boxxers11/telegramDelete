@@ -3,11 +3,13 @@ import asyncio
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, date
 from typing import Optional, List
+
 from fastapi import FastAPI, Request, Form, HTTPException
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, JSONResponse
 from pydantic import BaseModel
+
 import uvicorn
 import logging
 
@@ -15,33 +17,10 @@ from .telegram_delete import TelegramDeleter, Filters
 from .accounts import account_store, Account
 from .telegram_client_factory import get_deleter_for_account
 
+# Define request models
 class DeleteSelectedRequest(BaseModel):
     message_ids: List[int]
 
-# Setup logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-app = FastAPI(title="Telegram Message Deleter")
-
-# Add CORS middleware to allow frontend connections
-from fastapi.middleware.cors import CORSMiddleware
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:3000"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# Setup templates and static files
-templates = Jinja2Templates(directory="app/templates")
-app.mount("/static", StaticFiles(directory="app/static"), name="static")
-
-# Global deleter instance
-deleter: Optional[TelegramDeleter] = None
-
-# Account-related models
 class CreateAccountRequest(BaseModel):
     label: str
     api_id: int
@@ -75,45 +54,62 @@ class MultiAccountOperationRequest(BaseModel):
     revoke: bool = True
     test_mode: bool = False
 
+# Setup logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Initialize FastAPI app and middleware
+app = FastAPI(title="Telegram Message Manager")
+
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
+
+# Templates and static files
+templates = Jinja2Templates(directory="app/templates")
+app.mount("/static", StaticFiles(directory="app/static"), name="static")
+
+# Initialize telegram deleter instance
+deleter: Optional[TelegramDeleter] = None
+
+# Routes
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
-    """Main page"""
     auth_status = None
     if deleter and deleter.client:
         try:
             if await deleter.client.is_user_authorized():
                 me = await deleter.client.get_me()
-                username = me.username or f"{me.first_name} {me.last_name or ''}".strip()
-                auth_status = f"@{username}"
+                auth_status = f"@{me.username or me.first_name}"
         except:
             pass
-    
     return templates.TemplateResponse(
-        "index.html", 
-        {"request": request, "auth_status": auth_status, "accounts": account_store.get_all_accounts()}
+        "index.html",
+        {"request": request, "auth_status": auth_status, "accounts": account_store.get_all()}
     )
 
-# Account management endpoints
 @app.get("/accounts")
 async def get_accounts():
-    """Get all accounts with their authentication status"""
     accounts_data = []
-    
-    for account in account_store.get_all_accounts():
+    for account in account_store.get_all():
         account_deleter = get_deleter_for_account(account.id)
         is_authenticated = False
         username = None
-        
         if account_deleter and account_deleter.client:
             try:
                 await account_deleter.connect()
                 if await account_deleter.client.is_user_authorized():
                     is_authenticated = True
                     me = await account_deleter.client.get_me()
-                    username = me.username or f"{me.first_name} {me.last_name or ''}".strip()
+                    username = me.username
             except Exception:
                 pass
-        
         accounts_data.append({
             "id": account.id,
             "label": account.label,
@@ -121,33 +117,26 @@ async def get_accounts():
             "is_authenticated": is_authenticated,
             "username": username
         })
-    
     return accounts_data
 
 @app.post("/accounts")
 async def create_account(data: CreateAccountRequest):
-    """Create a new account"""
-    logger.info(f"Creating account: {data.label} - {data.phone}")
     try:
-        account = account_store.create_account(
+        account = account_store.create(
             label=data.label,
             api_id=data.api_id,
             api_hash=data.api_hash,
-            phone=data.phone
+            phone=data.phone,
         )
-        logger.info(f"Account created successfully: {account.id}")
+        logger.info(f"Account created with id {account.id}")
         return {"success": True, "account_id": account.id}
-    except ValueError as e:
-        logger.error(f"Validation error creating account: {e}")
-        return {"success": False, "error": str(e)}
     except Exception as e:
-        logger.error(f"Unexpected error creating account: {e}")
-        return {"success": False, "error": f"Failed to create account: {str(e)}"}
+        logger.error(f"Error creating account: {e}")
+        return {"success": False, "error": str(e)}
 
 @app.delete("/accounts/{account_id}")
 async def delete_account(account_id: str):
-    """Delete an account"""
-    success = account_store.delete_account(account_id)
+    success = account_store.delete(account_id)
     if success:
         return {"success": True}
     else:
@@ -155,66 +144,52 @@ async def delete_account(account_id: str):
 
 @app.post("/accounts/{account_id}/connect")
 async def connect_account(account_id: str, data: ConnectAccountRequest):
-    """Connect/authenticate an account"""
     account_deleter = get_deleter_for_account(account_id)
     if not account_deleter:
         return {"success": False, "error": "Account not found"}
-    
     try:
-        account = account_store.get_account(account_id)
+        account = account_store.get(account_id)
         if not account:
             return {"success": False, "error": "Account not found"}
-        
-        # Connect to Telegram
         result = await account_deleter.connect(account.phone)
-        
         if result["success"] and result.get("status") == "CODE_SENT":
             return result
         elif result["success"] and result.get("status") == "AUTHENTICATED":
             return result
-        
-        # If code provided, try to sign in
         if data.code:
-            result = await account_deleter.sign_in_with_code(
+            res = await account_deleter.sign_in_with_code(
                 phone=account.phone,
                 code=data.code,
-                password=data.password
+                password=data.password,
             )
-            return result
-        
+            return res
         return result
-        
     except Exception as e:
+        return {"success": False, "error": str(e)}
 
 @app.post("/accounts/{account_id}/scan")
-async def scan_account_messages(account_id: str, data: OperationRequest):
-    """Scan messages for a specific account"""
+async def scan_account(account_id: str, data: OperationRequest):
     account_deleter = get_deleter_for_account(account_id)
     if not account_deleter:
         raise HTTPException(status_code=400, detail="Account not found")
-    
     filters = _build_filters(data, dry_run=True)
     result = await account_deleter.scan(filters)
-    
     return {
         "success": True,
         "result": {
-            "chats": [
-                {
-                    "id": chat.id,
-                    "title": chat.title,
-                    "type": chat.type,
-                    "participants_count": chat.participants_count,
-                    "candidates_found": chat.candidates_found,
-                    "deleted": chat.deleted,
-                    "error": chat.error,
-                    "skipped_reason": chat.skipped_reason
-                }
-                for chat in result.chats
-            ],
+            "chats": [{
+                "id": c.id,
+                "title": c.title,
+                "type": c.type,
+                "participants": c.participants_count,
+                "candidates": c.candidates_found,
+                "deleted": c.deleted,
+                "error": c.error,
+                "skipped_reason": c.skipped_reason
+            } for c in result.chats],
             "summary": {
-                "total_chats_processed": result.total_chats_processed,
-                "total_chats_skipped": result.total_chats_skipped,
+                "total_processed": result.total_chats_processed,
+                "total_skipped": result.total_chats_skipped,
                 "total_candidates": result.total_candidates,
                 "total_deleted": result.total_deleted
             },
@@ -223,34 +198,28 @@ async def scan_account_messages(account_id: str, data: OperationRequest):
     }
 
 @app.post("/accounts/{account_id}/delete")
-async def delete_account_messages(account_id: str, data: OperationRequest):
-    """Delete messages for a specific account"""
+async def delete_messages(account_id: str, data: OperationRequest):
     account_deleter = get_deleter_for_account(account_id)
     if not account_deleter:
         raise HTTPException(status_code=400, detail="Account not found")
-    
     filters = _build_filters(data, dry_run=False)
     result = await account_deleter.delete(filters)
-    
     return {
         "success": True,
         "result": {
-            "chats": [
-                {
-                    "id": chat.id,
-                    "title": chat.title,
-                    "type": chat.type,
-                    "participants_count": chat.participants_count,
-                    "candidates_found": chat.candidates_found,
-                    "deleted": chat.deleted,
-                    "error": chat.error,
-                    "skipped_reason": chat.skipped_reason
-                }
-                for chat in result.chats
-            ],
+            "chats": [{
+                "id": c.id,
+                "title": c.title,
+                "type": c.type,
+                "participants": c.participants_count,
+                "candidates": c.candidates_found,
+                "deleted": c.deleted,
+                "error": c.error,
+                "skipped_reason": c.skipped_reason
+            } for c in result.chats],
             "summary": {
-                "total_chats_processed": result.total_chats_processed,
-                "total_chats_skipped": result.total_chats_skipped,
+                "total_processed": result.total_chats_processed,
+                "total_skipped": result.total_chats_skipped,
                 "total_candidates": result.total_candidates,
                 "total_deleted": result.total_deleted
             },
@@ -258,347 +227,24 @@ async def delete_account_messages(account_id: str, data: OperationRequest):
         }
     }
 
-@app.post("/scan_all")
-async def scan_all_accounts(data: MultiAccountOperationRequest):
-    """Scan messages across all authenticated accounts"""
-    accounts = account_store.get_all_accounts()
-    if not accounts:
-        return {"success": False, "error": "No accounts configured"}
-    
-    filters = _build_multi_account_filters(data, dry_run=True)
-    
-    # Use semaphore to limit concurrency
-    semaphore = asyncio.Semaphore(2)
-    
-    async def scan_account(account):
-        async with semaphore:
-            account_deleter = get_deleter_for_account(account.id)
-            if not account_deleter:
-                return None
-            
-            try:
-                await account_deleter.connect()
-                if not await account_deleter.client.is_user_authorized():
-                    return None
-                
-                me = await account_deleter.client.get_me()
-                username = me.username or f"{me.first_name} {me.last_name or ''}".strip()
-                
-                result = await account_deleter.scan(filters)
-                return {
-                    "account_id": account.id,
-                    "username": username,
-                    "data": {
-                        "chats": [
-                            {
-                                "id": chat.id,
-                                "title": chat.title,
-                                "type": chat.type,
-                                "participants_count": chat.participants_count,
-                                "candidates_found": chat.candidates_found,
-                                "deleted": chat.deleted,
-                                "error": chat.error,
-                                "skipped_reason": chat.skipped_reason
-                            }
-                            for chat in result.chats
-                        ],
-                        "summary": {
-                            "total_chats_processed": result.total_chats_processed,
-                            "total_chats_skipped": result.total_chats_skipped,
-                            "total_candidates": result.total_candidates,
-                            "total_deleted": result.total_deleted
-                        },
-                        "logs": result.logs
-                    }
-                }
-            except Exception as e:
-                return {
-                    "account_id": account.id,
-                    "error": str(e)
-                }
-    
-    # Run scans concurrently
-    results = await asyncio.gather(*[scan_account(account) for account in accounts])
-    
-    # Filter out None results and compile summary
-    valid_results = [r for r in results if r and "data" in r]
-    accounts_processed = len(valid_results)
-    skipped_not_authenticated = len(accounts) - accounts_processed
-    
-    total_candidates = sum(r["data"]["summary"]["total_candidates"] for r in valid_results)
-    skipped_small_groups = sum(r["data"]["summary"]["total_chats_skipped"] for r in valid_results)
-    
-    return {
-        "success": True,
-        "accounts": results,
-        "summary": {
-            "accounts_processed": accounts_processed,
-            "skipped_not_authenticated": skipped_not_authenticated,
-            "total_candidates": total_candidates,
-            "skipped_small_groups": skipped_small_groups
-        }
-    }
-
-@app.post("/delete_all")
-async def delete_all_accounts(data: MultiAccountOperationRequest):
-    """Delete messages across all authenticated accounts"""
-    accounts = account_store.get_all_accounts()
-    if not accounts:
-        return {"success": False, "error": "No accounts configured"}
-    
-    filters = _build_multi_account_filters(data, dry_run=False)
-    
-    # Use semaphore to limit concurrency
-    semaphore = asyncio.Semaphore(2)
-    
-    async def delete_account(account):
-        async with semaphore:
-            account_deleter = get_deleter_for_account(account.id)
-            if not account_deleter:
-                return None
-            
-            try:
-                await account_deleter.connect()
-                if not await account_deleter.client.is_user_authorized():
-                    return None
-                
-                me = await account_deleter.client.get_me()
-                username = me.username or f"{me.first_name} {me.last_name or ''}".strip()
-                
-                result = await account_deleter.delete(filters)
-                return {
-                    "account_id": account.id,
-                    "username": username,
-                    "data": {
-                        "chats": [
-                            {
-                                "id": chat.id,
-                                "title": chat.title,
-                                "type": chat.type,
-                                "participants_count": chat.participants_count,
-                                "candidates_found": chat.candidates_found,
-                                "deleted": chat.deleted,
-                                "error": chat.error,
-                                "skipped_reason": chat.skipped_reason
-                            }
-                            for chat in result.chats
-                        ],
-                        "summary": {
-                            "total_chats_processed": result.total_chats_processed,
-                            "total_chats_skipped": result.total_chats_skipped,
-                            "total_candidates": result.total_candidates,
-                            "total_deleted": result.total_deleted
-                        },
-                        "logs": result.logs
-                    }
-                }
-            except Exception as e:
-                return {
-                    "account_id": account.id,
-                    "error": str(e)
-                }
-    
-    # Run deletions concurrently
-    results = await asyncio.gather(*[delete_account(account) for account in accounts])
-    
-    # Filter out None results and compile summary
-    valid_results = [r for r in results if r and "data" in r]
-    accounts_processed = len(valid_results)
-    skipped_not_authenticated = len(accounts) - accounts_processed
-    
-    total_candidates = sum(r["data"]["summary"]["total_candidates"] for r in valid_results)
-    total_deleted = sum(r["data"]["summary"]["total_deleted"] for r in valid_results)
-    skipped_small_groups = sum(r["data"]["summary"]["total_chats_skipped"] for r in valid_results)
-    
-    return {
-        "success": True,
-        "accounts": results,
-        "summary": {
-            "accounts_processed": accounts_processed,
-            "skipped_not_authenticated": skipped_not_authenticated,
-            "total_candidates": total_candidates,
-            "total_deleted": total_deleted,
-            "skipped_small_groups": skipped_small_groups
-        }
-    }
-
-@app.post("/delete_selected")
-async def delete_selected_messages(data: DeleteSelectedRequest):
-    """Delete specific selected messages"""
+def _build_filters(data, dry_run=True):
     try:
-        # This is a simplified implementation
-        # In a real scenario, you'd need to track which account/chat each message belongs to
-        # and call the appropriate deletion methods
-        
-        deleted_count = 0
-        errors = []
-        
-        # Group messages by account and chat for efficient deletion
-        # This would require storing message metadata during scan
-        
-        # For now, simulate successful deletion
-        deleted_count = len(data.message_ids)
-        
-        return {
-            "success": True,
-            "deleted_count": deleted_count,
-            "errors": errors
-        }
-        
-    except Exception as e:
-        logger.error(f"Error deleting selected messages: {e}")
-        return {"success": False, "error": str(e)}
-
-@app.post("/connect")
-async def connect(data: ConnectRequest):
-    """Connect to Telegram with credentials"""
-    global deleter
-    
-    try:
-        session_name = "tg_ui_session"
-        deleter = TelegramDeleter(session_name, data.api_id, data.api_hash)
-        result = await deleter.connect()
-        return result
-    except Exception as e:
-        return {"success": False, "error": f"Connection error: {str(e)}"}
-
-@app.post("/scan")
-async def scan_messages(data: OperationRequest):
-    """Scan for messages without deleting"""
-    if not deleter:
-        raise HTTPException(status_code=400, detail="Not connected")
-    
-    filters = _build_filters(data, dry_run=True)
-    result = await deleter.scan(filters)
-    
-    return {
-        "success": True,
-        "result": {
-            "chats": [
-                {
-                    "id": chat.id,
-                    "title": chat.title,
-                    "type": chat.type,
-                    "participants_count": chat.participants_count,
-                    "candidates_found": chat.candidates_found,
-                    "deleted": chat.deleted,
-                    "error": chat.error,
-                    "skipped_reason": chat.skipped_reason
-                }
-                for chat in result.chats
-            ],
-            "summary": {
-                "total_chats_processed": result.total_chats_processed,
-                "total_chats_skipped": result.total_chats_skipped,
-                "total_candidates": result.total_candidates,
-                "total_deleted": result.total_deleted
-            },
-            "logs": result.logs
-        }
-    }
-
-@app.post("/delete")
-async def delete_messages(data: OperationRequest):
-    """Delete messages according to filters"""
-    if not deleter:
-        raise HTTPException(status_code=400, detail="Not connected")
-    
-    filters = _build_filters(data, dry_run=False)
-    result = await deleter.delete(filters)
-    
-    return {
-        "success": True,
-        "result": {
-            "chats": [
-                {
-                    "id": chat.id,
-                    "title": chat.title,
-                    "type": chat.type,
-                    "participants_count": chat.participants_count,
-                    "candidates_found": chat.candidates_found,
-                    "deleted": chat.deleted,
-                    "error": chat.error,
-                    "skipped_reason": chat.skipped_reason
-                }
-                for chat in result.chats
-            ],
-            "summary": {
-                "total_chats_processed": result.total_chats_processed,
-                "total_chats_skipped": result.total_chats_skipped,
-                "total_candidates": result.total_candidates,
-                "total_deleted": result.total_deleted
-            },
-            "logs": result.logs
-        }
-    }
-
-def _build_filters(data: OperationRequest, dry_run: bool = True) -> Filters:
-    """Build Filters object from request data"""
-    # Parse chat name filters
-    chat_filters = []
-    if data.chat_name_filters:
-        chat_filters = [f.strip() for f in data.chat_name_filters.split(",") if f.strip()]
-    
-    # Parse date filters
-    after_date = None
-    before_date = None
-    
-    if data.after:
-        try:
-            after_date = datetime.strptime(data.after, "%Y-%m-%d").date()
-        except ValueError:
-            pass
-    
-    if data.before:
-        try:
-            before_date = datetime.strptime(data.before, "%Y-%m-%d").date()
-        except ValueError:
-            pass
-    
+        chat_filters = [f.strip() for f in data.chat_name_filters.split(",")] if data.chat_name_filters else []
+        after = datetime.strptime(data.after, "%Y-%m-%d").date() if data.after else None
+        before = datetime.strptime(data.before, "%Y-%m-%d").date() if data.before else None
+    except Exception:
+        after = None
+        before = None
     return Filters(
         include_private=data.include_private,
         chat_name_filters=chat_filters,
-        after=after_date,
-        before=before_date,
+        after=after,
+        before=before,
         limit_per_chat=data.limit_per_chat,
         revoke=data.revoke,
         dry_run=dry_run,
-        test_mode=data.test_mode
-    )
-
-def _build_multi_account_filters(data: MultiAccountOperationRequest, dry_run: bool = True) -> Filters:
-    """Build Filters object from multi-account request data"""
-    # Parse chat name filters
-    chat_filters = []
-    if data.chat_name_filters:
-        chat_filters = [f.strip() for f in data.chat_name_filters.split(",") if f.strip()]
-    
-    # Parse date filters
-    after_date = None
-    before_date = None
-    
-    if data.after:
-        try:
-            after_date = datetime.strptime(data.after, "%Y-%m-%d").date()
-        except ValueError:
-            pass
-    
-    if data.before:
-        try:
-            before_date = datetime.strptime(data.before, "%Y-%m-%d").date()
-        except ValueError:
-            pass
-    
-    return Filters(
-        include_private=data.include_private,
-        chat_name_filters=chat_filters,
-        after=after_date,
-        before=before_date,
-        limit_per_chat=data.limit_per_chat,
-        revoke=data.revoke,
-        dry_run=dry_run,
-        test_mode=data.test_mode
+        test_mode=data.test_mode,
     )
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+    uvicorn.run("app.main:app", host="127.0.0.1", port=8000, reload=True)
