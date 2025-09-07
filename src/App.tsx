@@ -289,6 +289,13 @@ function App() {
       return;
     }
     
+    // Clean the code input
+    const cleanCode = loginData.code.replace(/\s/g, '');
+    if (cleanCode.length !== 5) {
+      setError('Verification code must be exactly 5 digits');
+      return;
+    }
+    
     setError('');
     setSuccess('');
     
@@ -299,20 +306,20 @@ function App() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          code: loginData.code,
+          code: cleanCode,
           password: loginData.password || null
         })
       });
       
       const data = await response.json();
       
-      if (data.success && (data.status === 'OK' || data.status === 'AUTHENTICATED')) {
+      if (data.success && data.status === 'AUTHENTICATED') {
         setShowLoginModal(false);
         setLoginData({ code: '', password: '', accountId: '' });
         await checkServerConnection();
         setSuccess(`Connected successfully as @${data.username}`);
       } else {
-        if (data.error === 'Two-factor authentication password required') {
+        if (data.error === '2FA_REQUIRED') {
           setError('Please enter your 2FA password below and try again');
         } else {
           setError(data.error || 'Login failed');
