@@ -504,3 +504,36 @@ class TelegramDeleter:
     async def disconnect(self):
         if self.client:
             await self.client.disconnect()
+    
+    async def check_authorization_status(self) -> Dict[str, Any]:
+        """Check if user is authorized using existing session without sending new code"""
+        try:
+            if not self.client:
+                self.client = TelegramClient(
+                    self.session_name, 
+                    self.api_id, 
+                    self.api_hash
+                )
+            
+            await self.client.connect()
+            
+            if await self.client.is_user_authorized():
+                me = await self.safe_api_call(self.client.get_me)
+                username = me.username or f"{me.first_name} {me.last_name or ''}".strip()
+                await self.client.disconnect()
+                return {
+                    "is_authenticated": True,
+                    "username": username,
+                    "user_id": me.id
+                }
+            else:
+                await self.client.disconnect()
+                return {"is_authenticated": False}
+                
+        except Exception as e:
+            if self.client:
+                try:
+                    await self.client.disconnect()
+                except:
+                    pass
+            return {"is_authenticated": False, "error": str(e)}
