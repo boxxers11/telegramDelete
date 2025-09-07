@@ -40,12 +40,12 @@ class ChatResult:
 @dataclass
 class OperationResult:
     chats: List[ChatResult]
-    messages: List[Dict] = None
     total_chats_processed: int
     total_chats_skipped: int
     total_candidates: int
     total_deleted: int
     logs: List[str]
+    messages: Optional[List[Dict]] = None
 
 class TelegramDeleter:
     def __init__(self, session_name: str, api_id: int, api_hash: str):
@@ -174,28 +174,24 @@ class TelegramDeleter:
         try:
             if isinstance(entity, Channel):
                 if entity.megagroup:
-                    # Supergroup
                     try:
                         full = await self.safe_api_call(self.client, GetFullChannelRequest(channel=entity))
                         return getattr(full.full_chat, 'participants_count', 0)
                     except Exception:
                         pass
                 else:
-                    # Channel - not applicable for our use case
                     return 0
             elif isinstance(entity, Chat):
-                # Basic group
                 try:
                     full = await self.safe_api_call(self.client, GetFullChatRequest(chat_id=entity.id))
                     return getattr(full.full_chat, 'participants_count', 0)
                 except Exception:
                     pass
             
-            # Fallback: estimate by counting participants (up to 15 for safety)
             count = 0
             async for _ in self.safe_api_call(self.client.iter_participants, entity, limit=15):
                 count += 1
-                if count > 10:  # If more than 10, we don't need exact count
+                if count > 10:
                     break
             return count
             
@@ -210,16 +206,14 @@ class TelegramDeleter:
         before: Optional[datetime], 
         limit: Optional[int]
     ) -> AsyncIterator[Message]:
-        """Iterate user's own messages in a chat with filters"""
         count = 0
         
         try:
             async for msg in self.safe_api_call(self.client.iter_messages, entity, from_user='me'):
-                # Check date filters
                 msg_date = msg.date.replace(tzinfo=None) if msg.date else None
                 
                 if after and msg_date and msg_date < after:
-                    break  # Messages are in reverse chronological order
+                    break
                 
                 if before and msg_date and msg_date > before:
                     continue
@@ -234,10 +228,8 @@ class TelegramDeleter:
             self.log(f"Error iterating messages: {e}")
     
     async def _should_process_chat(self, dialog, filters: Filters) -> tuple[bool, Optional[str]]:
-        """Check if chat should be processed based on filters"""
         entity = dialog.entity
         
-        # Check chat type
         if isinstance(entity, User):
             if not filters.include_private:
                 return False, "Private chat (not included)"
@@ -245,17 +237,14 @@ class TelegramDeleter:
             if not entity.megagroup:
                 return False, "Channel (not a group)"
         elif isinstance(entity, Chat):
-            # Basic group - OK to process
             pass
         else:
             return False, "Unknown chat type"
         
-        # Check participant count
         participants_count = await self.get_participants_count(entity)
         if participants_count <= 10:
             return False, f"{participants_count} members (≤10)"
         
-        # Check name filters
         if filters.chat_name_filters:
             chat_title = getattr(entity, 'title', getattr(entity, 'first_name', ''))
             chat_title_lower = chat_title.lower()
@@ -272,7 +261,6 @@ class TelegramDeleter:
         return True, None
     
     async def scan(self, filters: Filters) -> OperationResult:
-        """Scan for messages to delete without actually deleting"""
         self.logs = []
         self.log("Starting scan operation...")
         
@@ -284,7 +272,6 @@ class TelegramDeleter:
         total_skipped = 0
         total_candidates = 0
         
-        # Convert date filters to datetime
         after_dt = datetime.combine(filters.after, datetime.min.time()) if filters.after else None
         before_dt = datetime.combine(filters.before, datetime.min.time()) if filters.before else None
         
@@ -308,13 +295,11 @@ class TelegramDeleter:
                 
                 self.update_status(f"Scanning {getattr(entity, 'title', 'Unknown')}...")
                 
-                # Count candidate messages
                 candidates = []
                 try:
                     participants_count = await self.get_participants_count(entity)
                     async for msg in self.iter_user_messages(entity, after_dt, before_dt, filters.limit_per_chat):
                         candidates.append(msg.id)
-                        # Store message details for preview
                         if not hasattr(self, 'found_messages'):
                             self.found_messages = []
                         
@@ -367,16 +352,15 @@ class TelegramDeleter:
             
         return OperationResult(
             chats=results,
-            messages=getattr(self, 'found_messages', []),
             total_chats_processed=total_processed,
             total_chats_skipped=total_skipped,
             total_candidates=total_candidates,
             total_deleted=0,
-            logs=self.logs
+            logs=self.logs,
+            messages=getattr(self, 'found_messages', [])
         )
     
     async def delete(self, filters: Filters) -> OperationResult:
-        """Delete messages according to filters"""
         if filters.dry_run:
             return await self.scan(filters)
         
@@ -392,7 +376,6 @@ class TelegramDeleter:
         total_candidates = 0
         total_deleted = 0
         
-        # Convert date filters to datetime
         after_dt = datetime.combine(filters.after, datetime.min.time()) if filters.after else None
         before_dt = datetime.combine(filters.before, datetime.min.time()) if filters.before else None
         
@@ -416,7 +399,6 @@ class TelegramDeleter:
                 
                 self.update_status(f"Processing {getattr(entity, 'title', 'Unknown')}...")
                 
-                # Collect and delete messages
                 candidates = []
                 try:
                     async for msg in self.iter_user_messages(entity, after_dt, before_dt, filters.limit_per_chat):
@@ -471,11 +453,11 @@ class TelegramDeleter:
             total_chats_skipped=total_skipped,
             total_candidates=total_candidates,
             total_deleted=total_deleted,
-            logs=self.logs
+            logs=self.logs,
+            messages=None
         )
     
     async def _delete_batches(self, entity, message_ids: List[int], revoke: bool = True) -> int:
-        """Delete messages in batches with rate limit handling"""
         BATCH_SIZE = 100
         deleted = 0
         
@@ -501,6 +483,5 @@ class TelegramDeleter:
         return deleted
     
     async def disconnect(self):
-        """Disconnect from Telegram"""
         if self.client:
             await self.client.disconnect()
