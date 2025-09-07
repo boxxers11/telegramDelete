@@ -1,3 +1,6 @@
+/* Tailwind CSS base styles */
+@import url('https://cdn.tailwindcss.com/3.4.1');
+
 /* Custom styles for the Telegram Message Deleter */
 
 /* Smooth transitions */
@@ -84,4 +87,9 @@ input:focus, textarea:focus {
 .alert-success {
     border-left-color: #10B981;
     background-color: #D1FAE5;
+}
+
+/* Override any production warnings */
+.tailwind-warning {
+    display: none !important;
 }
