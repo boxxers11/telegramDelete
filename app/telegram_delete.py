@@ -10,6 +10,8 @@ from telethon.tl.functions.messages import GetFullChatRequest
 from telethon.errors import FloodWaitError, RpcCallFailError, SessionPasswordNeededError
 import sqlite3
 import time
+import os
+import threading
 
 logger = logging.getLogger(__name__)
 
@@ -63,6 +65,7 @@ class TelegramDeleter:
         self.client = None
         self.logs = []
         self.status_callback = None
+        self._session_lock = threading.Lock()
 
     def set_status_callback(self, callback):
         """Set callback function for status updates"""
@@ -76,38 +79,48 @@ class TelegramDeleter:
 
     async def safe_client_connect(self, max_retries=3):
         """Safely connect to Telegram with database lock handling"""
-        for attempt in range(max_retries):
-            try:
-                # Close any existing client first
-                if self.client:
-                    await self.client.disconnect()
-                    self.client = None
-                    await asyncio.sleep(2)  # Give more time for cleanup
-                
-                self.client = TelegramClient(
-                    self.session_name, 
-                    self.api_id, 
-                    self.api_hash
-                )
-                
-                await self.client.connect()
-                self.log(f"Successfully connected to Telegram (attempt {attempt + 1})")
-                return True
-                
-            except sqlite3.OperationalError as e:
-                if "database is locked" in str(e).lower():
-                    wait_time = (attempt + 1) * 2
-                    self.update_status(f"Database locked, retrying in {wait_time} seconds... (attempt {attempt + 1}/{max_retries})")
-                    await asyncio.sleep(wait_time)
-                    continue
-                else:
-                    raise
-            except Exception as e:
-                if attempt >= max_retries - 1:
-                    raise
-                await asyncio.sleep(2)
-        
-        raise Exception("Failed to connect after multiple attempts")
+        with self._session_lock:
+            for attempt in range(max_retries):
+                try:
+                    # Close any existing client first
+                    if self.client:
+                        try:
+                            await self.client.disconnect()
+                        except:
+                            pass
+                        self.client = None
+                        await asyncio.sleep(3)  # Give more time for cleanup
+                    
+                    # Create unique session name to avoid conflicts
+                    unique_session = f"{self.session_name}_{int(time.time())}"
+                    
+                    self.client = TelegramClient(
+                        unique_session, 
+                        self.api_id, 
+                        self.api_hash,
+                        timeout=30,
+                        connection_retries=1,
+                        retry_delay=1
+                    )
+                    
+                    await self.client.connect()
+                    self.log(f"Successfully connected to Telegram (attempt {attempt + 1})")
+                    return True
+                    
+                except sqlite3.OperationalError as e:
+                    if "database is locked" in str(e).lower():
+                        wait_time = (attempt + 1) * 3
+                        self.update_status(f"Database locked, retrying in {wait_time} seconds... (attempt {attempt + 1}/{max_retries})")
+                        await asyncio.sleep(wait_time)
+                        continue
+                    else:
+                        raise
+                except Exception as e:
+                    if attempt >= max_retries - 1:
+                        raise
+                    await asyncio.sleep(3)
+            
+            raise Exception("Failed to connect after multiple attempts")
     async def safe_api_call(self, method, *args, max_retries=3, **kwargs):
         """Safely call Telegram API with flood wait handling"""
         for attempt in range(max_retries):
@@ -272,32 +285,71 @@ class TelegramDeleter:
             processed_count = 0
             skipped_count = 0
             
+            # Get total dialogs count first
+            all_dialogs = []
             async for dialog in self.client.iter_dialogs():
-                if filters.test_mode and processed_count >= 5:
+                all_dialogs.append(dialog)
+                if filters.test_mode and len(all_dialogs) >= 5:
                     break
+            
+            total_dialogs = len(all_dialogs)
+            self.update_status(f"Found {total_dialogs} chats to process", {
+                'total': total_dialogs,
+                'processed': 0
+            })
+            
+            for i, dialog in enumerate(all_dialogs):
                 
                 chat_name = dialog.name or "Unknown"
-                self.update_status(f"Scanning chat: {chat_name}")
+                self.update_status(f"Scanning chat: {chat_name} ({i+1}/{total_dialogs})", {
+                    'current_chat': chat_name,
+                    'processed': i,
+                    'total': total_dialogs,
+                    'status': f'Processing {chat_name}...'
+                })
                 
                 # Apply filters
                 if not filters.include_private and dialog.is_user:
+                    self.update_status(f"Skipping private chat: {chat_name}")
                     skipped_count += 1
                     continue
                 
                 if filters.chat_name_filters:
                     if not any(filter_term.lower() in chat_name.lower() for filter_term in filters.chat_name_filters):
+                        self.update_status(f"Skipping filtered chat: {chat_name}")
                         skipped_count += 1
                         continue
                 
-                # Count messages
+                # Count messages with progress updates
                 message_count = 0
-                async for message in self.client.iter_messages(dialog, limit=filters.limit_per_chat or 1000):
-                    if message.sender_id == (await self.client.get_me()).id:
-                        if filters.after and message.date.date() < filters.after:
-                            continue
-                        if filters.before and message.date.date() > filters.before:
-                            continue
-                        message_count += 1
+                try:
+                    me = await self.client.get_me()
+                    my_id = me.id
+                    
+                    async for message in self.client.iter_messages(dialog, limit=filters.limit_per_chat or 1000):
+                        if message.sender_id == my_id:
+                            if filters.after and message.date.date() < filters.after:
+                                continue
+                            if filters.before and message.date.date() > filters.before:
+                                continue
+                            message_count += 1
+                            
+                            # Update progress every 10 messages
+                            if message_count % 10 == 0:
+                                self.update_status(f"Found {message_count} messages in {chat_name}...")
+                
+                except Exception as e:
+                    self.log(f"Error scanning {chat_name}: {e}")
+                    chats.append(ChatResult(
+                        id=dialog.id,
+                        title=chat_name,
+                        type="User" if dialog.is_user else "Group",
+                        participants_count=1 if dialog.is_user else 0,
+                        candidates_found=0,
+                        deleted=0,
+                        error=str(e)
+                    ))
+                    continue
                 
                 total_candidates += message_count
                 processed_count += 1
@@ -311,9 +363,19 @@ class TelegramDeleter:
                     deleted=0
                 ))
                 
-                self.update_status(f"Found {message_count} messages in {chat_name}")
+                self.update_status(f"✅ Found {message_count} messages in {chat_name}", {
+                    'current_chat': chat_name,
+                    'processed': i + 1,
+                    'total': total_dialogs,
+                    'status': f'Completed {chat_name} - {message_count} messages'
+                })
             
-            self.update_status(f"Scan complete! Found {total_candidates} messages across {processed_count} chats")
+            self.update_status(f"🎉 Scan complete! Found {total_candidates} messages across {processed_count} chats", {
+                'current_chat': 'Complete',
+                'processed': total_dialogs,
+                'total': total_dialogs,
+                'status': 'Scan completed successfully!'
+            })
             
             return OperationResult(
                 chats=chats,
