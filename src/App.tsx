@@ -792,6 +792,8 @@ const AccountCard: React.FC<AccountCardProps> = ({
 }) => {
   const [code, setCode] = useState('');
   const [password, setPassword] = useState('');
+  const [showSearchModal, setShowSearchModal] = useState(false);
+  const [searchPrompt, setSearchPrompt] = useState('');
 
   const handleCodeSubmit = () => {
     if (loginData?.step === '2fa') {
@@ -803,8 +805,21 @@ const AccountCard: React.FC<AccountCardProps> = ({
     setPassword('');
   };
 
+  const handleSmartSearch = async () => {
+    if (!searchPrompt.trim()) {
+      alert('Please enter a search prompt');
+      return;
+    }
+    
+    // TODO: Implement smart search API call
+    console.log('Smart search for:', searchPrompt);
+    setShowSearchModal(false);
+    setSearchPrompt('');
+  };
+
   return (
-    <div className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow">
+    <>
+      <div className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow">
       {/* Account Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center">
@@ -921,6 +936,19 @@ const AccountCard: React.FC<AccountCardProps> = ({
             </button>
             
             <button
+              onClick={() => setShowSearchModal(true)}
+              disabled={isOperating}
+              className="w-full flex items-center justify-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+            >
+              {isOperating ? (
+                <Loader className="w-4 h-4 animate-spin mr-2" />
+              ) : (
+                <Search className="w-4 h-4 mr-2" />
+              )}
+              Smart Search
+            </button>
+            
+            <button
               disabled={isOperating}
               className="w-full flex items-center justify-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
             >
@@ -934,7 +962,55 @@ const AccountCard: React.FC<AccountCardProps> = ({
           </>
         )}
       </div>
-    </div>
+      </div>
+
+      {/* Smart Search Modal */}
+      {showSearchModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 w-full max-w-md mx-4">
+            <h2 className="text-xl font-bold text-gray-900 mb-4">Smart Message Search</h2>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Search Prompt
+                </label>
+                <textarea
+                  placeholder="e.g., 'Find messages about looking for sweets or candy'"
+                  value={searchPrompt}
+                  onChange={(e) => setSearchPrompt(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 h-24 resize-none"
+                />
+              </div>
+              
+              <div className="bg-purple-50 p-3 rounded-lg">
+                <p className="text-sm text-purple-800">
+                  <strong>Examples:</strong><br/>
+                  • "Messages about wanting to buy food"<br/>
+                  • "Posts expressing sadness or depression"<br/>
+                  • "Messages asking for help or advice"
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex space-x-3 mt-6">
+              <button
+                onClick={() => setShowSearchModal(false)}
+                className="flex-1 px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSmartSearch}
+                className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+              >
+                Search
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 
