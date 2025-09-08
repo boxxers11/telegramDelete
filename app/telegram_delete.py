@@ -72,9 +72,11 @@ class TelegramDeleter:
         """Safely connect to Telegram with database lock handling"""
         for attempt in range(max_retries):
             try:
+                # Close any existing client first
                 if self.client:
                     await self.client.disconnect()
-                    await asyncio.sleep(1)  # Give time for cleanup
+                    self.client = None
+                    await asyncio.sleep(2)  # Give more time for cleanup
                 
                 self.client = TelegramClient(
                     self.session_name, 
@@ -83,6 +85,7 @@ class TelegramDeleter:
                 )
                 
                 await self.client.connect()
+                self.log(f"Successfully connected to Telegram (attempt {attempt + 1})")
                 return True
                 
             except sqlite3.OperationalError as e:
@@ -94,7 +97,7 @@ class TelegramDeleter:
                 else:
                     raise
             except Exception as e:
-                if attempt == max_retries - 1:
+                if attempt >= max_retries - 1:
                     raise
                 await asyncio.sleep(2)
         
@@ -103,7 +106,8 @@ class TelegramDeleter:
         """Safely call Telegram API with flood wait handling"""
         for attempt in range(max_retries):
             try:
-                return await method(*args, **kwargs)
+                result = await method(*args, **kwargs)
+                return result
             except FloodWaitError as e:
                 wait_time = e.seconds
                 self.update_status(f"Rate limited. Waiting {wait_time} seconds...", {
@@ -114,7 +118,7 @@ class TelegramDeleter:
                 })
                 await asyncio.sleep(wait_time + 1)  # Add 1 second buffer
             except Exception as e:
-                if attempt == max_retries - 1:
+                if attempt >= max_retries - 1:
                     raise
                 self.log(f"API call failed (attempt {attempt + 1}): {e}")
                 await asyncio.sleep(2 ** attempt)  # Exponential backoff
