@@ -49,6 +49,12 @@ class OperationResult:
     logs: List[str]
     messages: Optional[List[Dict]] = None
 
+@dataclass
+class SmartSearchResult:
+    messages: List[Dict[str, Any]]
+    total_found: int
+    logs: List[str]
+
 class TelegramDeleter:
     def __init__(self, session_name: str, api_id: int, api_hash: str):
         self.session_name = session_name
@@ -327,6 +333,94 @@ class TelegramDeleter:
                 total_chats_skipped=0,
                 total_candidates=0,
                 total_deleted=0,
+                logs=[error_msg]
+            )
+    
+    async def smart_search(self, keywords: List[str], limit: int = 100) -> SmartSearchResult:
+        """Smart search for messages based on keywords"""
+        try:
+            self.update_status("Starting smart search...")
+            
+            if not self.client:
+                await self.safe_client_connect()
+            
+            if not await self.client.is_user_authorized():
+                return SmartSearchResult(
+                    messages=[],
+                    total_found=0,
+                    logs=["Error: Not authenticated"]
+                )
+            
+            self.update_status("Searching through messages...")
+            found_messages = []
+            processed_chats = 0
+            
+            me = await self.safe_api_call(self.client.get_me)
+            my_id = me.id
+            
+            async for dialog in self.client.iter_dialogs():
+                if len(found_messages) >= limit:
+                    break
+                
+                chat_name = dialog.name or "Unknown"
+                self.update_status(f"Searching in: {chat_name}")
+                processed_chats += 1
+                
+                try:
+                    async for message in self.client.iter_messages(dialog, limit=500):
+                        if len(found_messages) >= limit:
+                            break
+                        
+                        # Only search in my messages
+                        if message.sender_id != my_id:
+                            continue
+                        
+                        if not message.text:
+                            continue
+                        
+                        # Check if message contains any keywords
+                        message_text = message.text.lower()
+                        if any(keyword in message_text for keyword in keywords):
+                            # Create message link
+                            if dialog.is_user:
+                                message_link = f"https://t.me/c/{dialog.id}/{message.id}"
+                            else:
+                                # For groups/channels
+                                username = getattr(dialog.entity, 'username', None)
+                                if username:
+                                    message_link = f"https://t.me/{username}/{message.id}"
+                                else:
+                                    message_link = f"https://t.me/c/{dialog.id}/{message.id}"
+                            
+                            found_messages.append({
+                                "id": message.id,
+                                "chat_id": dialog.id,
+                                "chat_title": chat_name,
+                                "chat_type": "User" if dialog.is_user else "Group",
+                                "date": message.date.isoformat(),
+                                "content": message.text,
+                                "link": message_link,
+                                "matched_keywords": [kw for kw in keywords if kw in message_text]
+                            })
+                
+                except Exception as e:
+                    self.log(f"Error searching in {chat_name}: {e}")
+                    continue
+            
+            self.update_status(f"Search complete! Found {len(found_messages)} messages in {processed_chats} chats")
+            
+            return SmartSearchResult(
+                messages=found_messages,
+                total_found=len(found_messages),
+                logs=self.logs
+            )
+            
+        except Exception as e:
+            error_msg = f"Smart search failed: {str(e)}"
+            self.update_status(error_msg)
+            return SmartSearchResult(
+                messages=[],
+                total_found=0,
                 logs=[error_msg]
             )
     

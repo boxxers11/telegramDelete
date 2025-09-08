@@ -13,6 +13,7 @@ import logging
 from .telegram_delete import TelegramDeleter, Filters
 from .accounts import account_store, Account
 from .telegram_client_factory import get_deleter_for_account
+import re
 
 # Define request models
 class DeleteSelectedRequest(BaseModel):
@@ -32,6 +33,10 @@ class ConnectAccountRequest(BaseModel):
 class ConnectRequest(BaseModel):
     api_id: int
     api_hash: str
+
+class SmartSearchRequest(BaseModel):
+    prompt: str
+    limit: Optional[int] = 100
 
 class OperationRequest(BaseModel):
     include_private: bool = False
@@ -255,6 +260,55 @@ async def delete_messages(account_id: str, data: OperationRequest):
             "logs": result.logs
         }
     }
+
+@app.post("/accounts/{account_id}/smart-search")
+async def smart_search_messages(account_id: str, data: SmartSearchRequest):
+    account_deleter = get_deleter_for_account(account_id)
+    if not account_deleter:
+        raise HTTPException(status_code=400, detail="Account not found")
+    
+    try:
+        # Simple keyword-based search for now (can be enhanced with AI later)
+        keywords = extract_keywords_from_prompt(data.prompt)
+        result = await account_deleter.smart_search(keywords, data.limit)
+        
+        return {
+            "success": True,
+            "prompt": data.prompt,
+            "keywords": keywords,
+            "messages": result.messages,
+            "total_found": len(result.messages) if result.messages else 0,
+            "logs": result.logs
+        }
+    except Exception as e:
+        logger.error(f"Smart search failed for account {account_id}: {e}")
+        return {"success": False, "error": str(e)}
+
+def extract_keywords_from_prompt(prompt: str) -> List[str]:
+    """Extract keywords from search prompt"""
+    # Simple keyword extraction - can be enhanced with NLP
+    prompt_lower = prompt.lower()
+    
+    # Common patterns for different search intents
+    food_patterns = ['sweet', 'candy', 'chocolate', 'cake', 'dessert', 'sugar', 'treat', 'snack']
+    emotion_patterns = ['sad', 'happy', 'angry', 'excited', 'depressed', 'anxious', 'worried']
+    help_patterns = ['help', 'advice', 'support', 'assistance', 'guidance', 'recommend']
+    
+    keywords = []
+    
+    # Extract explicit keywords
+    words = re.findall(r'\b\w+\b', prompt_lower)
+    keywords.extend([word for word in words if len(word) > 3])
+    
+    # Add pattern-based keywords
+    if any(pattern in prompt_lower for pattern in food_patterns):
+        keywords.extend(food_patterns)
+    if any(pattern in prompt_lower for pattern in emotion_patterns):
+        keywords.extend(emotion_patterns)
+    if any(pattern in prompt_lower for pattern in help_patterns):
+        keywords.extend(help_patterns)
+    
+    return list(set(keywords))  # Remove duplicates
 
 def _build_filters(data, dry_run=True):
     try:
