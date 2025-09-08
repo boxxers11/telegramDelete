@@ -10,6 +10,7 @@ from fastapi.responses import HTMLResponse, JSONResponse
 from pydantic import BaseModel
 import uvicorn
 import logging
+from telethon import TelegramClient
 from .telegram_delete import TelegramDeleter, Filters
 from .accounts import account_store, Account
 from .telegram_client_factory import get_deleter_for_account
@@ -104,7 +105,7 @@ async def get_accounts():
     accounts_data = []
     for account in account_store.get_all_accounts():
         # Quick check if session file exists
-        session_exists = os.path.exists(f"{account.session_path}.session")
+        session_exists = os.path.exists(account.session_path)
         
         # Try to check if actually authenticated
         is_authenticated = False
