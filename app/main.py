@@ -207,6 +207,13 @@ async def scan_account(account_id: str, data: OperationRequest):
     account_deleter = get_deleter_for_account(account_id)
     if not account_deleter:
         raise HTTPException(status_code=400, detail="Account not found")
+    
+    # Set up real-time status callback
+    def status_callback(status: str, data: dict):
+        logger.info(f"SCAN STATUS: {status}")
+        # Here you could implement WebSocket or Server-Sent Events for real-time updates
+    
+    account_deleter.set_status_callback(status_callback)
     filters = _build_filters(data, dry_run=True)
     result = await account_deleter.scan(filters)
     return {
