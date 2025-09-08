@@ -1,46 +1,80 @@
 import React, { useState, useEffect } from 'react';
-import { MessageSquare, Users, Settings, Trash2, Search, Plus, X, AlertTriangle, CheckCircle, Clock, Phone, Key, User, Server } from 'lucide-react';
+import { 
+  Plus, 
+  Trash2, 
+  Search, 
+  Settings, 
+  Users, 
+  MessageSquare, 
+  Shield, 
+  AlertTriangle,
+  CheckCircle,
+  XCircle,
+  Clock,
+  Loader,
+  Play,
+  Square,
+  BarChart3,
+  Eye,
+  X
+} from 'lucide-react';
 
+// Types
 interface Account {
   id: string;
   label: string;
   phone: string;
-  api_id: string;
+  api_id: number;
   api_hash: string;
   is_authenticated: boolean;
   username?: string;
 }
 
-interface ChatResult {
-  id: number;
-  title: string;
-  type: string;
-  participants_count: number;
-  candidates_found: number;
-  deleted: number;
-  error?: string;
-  skipped_reason?: string;
-}
-
-interface OperationResult {
-  chats: ChatResult[];
+interface ScanResult {
+  chats: Array<{
+    id: number;
+    title: string;
+    type: string;
+    participants: number;
+    candidates: number;
+    deleted: number;
+    error?: string;
+    skipped_reason?: string;
+  }>;
   summary: {
-    total_chats_processed: number;
-    total_chats_skipped: number;
+    total_processed: number;
+    total_skipped: number;
     total_candidates: number;
     total_deleted: number;
   };
   logs: string[];
 }
 
-function App() {
+interface ScanProgress {
+  currentChat: string;
+  processed: number;
+  total: number;
+  status: string;
+}
+
+const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+  ? 'http://127.0.0.1:8000' 
+  : '/api';
+
+const App: React.FC = () => {
   const [accounts, setAccounts] = useState<Account[]>([]);
+  const [loading, setLoading] = useState(true);
   const [showAddAccount, setShowAddAccount] = useState(false);
-  const [showDemoModal, setShowDemoModal] = useState(false);
-  const [selectedAccount, setSelectedAccount] = useState<string>('');
-  const [loading, setLoading] = useState(false);
-  const [results, setResults] = useState<OperationResult | null>(null);
+  const [accountStatuses, setAccountStatuses] = useState<Record<string, string>>({});
+  const [operationStates, setOperationStates] = useState<Record<string, boolean>>({});
   
+  // Scan page states
+  const [showScanPage, setShowScanPage] = useState(false);
+  const [scanningAccount, setScanningAccount] = useState<string | null>(null);
+  const [scanProgress, setScanProgress] = useState<ScanProgress | null>(null);
+  const [scanResult, setScanResult] = useState<ScanResult | null>(null);
+  const [scanAborted, setScanAborted] = useState(false);
+
   // Form states
   const [newAccount, setNewAccount] = useState({
     label: '',
@@ -48,1286 +82,860 @@ function App() {
     api_hash: '',
     phone: ''
   });
-  
-  const [loginData, setLoginData] = useState({
-    code: '',
-    password: '',
-    accountId: ''
-  });
-  
-  const [filters, setFilters] = useState({
-    include_private: false,
-    chat_name_filters: '',
-    after: '',
-    before: '',
-    limit_per_chat: '',
-    revoke: true,
-    test_mode: false
-  });
-
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-  const [isDemoMode, setIsDemoMode] = useState(false);
-  const [showLoginModal, setShowLoginModal] = useState(false);
-  const [accountOperations, setAccountOperations] = useState<{[key: string]: any}>({});
-  const [operationStatus, setOperationStatus] = useState<{[key: string]: string}>({});
-  const [operationProgress, setOperationProgress] = useState<{[key: string]: any}>({});
-  const [previewMessages, setPreviewMessages] = useState<any[]>([]);
-  const [showPreview, setShowPreview] = useState(false);
+  const [loginData, setLoginData] = useState<Record<string, any>>({});
 
   useEffect(() => {
-    // ניקוי localStorage ו-sessionStorage ברענון הדף
-    localStorage.removeItem('telegram_accounts_demo');
-    sessionStorage.clear();
-
-    checkServerConnection();
+    loadAccounts();
   }, []);
 
-  // Mock data for demo mode
-  const generateMockResults = () => {
-    return {
-      chats: [
-        {
-          id: 1,
-          title: "Work Group",
-          type: "Group",
-          participants_count: 25,
-          candidates_found: 15,
-          deleted: 0
-        },
-        {
-          id: 2,
-          title: "Family Chat",
-          type: "Group", 
-          participants_count: 8,
-          candidates_found: 0,
-          deleted: 0,
-          skipped_reason: "Group has ≤10 members (safety protection)"
-        },
-        {
-          id: 3,
-          title: "John Doe",
-          type: "User",
-          participants_count: 1,
-          candidates_found: 23,
-          deleted: 0
-        }
-      ],
-      summary: {
-        total_chats_processed: 3,
-        total_chats_skipped: 1,
-        total_candidates: 38,
-        total_deleted: 0
-      },
-      logs: [
-        "[14:30:15] Starting message scan...",
-        "[14:30:16] Connected to Telegram successfully",
-        "[14:30:17] Scanning Work Group - found 15 messages",
-        "[14:30:18] Skipping Family Chat - only 8 members (safety protection)",
-        "[14:30:19] Scanning John Doe - found 23 messages",
-        "[14:30:20] Scan completed - 38 messages found across 3 chats"
-      ]
-    };
-  };
-
-  const checkServerConnection = async () => {
+  const loadAccounts = async () => {
     try {
-      const response = await fetch('/api/accounts');
-      
+      setLoading(true);
+      const response = await fetch(`${API_BASE}/accounts`);
       if (response.ok) {
-        const accountsData = await response.json();
-        setAccounts(accountsData);
-        setIsDemoMode(false);
-        setError('');
-        setSuccess('');
-        console.log('✅ Server mode active - connected to Python backend', accountsData);
+        const data = await response.json();
+        setAccounts(data);
       } else {
-        throw new Error(`Server responded with ${response.status}`);
+        console.error('Failed to load accounts:', response.status);
+        // Show demo data if API fails
+        setAccounts([
+          {
+            id: 'demo_1',
+            label: 'Demo Account',
+            phone: '+1234567890',
+            api_id: 12345,
+            api_hash: 'demo_hash',
+            is_authenticated: false
+          }
+        ]);
       }
-    } catch (err) {
-      console.log('❌ Server connection failed, switching to demo mode.');
-      setIsDemoMode(true);
-      loadAccountsFromStorage();
-      setShowDemoModal(true);
-    }
-  };
-
-  const loadAccountsFromStorage = () => {
-    try {
-      const stored = localStorage.getItem('telegram_accounts_demo');
-      if (stored) {
-        setAccounts(JSON.parse(stored));
-      }
-    } catch (err) {
-      console.error('Error loading accounts from localStorage:', err);
-    }
-  };
-
-  const loadAccounts = () => {
-    if (isDemoMode) {
-      loadAccountsFromStorage();
-    } else {
-      // Load from server
-      checkServerConnection();
-    }
-  };
-
-  const saveAccountsToStorage = (accountsToSave: Account[]) => {
-    try {
-      localStorage.setItem('telegram_accounts_demo', JSON.stringify(accountsToSave));
-      setAccounts(accountsToSave);
-    } catch (err) {
-      console.error('Error saving accounts to localStorage:', err);
-      setError('Failed to save accounts to local storage');
-    }
-  };
-
-  const saveAccountsToServer = async (accountData: any) => {
-    try {
-      const response = await fetch('/api/accounts', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(accountData)
-      });
-
-      if (!response.ok) {
-        throw new Error(`Server error ${response.status}`);
-      }
-
-      const data = await response.json();
-      if (data.success) {
-        await checkServerConnection();
-        return true;
-      } else {
-        throw new Error(data.error || 'Failed to add account');
-      }
-    } catch (err) {
-      throw err;
-    }
-  };
-
-  const addAccount = () => {
-    if (!newAccount.label || !newAccount.api_id || !newAccount.api_hash || !newAccount.phone) {
-      setError('Please fill in all fields');
-      return;
-    }
-
-    if (accounts.length >= 5) {
-      setError('Maximum of 5 accounts allowed');
-      return;
-    }
-
-    setError('');
-    setSuccess('');
-    
-
-    if (isDemoMode) {
-      const newId = `acc_${Date.now()}`;
-      const account: Account = {
-        id: newId,
-        label: newAccount.label,
-        api_id: newAccount.api_id,
-        api_hash: newAccount.api_hash,
-        phone: newAccount.phone,
-        is_authenticated: false
-      };
-      // Demo mode - save to localStorage
-      const updatedAccounts = [...accounts, account];
-      saveAccountsToStorage(updatedAccounts);
-      setSuccess('Account added to demo! To actually use Telegram functionality, run the Python server locally.');
-    } else {
-      // Server mode - save to server
-      saveAccountsToServer({
-        label: newAccount.label,
-        api_id: parseInt(newAccount.api_id),
-        api_hash: newAccount.api_hash,
-        phone: newAccount.phone
-      }).then(() => {
-        setSuccess('Account added successfully!');
-      }).catch((err) => {
-        setError(`Failed to add account: ${err.message}`);
-      });
-    }
-    
-    setNewAccount({ label: '', api_id: '', api_hash: '', phone: '' });
-    setShowAddAccount(false);
-  };
-
-  const removeAccount = (accountId: string) => {
-    if (!confirm('Are you sure you want to remove this account?')) return;
-
-    if (isDemoMode) {
-      const updatedAccounts = accounts.filter(acc => acc.id !== accountId);
-      saveAccountsToStorage(updatedAccounts);
-      setSuccess('Account removed from demo');
-    } else {
-      removeAccountFromServer(accountId);
-    }
-  };
-
-  const removeAccountFromServer = async (accountId: string) => {
-    try {
-      const response = await fetch(`/api/accounts/${accountId}`, {
-        method: 'DELETE'
-      });
-      
-      const data = await response.json();
-      
-      if (data.success) {
-        await checkServerConnection();
-        setSuccess('Account removed successfully');
-      } else {
-        setError(data.error || 'Failed to remove account');
-      }
-    } catch (err: any) {
-      setError(`Network error: ${err.message}`);
-    }
-  };
-  const connectAccount = (accountId: string) => {
-    connectAccountToServer(accountId);
-  };
-
-  const connectAccountToServer = async (accountId: string) => {
-    setAccountOperations(prev => ({...prev, [accountId]: {...prev[accountId], connecting: true}}));
-    setOperationStatus(prev => ({...prev, [accountId]: 'Connecting to Telegram...'}));
-    setError('');
-    setSuccess('');
-    
-    try {
-      const response = await fetch(`/api/accounts/${accountId}/connect`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({})
-      });
-      
-      const data = await response.json();
-      
-      if (data.success) {
-        if (data.status === 'CODE_SENT') {
-          setLoginData({...loginData, accountId});
-          setShowLoginModal(true);
-          setSuccess(data.message || 'Verification code sent to your Telegram app!');
-          setOperationStatus(prev => ({...prev, [accountId]: 'Code sent - check Telegram app'}));
-        } else if (data.status === 'AUTHENTICATED') {
-          await checkServerConnection();
-          setSuccess(`Connected successfully as @${data.username}`);
-          setOperationStatus(prev => ({...prev, [accountId]: `Connected as @${data.username}`}));
+    } catch (error) {
+      console.error('Error loading accounts:', error);
+      // Show demo data on error
+      setAccounts([
+        {
+          id: 'demo_1',
+          label: 'Demo Account',
+          phone: '+1234567890',
+          api_id: 12345,
+          api_hash: 'demo_hash',
+          is_authenticated: false
         }
-      } else {
-        if (data.error === '2FA_REQUIRED') {
-          setError('Two-factor authentication required. Please enter your 2FA password.');
-        } else {
-          setError(data.error || 'Connection failed');
-        }
-        setOperationStatus(prev => ({...prev, [accountId]: 'Connection failed'}));
-      }
-    } catch (err: any) {
-      setError(`Network error: ${err.message}`);
-      setOperationStatus(prev => ({...prev, [accountId]: 'Network error'}));
+      ]);
     } finally {
-      setAccountOperations(prev => ({...prev, [accountId]: {...prev[accountId], connecting: false}}));
+      setLoading(false);
     }
   };
 
-  const completeLogin = async () => {
-    if (!loginData.code) {
-      setError('Please enter verification code');
+  const updateAccountStatus = (accountId: string, status: string) => {
+    setAccountStatuses(prev => ({ ...prev, [accountId]: status }));
+  };
+
+  const setOperationState = (accountId: string, state: boolean) => {
+    setOperationStates(prev => ({ ...prev, [accountId]: state }));
+  };
+
+  const addAccount = async () => {
+    if (!newAccount.label || !newAccount.api_id || !newAccount.api_hash || !newAccount.phone) {
+      alert('Please fill all fields');
       return;
     }
-    
-    // Clean the code input
-    const cleanCode = loginData.code.replace(/\s/g, '');
-    if (cleanCode.length !== 5) {
-      setError('Verification code must be exactly 5 digits');
-      return;
-    }
-    
-    setError('');
-    setSuccess('');
-    
+
     try {
-      const response = await fetch(`/api/accounts/${loginData.accountId}/connect`, {
+      const response = await fetch(`${API_BASE}/accounts`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          code: cleanCode,
-          password: loginData.password || null
+          label: newAccount.label,
+          api_id: parseInt(newAccount.api_id),
+          api_hash: newAccount.api_hash,
+          phone: newAccount.phone
         })
       });
-      
-      const data = await response.json();
-      
-      if (data.success && data.status === 'AUTHENTICATED') {
-        setShowLoginModal(false);
-        setLoginData({ code: '', password: '', accountId: '' });
-        await checkServerConnection();
-        setSuccess(`Connected successfully as @${data.username}`);
+
+      if (response.ok) {
+        setNewAccount({ label: '', api_id: '', api_hash: '', phone: '' });
+        setShowAddAccount(false);
+        loadAccounts();
       } else {
-        if (data.error === '2FA_REQUIRED') {
-          setError('Please enter your 2FA password below and try again');
+        const error = await response.json();
+        alert(`Error: ${error.error || 'Failed to add account'}`);
+      }
+    } catch (error) {
+      console.error('Error adding account:', error);
+      alert('Failed to add account. Check console for details.');
+    }
+  };
+
+  const connectAccount = async (accountId: string) => {
+    setOperationState(accountId, true);
+    updateAccountStatus(accountId, 'Connecting...');
+
+    try {
+      const response = await fetch(`${API_BASE}/accounts/${accountId}/connect`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({})
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        if (result.status === 'CODE_SENT') {
+          updateAccountStatus(accountId, 'Code sent - check Telegram app');
+          setLoginData(prev => ({ 
+            ...prev, 
+            [accountId]: { 
+              phone_code_hash: result.phone_code_hash,
+              step: 'code'
+            }
+          }));
+        } else if (result.status === 'AUTHENTICATED') {
+          updateAccountStatus(accountId, `Connected as ${result.username}`);
+          loadAccounts();
+        }
+      } else {
+        updateAccountStatus(accountId, `Error: ${result.error}`);
+      }
+    } catch (error) {
+      console.error('Connection error:', error);
+      updateAccountStatus(accountId, 'Connection failed - check server');
+    } finally {
+      setOperationState(accountId, false);
+    }
+  };
+
+  const submitCode = async (accountId: string, code: string, password?: string) => {
+    setOperationState(accountId, true);
+    updateAccountStatus(accountId, 'Verifying code...');
+
+    try {
+      const accountLoginData = loginData[accountId] || {};
+      const response = await fetch(`${API_BASE}/accounts/${accountId}/connect`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          code: code,
+          phone_code_hash: accountLoginData.phone_code_hash,
+          password: password
+        })
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        if (result.status === 'AUTHENTICATED') {
+          updateAccountStatus(accountId, `Connected as ${result.username}`);
+          setLoginData(prev => {
+            const newData = { ...prev };
+            delete newData[accountId];
+            return newData;
+          });
+          loadAccounts();
+        }
+      } else {
+        if (result.error === '2FA_REQUIRED') {
+          updateAccountStatus(accountId, '2FA password required');
+          setLoginData(prev => ({ 
+            ...prev, 
+            [accountId]: { 
+              ...accountLoginData,
+              step: '2fa',
+              code: code
+            }
+          }));
         } else {
-          setError(data.error || 'Login failed');
+          updateAccountStatus(accountId, `Error: ${result.error}`);
         }
       }
-    } catch (err: any) {
-      setError(`Network error: ${err.message}`);
-    }
-  };
-  const scanAccount = (accountId: string) => {
-    if (isDemoMode) {
-      // Demo mode - show mock results
-      setAccountOperations(prev => ({...prev, [accountId]: {...prev[accountId], scanning: true}}));
-      setOperationStatus(prev => ({...prev, [accountId]: 'Demo scan in progress...'}));
-      
-      setTimeout(() => {
-        const mockResults = generateMockResults();
-        setResults(mockResults);
-        setSuccess('Demo scan completed! This shows what real results would look like.');
-        setOperationStatus(prev => ({...prev, [accountId]: `Demo scan complete - ${mockResults.summary.total_candidates} messages found`}));
-        setAccountOperations(prev => ({...prev, [accountId]: {...prev[accountId], scanning: false}}));
-      }, 2000);
-    } else {
-      scanAccountMessages(accountId);
+    } catch (error) {
+      console.error('Code verification error:', error);
+      updateAccountStatus(accountId, 'Verification failed');
+    } finally {
+      setOperationState(accountId, false);
     }
   };
 
-  const scanAccountMessages = async (accountId: string) => {
-    setAccountOperations(prev => ({...prev, [accountId]: {...prev[accountId], scanning: true}}));
-    setOperationStatus(prev => ({...prev, [accountId]: 'Starting scan...'}));
-    setError('');
-    setSuccess('');
+  const startScan = async (accountId: string) => {
+    setScanningAccount(accountId);
+    setShowScanPage(true);
+    setScanResult(null);
+    setScanAborted(false);
     
-    const payload = {
-      include_private: filters.include_private,
-      chat_name_filters: filters.chat_name_filters,
-      after: filters.after || null,
-      before: filters.before || null,
-      limit_per_chat: filters.limit_per_chat ? parseInt(filters.limit_per_chat) : null,
-      revoke: filters.revoke,
-      test_mode: filters.test_mode
-    };
-    
+    // Simulate scan progress
+    setScanProgress({
+      currentChat: 'Initializing...',
+      processed: 0,
+      total: 0,
+      status: 'Starting scan...'
+    });
+
     try {
-      const response = await fetch(`/api/accounts/${accountId}/scan`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload)
-      });
+      // Check if this is demo mode
+      const isDemoMode = API_BASE.includes('/api') || accountId.startsWith('demo_');
       
-      const data = await response.json();
-      
-      if (data.success) {
-        setResults(data.result);
-        // If messages are available, show preview option
-        if (data.result.messages && data.result.messages.length > 0) {
-          setPreviewMessages(data.result.messages);
+      if (isDemoMode) {
+        // Demo mode - simulate scan
+        await simulateScan();
+      } else {
+        // Real API call
+        const response = await fetch(`${API_BASE}/accounts/${accountId}/scan`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            include_private: false,
+            chat_name_filters: '',
+            limit_per_chat: 1000,
+            dry_run: true,
+            test_mode: false
+          })
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          setScanResult(result.result);
+        } else {
+          throw new Error('Scan failed');
         }
-        setSuccess('Scan completed successfully');
-        setOperationStatus(prev => ({...prev, [accountId]: `Scan complete - ${data.result.summary.total_candidates} messages found`}));
-      } else {
-        setError(data.error || 'Scan failed');
-        setOperationStatus(prev => ({...prev, [accountId]: 'Scan failed'}));
       }
-    } catch (err: any) {
-      setError(`Network error: ${err.message}`);
-      setOperationStatus(prev => ({...prev, [accountId]: 'Network error'}));
-    } finally {
-      setAccountOperations(prev => ({...prev, [accountId]: {...prev[accountId], scanning: false}}));
+    } catch (error) {
+      console.error('Scan error:', error);
+      setScanProgress({
+        currentChat: 'Error occurred',
+        processed: 0,
+        total: 0,
+        status: 'Scan failed'
+      });
     }
   };
-  const deleteAccount = (accountId: string) => {
-    if (isDemoMode) {
-      if (!confirm('This is demo mode - no real deletion will occur. Continue with demo?')) {
-        return;
-      }
-      // Demo mode - show mock results
-      setAccountOperations(prev => ({...prev, [accountId]: {...prev[accountId], deleting: true}}));
-      setOperationStatus(prev => ({...prev, [accountId]: 'Demo deletion in progress...'}));
+
+  const simulateScan = async () => {
+    const chats = [
+      { name: 'Work Group', members: 25, messages: 150 },
+      { name: 'Family Chat', members: 8, messages: 0 }, // Will be skipped
+      { name: 'Friends', members: 15, messages: 89 },
+      { name: 'Tech Discussion', members: 45, messages: 234 },
+      { name: 'Private Chat', members: 2, messages: 67 }
+    ];
+
+    setScanProgress({
+      currentChat: 'Getting chat list...',
+      processed: 0,
+      total: chats.length,
+      status: 'Connecting to Telegram...'
+    });
+
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    for (let i = 0; i < chats.length; i++) {
+      if (scanAborted) return;
       
-      setTimeout(() => {
-        const mockResults = generateMockResults();
-        mockResults.summary.total_deleted = 38;
-        mockResults.chats.forEach(chat => {
-          if (chat.candidates_found > 0) {
-            chat.deleted = chat.candidates_found;
+      const chat = chats[i];
+      setScanProgress({
+        currentChat: chat.name,
+        processed: i,
+        total: chats.length,
+        status: `Scanning ${chat.name}...`
+      });
+
+      await new Promise(resolve => setTimeout(resolve, 1500));
+    }
+
+    if (!scanAborted) {
+      setScanResult({
+        chats: [
+          {
+            id: 1,
+            title: 'Work Group',
+            type: 'Group',
+            participants: 25,
+            candidates: 150,
+            deleted: 0
+          },
+          {
+            id: 2,
+            title: 'Family Chat',
+            type: 'Group',
+            participants: 8,
+            candidates: 0,
+            deleted: 0,
+            skipped_reason: 'Group too small (≤10 members) - skipped for safety'
+          },
+          {
+            id: 3,
+            title: 'Friends',
+            type: 'Group',
+            participants: 15,
+            candidates: 89,
+            deleted: 0
+          },
+          {
+            id: 4,
+            title: 'Tech Discussion',
+            type: 'Group',
+            participants: 45,
+            candidates: 234,
+            deleted: 0
+          },
+          {
+            id: 5,
+            title: 'Private Chat',
+            type: 'User',
+            participants: 2,
+            candidates: 67,
+            deleted: 0
           }
-        });
-        mockResults.logs = [
-          "[14:35:15] Starting message deletion...",
-          "[14:35:16] Connected to Telegram successfully", 
-          "[14:35:17] Deleting 15 messages from Work Group",
-          "[14:35:18] Skipping Family Chat - only 8 members (safety protection)",
-          "[14:35:19] Deleting 23 messages from John Doe",
-          "[14:35:20] Deletion completed - 38 messages deleted"
-        ];
-        setResults(mockResults);
-        setSuccess('Demo deletion completed! This shows what real results would look like.');
-        setOperationStatus(prev => ({...prev, [accountId]: `Demo deletion complete - ${mockResults.summary.total_deleted} messages deleted`}));
-        setAccountOperations(prev => ({...prev, [accountId]: {...prev[accountId], deleting: false}}));
-      }, 3000);
-    } else {
-      if (!confirm('Are you sure you want to delete messages from this account? This cannot be undone.')) {
-        return;
-      }
-      deleteAccountMessages(accountId);
-    }
-  };
-
-  const deleteAccountMessages = async (accountId: string) => {
-    setAccountOperations(prev => ({...prev, [accountId]: {...prev[accountId], deleting: true}}));
-    setOperationStatus(prev => ({...prev, [accountId]: 'Starting deletion...'}));
-    setError('');
-    setSuccess('');
-    
-    const payload = {
-      include_private: filters.include_private,
-      chat_name_filters: filters.chat_name_filters,
-      after: filters.after || null,
-      before: filters.before || null,
-      limit_per_chat: filters.limit_per_chat ? parseInt(filters.limit_per_chat) : null,
-      revoke: filters.revoke,
-      test_mode: filters.test_mode
-    };
-    
-    try {
-      const response = await fetch(`/api/accounts/${accountId}/delete`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+        ],
+        summary: {
+          total_processed: 4,
+          total_skipped: 1,
+          total_candidates: 540,
+          total_deleted: 0
         },
-        body: JSON.stringify(payload)
+        logs: [
+          '[14:32:15] Starting message scan...',
+          '[14:32:16] Connected to Telegram successfully',
+          '[14:32:17] Found 5 chats to process',
+          '[14:32:18] Scanning Work Group - found 150 messages',
+          '[14:32:19] Skipping Family Chat - too few members (8)',
+          '[14:32:20] Scanning Friends - found 89 messages',
+          '[14:32:21] Scanning Tech Discussion - found 234 messages',
+          '[14:32:22] Scanning Private Chat - found 67 messages',
+          '[14:32:23] Scan complete! Found 540 messages across 4 chats'
+        ]
       });
-      
-      const data = await response.json();
-      
-      if (data.success) {
-        setResults(data.result);
-        setSuccess('Delete operation completed successfully');
-        setOperationStatus(prev => ({...prev, [accountId]: `Deletion complete - ${data.result.summary.total_deleted} messages deleted`}));
-      } else {
-        setError(data.error || 'Delete failed');
-        setOperationStatus(prev => ({...prev, [accountId]: 'Deletion failed'}));
-      }
-    } catch (err: any) {
-      setError(`Network error: ${err.message}`);
-      setOperationStatus(prev => ({...prev, [accountId]: 'Network error'}));
-    } finally {
-      setAccountOperations(prev => ({...prev, [accountId]: {...prev[accountId], deleting: false}}));
-    }
-  };
-  const scanAllAccounts = () => {
-    if (isDemoMode) {
-      setLoading(true);
-      setTimeout(() => {
-        const mockResults = generateMockResults();
-        mockResults.summary.total_chats_processed = 6;
-        mockResults.summary.total_candidates = 76;
-        setResults(mockResults);
-        setSuccess('Demo scan all completed! This shows results from multiple accounts.');
-        setLoading(false);
-      }, 3000);
-    } else {
-      scanAllAccountsMessages();
+
+      setScanProgress({
+        currentChat: 'Complete',
+        processed: chats.length,
+        total: chats.length,
+        status: 'Scan completed successfully!'
+      });
     }
   };
 
-  const scanAllAccountsMessages = async () => {
-    setLoading(true);
-    setError('');
-    setSuccess('');
-    
-    const payload = {
-      include_private: filters.include_private,
-      chat_name_filters: filters.chat_name_filters,
-      after: filters.after || null,
-      before: filters.before || null,
-      limit_per_chat: filters.limit_per_chat ? parseInt(filters.limit_per_chat) : null,
-      revoke: filters.revoke,
-      test_mode: filters.test_mode
-    };
-    
+  const stopScan = () => {
+    setScanAborted(true);
+    setScanProgress({
+      currentChat: 'Stopped',
+      processed: 0,
+      total: 0,
+      status: 'Scan stopped by user'
+    });
+  };
+
+  const closeScanPage = () => {
+    setShowScanPage(false);
+    setScanningAccount(null);
+    setScanProgress(null);
+    setScanResult(null);
+    setScanAborted(false);
+  };
+
+  const deleteAccount = async (accountId: string) => {
+    if (!confirm('Are you sure you want to delete this account?')) return;
+
     try {
-      const response = await fetch('/api/scan_all', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload)
+      const response = await fetch(`${API_BASE}/accounts/${accountId}`, {
+        method: 'DELETE'
       });
-      
-      const data = await response.json();
-      
-      if (data.success) {
-        setResults(data);
-        setSuccess('Scan all completed successfully');
-      } else {
-        setError(data.error || 'Scan all failed');
+
+      if (response.ok) {
+        loadAccounts();
       }
-    } catch (err: any) {
-      setError(`Network error: ${err.message}`);
-    } finally {
-      setLoading(false);
-    }
-  };
-  const deleteAllAccounts = () => {
-    if (isDemoMode) {
-      if (!confirm('This is demo mode - no real deletion will occur. Continue with demo?')) {
-        return;
-      }
-      setLoading(true);
-      setTimeout(() => {
-        const mockResults = generateMockResults();
-        mockResults.summary.total_chats_processed = 6;
-        mockResults.summary.total_candidates = 76;
-        mockResults.summary.total_deleted = 76;
-        mockResults.chats.forEach(chat => {
-          if (chat.candidates_found > 0) {
-            chat.deleted = chat.candidates_found;
-          }
-        });
-        setResults(mockResults);
-        setSuccess('Demo delete all completed! This shows results from multiple accounts.');
-        setLoading(false);
-      }, 4000);
-    } else {
-      if (!confirm('Are you sure you want to delete messages from ALL authenticated accounts? This cannot be undone.')) {
-        return;
-      }
-      deleteAllAccountsMessages();
+    } catch (error) {
+      console.error('Error deleting account:', error);
     }
   };
 
-  const deleteAllAccountsMessages = async () => {
-    setLoading(true);
-    setError('');
-    setSuccess('');
+  // Scan Page Component
+  if (showScanPage) {
+    const account = accounts.find(acc => acc.id === scanningAccount);
     
-    const payload = {
-      include_private: filters.include_private,
-      chat_name_filters: filters.chat_name_filters,
-      after: filters.after || null,
-      before: filters.before || null,
-      limit_per_chat: filters.limit_per_chat ? parseInt(filters.limit_per_chat) : null,
-      revoke: filters.revoke,
-      test_mode: filters.test_mode
-    };
-    
-    try {
-      const response = await fetch('/api/delete_all', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload)
-      });
-      
-      const data = await response.json();
-      
-      if (data.success) {
-        setResults(data);
-        setSuccess('Delete all completed successfully');
-      } else {
-        setError(data.error || 'Delete all failed');
-      }
-    } catch (err: any) {
-      setError(`Network error: ${err.message}`);
-    } finally {
-      setLoading(false);
-    }
-  };
-  const authenticatedAccounts = accounts.filter(acc => acc.is_authenticated);
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center mb-4">
-            <MessageSquare className="w-12 h-12 text-blue-600 mr-3" />
-            <h1 className="text-4xl font-bold text-gray-900">Telegram Message Manager</h1>
-          </div>
-          <p className="text-gray-600 text-lg">Safely manage your Telegram messages across multiple accounts</p>
-          
-          {/* Warning Banner */}
-          <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg max-w-4xl mx-auto">
-            <div className="flex items-start">
-              <AlertTriangle className="w-5 h-5 text-amber-600 mt-0.5 mr-3 flex-shrink-0" />
-              <div className="text-sm text-amber-800">
-                <p className="font-semibold mb-1">Important Safety Notice</p>
-                <p>This tool only deletes YOUR messages and automatically skips groups with 10 or fewer members. You are responsible for compliance with Telegram's Terms of Service.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        {/* Demo Mode Notice */}
-        {isDemoMode && (
-          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <div className="flex items-start">
-              <Server className="w-5 h-5 text-blue-600 mt-0.5 mr-3 flex-shrink-0" />
-              <div className="text-sm text-blue-800">
-                <p className="font-semibold mb-1">Demo Mode Active</p>
-                <p>Python server not detected. You're viewing the demo interface only. <strong>To use actual Telegram functionality:</strong></p>
-                <ol className="list-decimal list-inside mt-2 space-y-1">
-                  <li>Download the project files from GitHub</li>
-                  <li>Install Python 3.10+ and Node.js</li>
-                  <li>Run <code className="bg-blue-100 px-1 rounded">run.sh</code> (Mac/Linux) or <code className="bg-blue-100 px-1 rounded">run.bat</code> (Windows)</li>
-                  <li>Get your Telegram API credentials from <a href="https://my.telegram.org" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">my.telegram.org</a></li>
-                </ol>
-              </div>
-            </div>
-          </div>
-        )}
-        
-        {/* Server Mode Notice */}
-        {!isDemoMode && (
-          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-            <div className="flex items-start">
-              <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 mr-3 flex-shrink-0" />
-              <div className="text-sm text-green-800">
-                <p className="font-semibold mb-1">Server Mode Active</p>
-                <p>Successfully connected to Python backend. You can now add accounts and use all Telegram functionality.</p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Alerts */}
-        {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-            <div className="flex items-center">
-              <X className="w-5 h-5 text-red-600 mr-2" />
-              <span className="text-red-800">{error}</span>
-              <button onClick={() => setError('')} className="ml-auto text-red-600 hover:text-red-800">
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        )}
-
-        {success && (
-          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-            <div className="flex items-center">
-              <CheckCircle className="w-5 h-5 text-green-600 mr-2" />
-              <span className="text-green-800">{success}</span>
-              <button onClick={() => setSuccess('')} className="ml-auto text-green-600 hover:text-green-800">
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        )}
-
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-          {/* Left Column - Account Management */}
-          <div className="xl:col-span-2 space-y-6">
-            {/* Accounts Section */}
-            <div className="bg-white rounded-xl shadow-lg p-6">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center">
-                  <Users className="w-6 h-6 text-blue-600 mr-2" />
-                  <h2 className="text-2xl font-semibold text-gray-900">Accounts</h2>
-                  <span className="ml-3 px-2 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">
-                    {accounts.length}/5
-                  </span>
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+        <div className="max-w-6xl mx-auto">
+          {/* Header */}
+          <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <button
+                  onClick={closeScanPage}
+                  className="flex items-center px-4 py-2 text-gray-600 hover:text-gray-800 mr-4"
+                >
+                  <X className="w-5 h-5 mr-1" />
+                  Close
+                </button>
+                <BarChart3 className="w-8 h-8 text-blue-600 mr-3" />
+                <div>
+                  <h1 className="text-2xl font-bold text-gray-900">Scan Results</h1>
+                  <p className="text-gray-600">Account: {account?.label}</p>
                 </div>
-                {accounts.length < 5 && (
-                  <button
-                    onClick={() => setShowAddAccount(true)}
-                    className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                  >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add Account
-                  </button>
-                )}
               </div>
-
-              {/* Accounts List */}
-              {accounts.length > 0 ? (
-                <div className="space-y-4">
-                  {accounts.map((account) => (
-                    <div key={account.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center mb-2">
-                            <h3 className="font-semibold text-gray-900 mr-3">{account.label}</h3>
-                            <span className="flex items-center px-2 py-1 bg-gray-100 text-gray-600 text-sm rounded-full">
-                              <Clock className="w-3 h-3 mr-1" />
-                              {isDemoMode ? 'Demo Mode' : 'Server Mode'}
-                            </span>
-                          </div>
-                          <p className="text-sm text-gray-600 flex items-center">
-                            <Phone className="w-3 h-3 mr-1" />
-                            {account.phone}
-                          </p>
-                          <p className="text-sm text-gray-600 flex items-center mt-1">
-                            <Key className="w-3 h-3 mr-1" />
-                            API ID: {account.api_id}
-                          </p>
-                        </div>
-                        
-                        <div className="flex items-center space-x-2">
-                          <button
-                            onClick={() => connectAccount(account.id)}
-                            disabled={accountOperations[account.id]?.connecting || account.is_authenticated}
-                            className={`px-3 py-1 text-white text-sm rounded transition-colors flex items-center ${
-                              account.is_authenticated 
-                                ? 'bg-green-600 cursor-not-allowed' 
-                                : accountOperations[account.id]?.connecting
-                                  ? 'bg-blue-400 cursor-not-allowed'
-                                  : 'bg-blue-600 hover:bg-blue-700'
-                            }`}
-                          >
-                            {accountOperations[account.id]?.connecting && (
-                              <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-1"></div>
-                            )}
-                            {account.is_authenticated 
-                              ? `✓ @${account.username}` 
-                              : accountOperations[account.id]?.connecting 
-                                ? 'Connecting...' 
-                                : 'Connect'
-                            }
-                          </button>
-                          <button
-                            onClick={() => scanAccount(account.id)}
-                            disabled={accountOperations[account.id]?.scanning || !account.is_authenticated}
-                            className={`px-3 py-1 text-white text-sm rounded transition-colors flex items-center ${
-                              accountOperations[account.id]?.scanning || (!account.is_authenticated && !isDemoMode)
-                                ? 'bg-gray-400 cursor-not-allowed'
-                                : 'bg-green-600 hover:bg-green-700'
-                            }`}
-                          >
-                            {accountOperations[account.id]?.scanning && (
-                              <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-1"></div>
-                            )}
-                            <Search className="w-3 h-3 mr-1 inline" />
-                            {accountOperations[account.id]?.scanning ? 'Scanning...' : 'Scan'}
-                          </button>
-                          <button
-                            onClick={() => deleteAccount(account.id)}
-                            disabled={accountOperations[account.id]?.deleting || !account.is_authenticated}
-                            className={`px-3 py-1 text-white text-sm rounded transition-colors flex items-center ${
-                              accountOperations[account.id]?.deleting || (!account.is_authenticated && !isDemoMode)
-                                ? 'bg-gray-400 cursor-not-allowed'
-                                : 'bg-red-600 hover:bg-red-700'
-                            }`}
-                          >
-                            {accountOperations[account.id]?.deleting && (
-                              <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-1"></div>
-                            )}
-                            <Trash2 className="w-3 h-3 mr-1 inline" />
-                            {accountOperations[account.id]?.deleting ? 'Deleting...' : 'Delete'}
-                          </button>
-                          <button
-                            onClick={() => removeAccount(account.id)}
-                            className="px-3 py-1 bg-gray-600 text-white text-sm rounded hover:bg-gray-700 transition-colors"
-                          >
-                            Remove
-                          </button>
-                        </div>
-                      </div>
-                      {operationStatus[account.id] && (
-                        <div className="mt-2 text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded">
-                          {operationStatus[account.id]}
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8 text-gray-500">
-                  <Users className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-                  <p>No accounts added yet</p>
-                  <p className="text-sm">Add your first Telegram account to get started</p>
-                </div>
+              
+              {scanProgress && !scanResult && !scanAborted && (
+                <button
+                  onClick={stopScan}
+                  className="flex items-center px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                >
+                  <Square className="w-4 h-4 mr-2" />
+                  Stop Scan
+                </button>
               )}
             </div>
 
-            {/* Global Operations */}
-            {accounts.length > 0 && (
-              <div className="bg-white rounded-xl shadow-lg p-6">
-                <div className="flex items-center mb-6">
-                  <Settings className="w-6 h-6 text-blue-600 mr-2" />
-                  <h2 className="text-2xl font-semibold text-gray-900">Global Operations</h2>
+            {/* Progress */}
+            {scanProgress && (
+              <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-gray-700">
+                    {scanProgress.status}
+                  </span>
+                  {!scanResult && !scanAborted && (
+                    <Loader className="w-4 h-4 animate-spin text-blue-600" />
+                  )}
                 </div>
-
-                <div className="flex flex-wrap gap-4">
-                  <button
-                    onClick={scanAllAccounts}
-                    disabled={loading}
-                    className={`flex items-center px-6 py-3 text-white rounded-lg transition-colors ${
-                      loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'
-                    }`}
-                  >
-                    {loading && (
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    )}
-                    <Search className="w-4 h-4 mr-2" />
-                    {loading ? 'Scanning...' : 'Scan All Accounts'}
-                  </button>
-                  
-                  <button
-                    onClick={deleteAllAccounts}
-                    disabled={loading}
-                    className={`flex items-center px-6 py-3 text-white rounded-lg transition-colors ${
-                      loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-red-600 hover:bg-red-700'
-                    }`}
-                  >
-                    {loading && (
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    )}
-                    <Trash2 className="w-4 h-4 mr-2" />
-                    {loading ? 'Deleting...' : 'Delete All Accounts'}
-                  </button>
-                </div>
-
-                <p className="text-sm text-gray-600 mt-3">
-                  {isDemoMode ? 'Demo mode - showing mock results for demonstration' : 'Server mode - full functionality available'} - {accounts.length} account{accounts.length !== 1 ? 's' : ''} configured
+                
+                {scanProgress.total > 0 && (
+                  <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
+                    <div 
+                      className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                      style={{ width: `${(scanProgress.processed / scanProgress.total) * 100}%` }}
+                    ></div>
+                  </div>
+                )}
+                
+                <p className="text-sm text-gray-600">
+                  Current: {scanProgress.currentChat}
+                  {scanProgress.total > 0 && (
+                    <span className="ml-2">
+                      ({scanProgress.processed}/{scanProgress.total})
+                    </span>
+                  )}
                 </p>
               </div>
             )}
-
-            {/* Instructions */}
-            <div className="bg-white rounded-xl shadow-lg p-6">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">How to Use the Full Version</h3>
-              <div className="space-y-3 text-sm text-gray-700">
-                <div className="flex items-start">
-                  <span className="bg-blue-100 text-blue-800 rounded-full w-6 h-6 flex items-center justify-center text-xs font-semibold mr-3 mt-0.5">1</span>
-                  <div>
-                    <p className="font-medium">Download the project files</p>
-                    <p className="text-gray-600">Get all the Python server files and dependencies</p>
-                  </div>
-                </div>
-                <div className="flex items-start">
-                  <span className="bg-blue-100 text-blue-800 rounded-full w-6 h-6 flex items-center justify-center text-xs font-semibold mr-3 mt-0.5">2</span>
-                  <div>
-                    <p className="font-medium">Get Telegram API credentials</p>
-                    <p className="text-gray-600">Visit <a href="https://my.telegram.org" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">my.telegram.org</a> to get your API ID and Hash</p>
-                  </div>
-                </div>
-                <div className="flex items-start">
-                  <span className="bg-blue-100 text-blue-800 rounded-full w-6 h-6 flex items-center justify-center text-xs font-semibold mr-3 mt-0.5">3</span>
-                  <div>
-                    <p className="font-medium">Run the application locally</p>
-                    <p className="text-gray-600">Execute <code className="bg-gray-100 px-1 rounded">run.sh</code> (Mac/Linux) or <code className="bg-gray-100 px-1 rounded">run.bat</code> (Windows)</p>
-                  </div>
-                </div>
-                <div className="flex items-start">
-                  <span className="bg-blue-100 text-blue-800 rounded-full w-6 h-6 flex items-center justify-center text-xs font-semibold mr-3 mt-0.5">4</span>
-                  <div>
-                    <p className="font-medium">Connect your accounts</p>
-                    <p className="text-gray-600">Add your Telegram accounts and authenticate with verification codes</p>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
 
-          {/* Right Column - Filters & Results */}
-          <div className="space-y-6">
-            {/* Filters */}
-            <div className="bg-white rounded-xl shadow-lg p-6">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Filters & Options</h3>
-              
-              <div className="space-y-4">
-                <label className="flex items-center">
-                  <input
-                    type="checkbox"
-                    checked={filters.include_private}
-                    onChange={(e) => setFilters({...filters, include_private: e.target.checked})}
-                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                  />
-                  <span className="ml-2 text-sm text-gray-700">Include private chats</span>
-                </label>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Chat name filter</label>
-                  <input
-                    type="text"
-                    value={filters.chat_name_filters}
-                    onChange={(e) => setFilters({...filters, chat_name_filters: e.target.value})}
-                    placeholder="work, project (comma-separated)"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">After date</label>
-                    <input
-                      type="date"
-                      value={filters.after}
-                      onChange={(e) => setFilters({...filters, after: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Before date</label>
-                    <input
-                      type="date"
-                      value={filters.before}
-                      onChange={(e) => setFilters({...filters, before: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
+          {/* Results */}
+          {scanResult && (
+            <>
+              {/* Summary */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+                <div className="bg-white rounded-xl shadow-lg p-6">
+                  <div className="flex items-center">
+                    <Users className="w-8 h-8 text-blue-600 mr-3" />
+                    <div>
+                      <p className="text-sm text-gray-600">Chats Processed</p>
+                      <p className="text-2xl font-bold text-gray-900">{scanResult.summary.total_processed}</p>
+                    </div>
                   </div>
                 </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Messages per chat limit</label>
-                  <input
-                    type="number"
-                    value={filters.limit_per_chat}
-                    onChange={(e) => setFilters({...filters, limit_per_chat: e.target.value})}
-                    placeholder="Optional"
-                    min="1"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
+                
+                <div className="bg-white rounded-xl shadow-lg p-6">
+                  <div className="flex items-center">
+                    <Shield className="w-8 h-8 text-yellow-600 mr-3" />
+                    <div>
+                      <p className="text-sm text-gray-600">Chats Skipped</p>
+                      <p className="text-2xl font-bold text-gray-900">{scanResult.summary.total_skipped}</p>
+                    </div>
+                  </div>
                 </div>
+                
+                <div className="bg-white rounded-xl shadow-lg p-6">
+                  <div className="flex items-center">
+                    <MessageSquare className="w-8 h-8 text-green-600 mr-3" />
+                    <div>
+                      <p className="text-sm text-gray-600">Messages Found</p>
+                      <p className="text-2xl font-bold text-gray-900">{scanResult.summary.total_candidates}</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="bg-white rounded-xl shadow-lg p-6">
+                  <div className="flex items-center">
+                    <Trash2 className="w-8 h-8 text-red-600 mr-3" />
+                    <div>
+                      <p className="text-sm text-gray-600">Messages Deleted</p>
+                      <p className="text-2xl font-bold text-gray-900">{scanResult.summary.total_deleted}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-                <label className="flex items-center">
-                  <input
-                    type="checkbox"
-                    checked={filters.revoke}
-                    onChange={(e) => setFilters({...filters, revoke: e.target.checked})}
-                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                  />
-                  <span className="ml-2 text-sm text-gray-700">Delete for everyone (revoke)</span>
-                </label>
+              {/* Chat Results */}
+              <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-6">
+                <div className="px-6 py-4 border-b border-gray-200">
+                  <h3 className="text-lg font-semibold text-gray-900">Chat Details</h3>
+                </div>
+                
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Chat</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Members</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Messages Found</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {scanResult.chats.map((chat) => (
+                        <tr key={chat.id} className="hover:bg-gray-50">
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm font-medium text-gray-900">{chat.title}</div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+                              {chat.type}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {chat.participants}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {chat.candidates}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            {chat.skipped_reason ? (
+                              <div className="flex items-center">
+                                <AlertTriangle className="w-4 h-4 text-yellow-500 mr-2" />
+                                <span className="text-xs text-yellow-700">Skipped</span>
+                              </div>
+                            ) : chat.error ? (
+                              <div className="flex items-center">
+                                <XCircle className="w-4 h-4 text-red-500 mr-2" />
+                                <span className="text-xs text-red-700">Error</span>
+                              </div>
+                            ) : (
+                              <div className="flex items-center">
+                                <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
+                                <span className="text-xs text-green-700">Processed</span>
+                              </div>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
 
-                <label className="flex items-center">
-                  <input
-                    type="checkbox"
-                    checked={filters.test_mode}
-                    onChange={(e) => setFilters({...filters, test_mode: e.target.checked})}
-                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                  />
-                  <span className="ml-2 text-sm text-gray-700">Test mode (first 5 chats)</span>
-                </label>
+              {/* Logs */}
+              <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+                <div className="px-6 py-4 border-b border-gray-200">
+                  <h3 className="text-lg font-semibold text-gray-900">Operation Log</h3>
+                </div>
+                <div className="p-6">
+                  <div className="bg-gray-900 rounded-lg p-4 max-h-64 overflow-y-auto">
+                    {scanResult.logs.map((log, index) => (
+                      <div key={index} className="text-sm text-green-400 font-mono mb-1">
+                        {log}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // Main App Component
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+      <div className="max-w-6xl mx-auto">
+        {/* Header */}
+        <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <MessageSquare className="w-10 h-10 text-blue-600 mr-4" />
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900">Telegram Message Manager</h1>
+                <p className="text-gray-600">Safely manage your Telegram messages across multiple accounts</p>
               </div>
             </div>
-
-            {/* Demo Results */}
-            <div className="bg-white rounded-xl shadow-lg p-6">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Demo Results</h3>
-              
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div className="bg-blue-50 p-3 rounded">
-                    <div className="font-medium text-blue-900">Accounts Configured</div>
-                    <div className="text-2xl font-bold text-blue-600">{accounts.length}</div>
-                  </div>
-                  <div className="bg-gray-50 p-3 rounded">
-                    <div className="font-medium text-gray-900">Status</div>
-                    <div className="text-sm text-gray-600">{isDemoMode ? 'Demo Mode' : 'Server Mode'}</div>
-                  </div>
-                </div>
-
-                {isDemoMode ? (
-                  <div className="text-sm text-gray-600">
-                    <p className="font-medium text-blue-900 mb-2">Try the demo:</p>
-                    <ul className="list-disc list-inside space-y-1">
-                      <li>Add demo accounts above</li>
-                      <li>Click "Scan" or "Delete" to see mock results</li>
-                      <li>All operations show realistic demonstrations</li>
-                      <li>No real Telegram connections are made</li>
-                    </ul>
-                    <p className="mt-3 text-xs text-gray-500">
-                      For real functionality, download and run the Python server locally.
-                    </p>
-                  </div>
-                ) : (
-                  <div className="text-sm text-gray-600">
-                    <p className="font-medium text-green-900 mb-2">Server connected:</p>
-                    <ul className="list-disc list-inside space-y-1">
-                      <li>Add your real Telegram accounts</li>
-                      <li>Connect with verification codes</li>
-                      <li>Scan and delete actual messages</li>
-                      <li>Full functionality available</li>
-                    </ul>
-                  </div>
-                )}
-              </div>
-            </div>
+            <button
+              onClick={() => setShowAddAccount(true)}
+              disabled={accounts.length >= 5}
+              className="flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Add Account ({accounts.length}/5)
+            </button>
           </div>
         </div>
 
         {/* Add Account Modal */}
         {showAddAccount && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-xl max-w-md w-full p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold">Add New Account</h3>
-                <button onClick={() => setShowAddAccount(false)} className="text-gray-400 hover:text-gray-600">
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-xl p-6 w-full max-w-md mx-4">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Add New Account</h2>
+              
               <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Label</label>
-                  <input
-                    type="text"
-                    value={newAccount.label}
-                    onChange={(e) => setNewAccount({...newAccount, label: e.target.value})}
-                    placeholder="Personal, Work, etc."
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">API ID</label>
-                  <input
-                    type="number"
-                    value={newAccount.api_id}
-                    onChange={(e) => setNewAccount({...newAccount, api_id: e.target.value})}
-                    placeholder="123456789"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">API Hash</label>
-                  <input
-                    type="text"
-                    value={newAccount.api_hash}
-                    onChange={(e) => setNewAccount({...newAccount, api_hash: e.target.value})}
-                    placeholder="abcdef1234567890..."
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
-                  <input
-                    type="text"
-                    value={newAccount.phone}
-                    onChange={(e) => setNewAccount({...newAccount, phone: e.target.value})}
-                    placeholder="+1234567890"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-
-                <div className="text-xs text-gray-500">
-                  Get your API credentials from <a href="https://my.telegram.org" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">my.telegram.org</a>
-                </div>
+                <input
+                  type="text"
+                  placeholder="Account Label (e.g., Personal)"
+                  value={newAccount.label}
+                  onChange={(e) => setNewAccount({...newAccount, label: e.target.value})}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                
+                <input
+                  type="number"
+                  placeholder="API ID"
+                  value={newAccount.api_id}
+                  onChange={(e) => setNewAccount({...newAccount, api_id: e.target.value})}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                
+                <input
+                  type="text"
+                  placeholder="API Hash"
+                  value={newAccount.api_hash}
+                  onChange={(e) => setNewAccount({...newAccount, api_hash: e.target.value})}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                
+                <input
+                  type="tel"
+                  placeholder="Phone Number (with country code)"
+                  value={newAccount.phone}
+                  onChange={(e) => setNewAccount({...newAccount, phone: e.target.value})}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
               </div>
-
-              <div className="flex justify-end space-x-3 mt-6">
+              
+              <div className="flex space-x-3 mt-6">
                 <button
                   onClick={() => setShowAddAccount(false)}
-                  className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
+                  className="flex-1 px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={addAccount}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                 >
-                  Add Account (Demo)
+                  Add Account
                 </button>
               </div>
             </div>
           </div>
         )}
-        
-        {/* Login Modal */}
-        {showLoginModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-xl max-w-md w-full p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold">Complete Login</h3>
-                <button onClick={() => setShowLoginModal(false)} className="text-gray-400 hover:text-gray-600">
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
 
-              <div className="mb-4">
-                <p className="text-sm text-gray-600 mb-2">
-                  Enter the verification code sent to your Telegram app:
-                </p>
-                <p className="text-xs text-blue-600">
-                  Check your Telegram app for a message from Telegram with a 5-digit code
-                </p>
-              </div>
-
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Verification Code</label>
-                  <input
-                    type="text"
-                    value={loginData.code}
-                    onChange={(e) => setLoginData({...loginData, code: e.target.value})}
-                    placeholder="12345"
-                    maxLength={5}
-                    pattern="[0-9]{5}"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    Enter the 5-digit code from your Telegram app (without spaces)
-                  </p>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">2FA Password (if enabled)</label>
-                  <input
-                    type="password"
-                    value={loginData.password}
-                    onChange={(e) => setLoginData({...loginData, password: e.target.value})}
-                    placeholder="Optional"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    Only required if you have two-factor authentication enabled
-                  </p>
-                </div>
-              </div>
-              
-              {error && (
-                <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md">
-                  <p className="text-red-700 text-sm">{error}</p>
-                </div>
-              )}
-
-              <div className="flex justify-end space-x-3 mt-6">
-                <button
-                  onClick={() => setShowLoginModal(false)}
-                  className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={completeLogin}
-                  disabled={!loginData.code}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400"
-                >
-                  Complete Login
-                </button>
-              </div>
-            </div>
+        {/* Accounts Grid */}
+        {loading ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader className="w-8 h-8 animate-spin text-blue-600" />
+            <span className="ml-3 text-gray-600">Loading accounts...</span>
           </div>
-        )}
-        
-        {/* Results Display */}
-        {results && (
-          <div className="mt-8 bg-white rounded-xl shadow-lg p-6">
-            <h3 className="text-xl font-semibold text-gray-900 mb-4">Operation Results</h3>
-            
-            {/* Summary */}
-            {results.summary && (
-              <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-                <h4 className="font-medium mb-2">Summary</h4>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                  <div>
-                    <span className="text-gray-600">Processed:</span>
-                    <span className="font-medium ml-1">{results.summary.total_chats_processed || 0}</span>
-                  </div>
-                  <div>
-                    <span className="text-gray-600">Skipped:</span>
-                    <span className="font-medium ml-1">{results.summary.total_chats_skipped || 0}</span>
-                  </div>
-                  <div>
-                    <span className="text-gray-600">Candidates:</span>
-                    <span className="font-medium ml-1">{results.summary.total_candidates || 0}</span>
-                  </div>
-                  <div>
-                    <span className="text-gray-600">Deleted:</span>
-                    <span className="font-medium text-red-600 ml-1">{results.summary.total_deleted || 0}</span>
-                  </div>
-                </div>
-              </div>
-            )}
-            
-            {/* Chat Results */}
-            {results.chats && results.chats.length > 0 && (
-              <div className="space-y-3">
-                <h4 className="font-medium">Processed Chats</h4>
-                {results.chats.map((chat) => (
-                  <div key={chat.id} className="p-3 border border-gray-200 rounded-lg">
-                    <div className="flex justify-between items-start">
-                      <div className="flex-1">
-                        <h5 className="font-medium">{chat.title}</h5>
-                        <div className="flex space-x-4 text-sm text-gray-600 mt-1">
-                          <span>{chat.type}</span>
-                          <span>{chat.participants_count} members</span>
-                          <span>{chat.candidates_found} candidates</span>
-                          {chat.deleted > 0 && (
-                            <span className="text-red-600 font-medium">{chat.deleted} deleted</span>
-                          )}
-                        </div>
-                        {chat.error && (
-                          <div className="text-red-600 text-sm mt-1">{chat.error}</div>
-                        )}
-                        {chat.skipped_reason && (
-                          <div className="text-orange-600 text-sm mt-1">
-                            Skipped: {chat.skipped_reason}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-            
-            {/* Logs */}
-            {results.logs && results.logs.length > 0 && (
-              <div className="mt-6">
-                <h4 className="font-medium mb-2">Operation Log</h4>
-                <div className="bg-gray-900 text-gray-100 p-4 rounded-lg max-h-64 overflow-y-auto text-sm font-mono">
-                  {results.logs.map((log, index) => (
-                    <div key={index}>{log}</div>
-                  ))}
-                </div>
-              </div>
-            )}
+        ) : accounts.length === 0 ? (
+          <div className="bg-white rounded-xl shadow-lg p-12 text-center">
+            <Users className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No accounts added yet</h3>
+            <p className="text-gray-600 mb-6">Add your first Telegram account to get started</p>
+            <button
+              onClick={() => setShowAddAccount(true)}
+              className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Add Your First Account
+            </button>
           </div>
-        )}
-        
-        {/* Demo Mode Welcome Modal */}
-        {showDemoModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-xl max-w-lg w-full p-6">
-              <div className="flex items-center mb-4">
-                <Server className="w-8 h-8 text-blue-600 mr-3" />
-                <h3 className="text-xl font-semibold">Welcome to the Demo!</h3>
-              </div>
-
-              <div className="space-y-4 text-sm text-gray-700">
-                <p>You're currently viewing the <strong>demo version</strong> of the Telegram Message Manager.</p>
-                
-                <div className="bg-blue-50 p-3 rounded-lg">
-                  <p className="font-medium text-blue-900 mb-2">What you can do in demo mode:</p>
-                  <ul className="list-disc list-inside space-y-1 text-blue-800">
-                    <li>Add and remove accounts (stored locally)</li>
-                    <li>Explore the user interface</li>
-                    <li>See how the filters and options work</li>
-                  </ul>
-                </div>
-                
-                <p><strong>To actually use Telegram functionality:</strong> Download the project files and run the Python server locally using the provided scripts.</p>
-              </div>
-
-              <div className="flex justify-end mt-6">
-                <button 
-                  onClick={() => setShowDemoModal(false)}
-                  className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                >
-                  Got it, let's explore!
-                </button>
-              </div>
-            </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {accounts.map((account) => (
+              <AccountCard
+                key={account.id}
+                account={account}
+                status={accountStatuses[account.id]}
+                isOperating={operationStates[account.id]}
+                loginData={loginData[account.id]}
+                onConnect={() => connectAccount(account.id)}
+                onSubmitCode={(code, password) => submitCode(account.id, code, password)}
+                onScan={() => startScan(account.id)}
+                onDelete={() => deleteAccount(account.id)}
+              />
+            ))}
           </div>
         )}
       </div>
     </div>
   );
+};
+
+// Account Card Component
+interface AccountCardProps {
+  account: Account;
+  status?: string;
+  isOperating?: boolean;
+  loginData?: any;
+  onConnect: () => void;
+  onSubmitCode: (code: string, password?: string) => void;
+  onScan: () => void;
+  onDelete: () => void;
 }
+
+const AccountCard: React.FC<AccountCardProps> = ({
+  account,
+  status,
+  isOperating,
+  loginData,
+  onConnect,
+  onSubmitCode,
+  onScan,
+  onDelete
+}) => {
+  const [code, setCode] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleCodeSubmit = () => {
+    if (loginData?.step === '2fa') {
+      onSubmitCode(loginData.code, password);
+    } else {
+      onSubmitCode(code);
+    }
+    setCode('');
+    setPassword('');
+  };
+
+  return (
+    <div className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow">
+      {/* Account Header */}
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center">
+          <div className={`w-3 h-3 rounded-full mr-3 ${
+            account.is_authenticated ? 'bg-green-500' : 'bg-gray-400'
+          }`} />
+          <div>
+            <h3 className="font-semibold text-gray-900">{account.label}</h3>
+            <p className="text-sm text-gray-600">{account.phone}</p>
+          </div>
+        </div>
+        <button
+          onClick={onDelete}
+          className="text-gray-400 hover:text-red-500 transition-colors"
+        >
+          <Trash2 className="w-4 h-4" />
+        </button>
+      </div>
+
+      {/* Status */}
+      {status && (
+        <div className="mb-4 p-3 bg-blue-50 rounded-lg">
+          <p className="text-sm text-blue-800">{status}</p>
+        </div>
+      )}
+
+      {/* Authentication Status */}
+      <div className="mb-4">
+        {account.is_authenticated ? (
+          <div className="flex items-center text-green-600">
+            <CheckCircle className="w-4 h-4 mr-2" />
+            <span className="text-sm">Connected as {account.username}</span>
+          </div>
+        ) : (
+          <div className="flex items-center text-gray-500">
+            <XCircle className="w-4 h-4 mr-2" />
+            <span className="text-sm">Not connected</span>
+          </div>
+        )}
+      </div>
+
+      {/* Login Form */}
+      {loginData && (
+        <div className="mb-4 space-y-3">
+          {loginData.step === 'code' && (
+            <div>
+              <input
+                type="text"
+                placeholder="Enter verification code"
+                value={code}
+                onChange={(e) => setCode(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                maxLength={5}
+              />
+            </div>
+          )}
+          
+          {loginData.step === '2fa' && (
+            <div>
+              <input
+                type="password"
+                placeholder="Enter 2FA password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          )}
+          
+          <button
+            onClick={handleCodeSubmit}
+            disabled={isOperating || (!code && loginData.step === 'code') || (!password && loginData.step === '2fa')}
+            className="w-full flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+          >
+            {isOperating ? (
+              <Loader className="w-4 h-4 animate-spin" />
+            ) : (
+              'Submit'
+            )}
+          </button>
+        </div>
+      )}
+
+      {/* Action Buttons */}
+      <div className="space-y-2">
+        {!account.is_authenticated && !loginData && (
+          <button
+            onClick={onConnect}
+            disabled={isOperating}
+            className="w-full flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+          >
+            {isOperating ? (
+              <Loader className="w-4 h-4 animate-spin mr-2" />
+            ) : (
+              <Settings className="w-4 h-4 mr-2" />
+            )}
+            Connect
+          </button>
+        )}
+
+        {account.is_authenticated && (
+          <>
+            <button
+              onClick={onScan}
+              disabled={isOperating}
+              className="w-full flex items-center justify-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+            >
+              {isOperating ? (
+                <Loader className="w-4 h-4 animate-spin mr-2" />
+              ) : (
+                <Eye className="w-4 h-4 mr-2" />
+              )}
+              Scan Messages
+            </button>
+            
+            <button
+              disabled={isOperating}
+              className="w-full flex items-center justify-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+            >
+              {isOperating ? (
+                <Loader className="w-4 h-4 animate-spin mr-2" />
+              ) : (
+                <Trash2 className="w-4 h-4 mr-2" />
+              )}
+              Delete Messages
+            </button>
+          </>
+        )}
+      </div>
+    </div>
+  );
+};
 
 export default App;
