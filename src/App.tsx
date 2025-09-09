@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import VisualScanInterface from './components/VisualScanInterface';
 import { 
   Plus, 
   Trash2, 
@@ -70,6 +71,7 @@ const App: React.FC = () => {
   
   // Scan page states
   const [showScanPage, setShowScanPage] = useState(false);
+  const [showVisualScan, setShowVisualScan] = useState(false);
   const [scanningAccount, setScanningAccount] = useState<string | null>(null);
   const [scanProgress, setScanProgress] = useState<ScanProgress | null>(null);
   const [scanResult, setScanResult] = useState<ScanResult | null>(null);
@@ -292,6 +294,16 @@ const App: React.FC = () => {
 
   const startScan = async (accountId: string) => {
     setScanningAccount(accountId);
+    setShowVisualScan(true);
+    setScanResult(null);
+    setScanAborted(false);
+    setScanProgress(null);
+  };
+
+  const startVisualScan = async () => {
+    if (!scanningAccount) return;
+    
+    setScanningAccount(accountId);
     setShowScanPage(true);
     setScanResult(null);
     setScanAborted(false);
@@ -306,14 +318,14 @@ const App: React.FC = () => {
 
     try {
       // Check if this is demo mode (no backend or demo account)
-      const isDemoMode = !API_BASE || accountId.startsWith('demo_');
+      const isDemoMode = !API_BASE || scanningAccount.startsWith('demo_');
       
       if (isDemoMode) {
         // Demo mode - simulate scan
         await simulateScan();
       } else {
         // Real API call
-        const response = await fetch(`${API_BASE}/accounts/${accountId}/scan`, {
+        const response = await fetch(`${API_BASE}/accounts/${scanningAccount}/scan`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -459,6 +471,7 @@ const App: React.FC = () => {
   };
 
   const closeScanPage = () => {
+    setShowVisualScan(false);
     setShowScanPage(false);
     setScanningAccount(null);
     setScanProgress(null);
@@ -486,6 +499,23 @@ const App: React.FC = () => {
       console.error('Error deleting account:', error);
     }
   };
+
+  // Visual Scan Interface
+  if (showVisualScan && scanningAccount) {
+    const account = accounts.find(acc => acc.id === scanningAccount);
+    
+    return (
+      <VisualScanInterface
+        accountId={scanningAccount}
+        accountLabel={account?.label || 'Unknown'}
+        onClose={closeScanPage}
+        onStartScan={startVisualScan}
+        onStopScan={stopScan}
+        isScanning={!!scanProgress && !scanResult && !scanAborted}
+        scanProgress={scanProgress || undefined}
+      />
+    );
+  }
 
   // Scan Page Component
   if (showScanPage) {
