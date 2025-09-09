@@ -551,6 +551,10 @@ class TelegramDeleter:
                                 "link": message_link,
                                 "matched_keywords": [kw for kw in keywords if kw in message_text]
                             })
+                        
+                        # Stop early if we hit the limit to prevent hanging
+                        if filters.limit_per_chat and message_count >= filters.limit_per_chat:
+                            break
                 
                 except Exception as e:
                     self.log(f"Error searching in {chat_name}: {e}")

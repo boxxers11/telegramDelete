@@ -12,8 +12,24 @@ import {
   XCircle,
   Loader,
   Calendar,
-  Trash2
+  Trash2,
+  ChevronDown,
+  ChevronRight,
+  Image,
+  CheckSquare,
+  Minus,
+  RotateCcw,
+  Eye,
+  AlertTriangle as Warning
 } from 'lucide-react';
+
+interface Message {
+  id: number;
+  content: string;
+  date: string;
+  media_type?: string;
+  media_url?: string;
+}
 
 interface ChatInfo {
   id: number;
@@ -26,6 +42,8 @@ interface ChatInfo {
   messages_deleted?: number;
   error?: string;
   reason?: string;
+  messages?: Message[];
+  expanded?: boolean;
 }
 
 interface VisualScanInterfaceProps {
@@ -47,6 +65,7 @@ interface VisualScanInterfaceProps {
     messages_deleted?: number;
     total_to_delete?: number;
   };
+  lastScanResults?: ChatInfo[];
 }
 
 const VisualScanInterface: React.FC<VisualScanInterfaceProps> = ({
@@ -56,10 +75,14 @@ const VisualScanInterface: React.FC<VisualScanInterfaceProps> = ({
   onStartScan,
   onStopScan,
   isScanning,
-  scanProgress
+  scanProgress,
+  lastScanResults
 }) => {
-  const [chats, setChats] = useState<ChatInfo[]>([]);
+  const [chats, setChats] = useState<ChatInfo[]>(lastScanResults || []);
   const [currentScanningId, setCurrentScanningId] = useState<number | null>(null);
+  const [selectedChats, setSelectedChats] = useState<Set<number>>(new Set());
+  const [selectedMessages, setSelectedMessages] = useState<Set<number>>(new Set());
+  const [showFullScanWarning, setShowFullScanWarning] = useState(false);
   const [stats, setStats] = useState({
     total: 0,
     completed: 0,
@@ -76,7 +99,7 @@ const VisualScanInterface: React.FC<VisualScanInterfaceProps> = ({
     switch (scanProgress.type) {
       case 'chat_list':
         if (scanProgress.chats) {
-          setChats(scanProgress.chats);
+          setChats(scanProgress.chats.map(chat => ({ ...chat, expanded: false })));
           setStats(prev => ({ ...prev, total: scanProgress.chats!.length }));
         }
         break;
@@ -152,6 +175,16 @@ const VisualScanInterface: React.FC<VisualScanInterfaceProps> = ({
     });
   };
 
+  const formatMessageDate = (dateString: string) => {
+    return new Date(dateString).toLocaleString('he-IL', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'scanning':
@@ -182,6 +215,76 @@ const VisualScanInterface: React.FC<VisualScanInterfaceProps> = ({
     }
   };
 
+  const toggleChatExpansion = (chatId: number) => {
+    setChats(prev => prev.map(chat => 
+      chat.id === chatId 
+        ? { ...chat, expanded: !chat.expanded }
+        : chat
+    ));
+  };
+
+  const handleSelectAllChats = () => {
+    const completedChats = chats.filter(chat => chat.status === 'completed');
+    if (selectedChats.size === completedChats.length) {
+      setSelectedChats(new Set());
+    } else {
+      setSelectedChats(new Set(completedChats.map(chat => chat.id)));
+    }
+  };
+
+  const handleSelectChat = (chatId: number) => {
+    const newSelected = new Set(selectedChats);
+    if (newSelected.has(chatId)) {
+      newSelected.delete(chatId);
+    } else {
+      newSelected.add(chatId);
+    }
+    setSelectedChats(newSelected);
+  };
+
+  const handleSelectMessage = (messageId: number) => {
+    const newSelected = new Set(selectedMessages);
+    if (newSelected.has(messageId)) {
+      newSelected.delete(messageId);
+    } else {
+      newSelected.add(messageId);
+    }
+    setSelectedMessages(newSelected);
+  };
+
+  const handleDeleteSelected = () => {
+    if (selectedMessages.size === 0 && selectedChats.size === 0) return;
+    
+    const messageCount = selectedMessages.size;
+    const chatCount = selectedChats.size;
+    
+    if (confirm(`האם אתה בטוח שברצונך למחוק ${messageCount} הודעות נבחרות מ-${chatCount} קבוצות?`)) {
+      // TODO: Implement delete logic
+      console.log('Deleting selected messages:', Array.from(selectedMessages));
+      console.log('From selected chats:', Array.from(selectedChats));
+    }
+  };
+
+  const handleDeleteAll = () => {
+    const totalMessages = chats.reduce((sum, chat) => sum + (chat.messages_found || 0), 0);
+    
+    if (confirm(`⚠️ אזהרה! פעולה זו תמחק את כל ${totalMessages} ההודעות שנסרקו מכל הקבוצות. האם אתה בטוח?`)) {
+      // TODO: Implement delete all logic
+      console.log('Deleting all scanned messages');
+    }
+  };
+
+  const handleFullScan = () => {
+    if (confirm('⚠️ סריקה מלאה תסרוק את כל הקבוצות עד 5 שנים אחורה. זה עלול לקחת זמן רב. האם להמשיך?')) {
+      // TODO: Implement full scan
+      console.log('Starting full scan');
+      onStartScan();
+    }
+  };
+
+  const completedChats = chats.filter(chat => chat.status === 'completed');
+  const totalSelectedMessages = Array.from(selectedMessages).length;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
       <div className="max-w-7xl mx-auto">
@@ -204,6 +307,25 @@ const VisualScanInterface: React.FC<VisualScanInterfaceProps> = ({
             </div>
             
             <div className="flex items-center space-x-4">
+              {lastScanResults && lastScanResults.length > 0 && (
+                <button
+                  onClick={() => setChats(lastScanResults)}
+                  className="flex items-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+                >
+                  <Eye className="w-4 h-4 mr-2" />
+                  תוצאות אחרונות
+                </button>
+              )}
+              
+              <button
+                onClick={handleFullScan}
+                disabled={isScanning}
+                className="flex items-center px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:bg-orange-400 transition-colors"
+              >
+                <RotateCcw className="w-4 h-4 mr-2" />
+                סריקה מלאה
+              </button>
+              
               {!isScanning ? (
                 <button
                   onClick={onStartScan}
@@ -221,6 +343,17 @@ const VisualScanInterface: React.FC<VisualScanInterfaceProps> = ({
                   עצור סריקה
                 </button>
               )}
+            </div>
+          </div>
+
+          {/* Full Scan Warning */}
+          <div className="mt-4 p-3 bg-orange-50 border border-orange-200 rounded-lg">
+            <div className="flex items-start">
+              <Warning className="w-4 h-4 text-orange-500 mr-2 mt-0.5" />
+              <div className="text-sm text-orange-800">
+                <strong>סריקה מלאה:</strong> סורקת את כל הקבוצות עד 5 שנים אחורה או מאז ההצטרפות. 
+                עלולה לקחת זמן רב ולמצוא אלפי הודעות.
+              </div>
             </div>
           </div>
 
@@ -253,10 +386,54 @@ const VisualScanInterface: React.FC<VisualScanInterfaceProps> = ({
           </div>
         </div>
 
+        {/* Action Buttons */}
+        {completedChats.length > 0 && (
+          <div className="bg-white rounded-xl shadow-lg p-4 mb-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <button
+                  onClick={handleSelectAllChats}
+                  className="flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                >
+                  {selectedChats.size === completedChats.length ? (
+                    <CheckSquare className="w-4 h-4 mr-2" />
+                  ) : (
+                    <Minus className="w-4 h-4 mr-2" />
+                  )}
+                  בחר הכל ({selectedChats.size}/{completedChats.length})
+                </button>
+                
+                <span className="text-sm text-gray-600">
+                  נבחרו {totalSelectedMessages} הודעות
+                </span>
+              </div>
+              
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={handleDeleteSelected}
+                  disabled={selectedMessages.size === 0}
+                  className="flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                >
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  מחק הודעות נבחרות ({totalSelectedMessages})
+                </button>
+                
+                <button
+                  onClick={handleDeleteAll}
+                  className="flex items-center px-4 py-2 bg-red-800 text-white rounded-lg hover:bg-red-900 transition-colors text-sm"
+                >
+                  <Trash2 className="w-3 h-3 mr-1" />
+                  מחק הכל ({stats.totalMessages})
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Chat List */}
         <div className="bg-white rounded-xl shadow-lg overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900">רשימת קבוצות</h3>
+            <h3 className="text-lg font-semibold text-gray-900">רשימת קבוצות והודעות</h3>
           </div>
           
           <div className="max-h-96 overflow-y-auto">
@@ -269,72 +446,145 @@ const VisualScanInterface: React.FC<VisualScanInterfaceProps> = ({
             ) : (
               <div className="divide-y divide-gray-200">
                 {chats.map((chat) => (
-                  <div 
-                    key={chat.id} 
-                    className={`p-4 transition-all duration-300 ${
-                      chat.id === currentScanningId 
-                        ? 'bg-blue-50 border-l-4 border-blue-500 animate-pulse' 
-                        : chat.status === 'completed' 
-                        ? 'bg-green-50' 
-                        : chat.status === 'skipped' 
-                        ? 'bg-yellow-50'
-                        : chat.status === 'error'
-                        ? 'bg-red-50'
-                        : 'hover:bg-gray-50'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center flex-1">
-                        {getStatusIcon(chat.status)}
-                        <div className="mr-3 flex-1">
-                          <div className="flex items-center justify-between">
-                            <h4 className="text-sm font-medium text-gray-900 truncate max-w-xs">
-                              {chat.title}
-                            </h4>
-                            <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
-                              chat.type === 'User' 
-                                ? 'bg-blue-100 text-blue-800' 
-                                : 'bg-green-100 text-green-800'
-                            }`}>
-                              {chat.type === 'User' ? 'פרטי' : 'קבוצה'}
-                            </span>
-                          </div>
+                  <div key={chat.id} className="p-4">
+                    {/* Chat Header */}
+                    <div 
+                      className={`transition-all duration-300 ${
+                        chat.id === currentScanningId 
+                          ? 'bg-blue-50 border-l-4 border-blue-500 animate-pulse' 
+                          : chat.status === 'completed' 
+                          ? 'bg-green-50' 
+                          : chat.status === 'skipped' 
+                          ? 'bg-yellow-50'
+                          : chat.status === 'error'
+                          ? 'bg-red-50'
+                          : 'hover:bg-gray-50'
+                      } p-3 rounded-lg`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center flex-1">
+                          {chat.status === 'completed' && (
+                            <input
+                              type="checkbox"
+                              checked={selectedChats.has(chat.id)}
+                              onChange={() => handleSelectChat(chat.id)}
+                              className="mr-3 w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                            />
+                          )}
                           
-                          <div className="flex items-center justify-between mt-1">
-                            <p className="text-xs text-gray-600">
-                              {getStatusText(chat)}
-                            </p>
+                          {getStatusIcon(chat.status)}
+                          
+                          <button
+                            onClick={() => toggleChatExpansion(chat.id)}
+                            className="flex items-center mr-3 hover:bg-gray-100 p-1 rounded"
+                          >
+                            {chat.expanded ? (
+                              <ChevronDown className="w-4 h-4 text-gray-500" />
+                            ) : (
+                              <ChevronRight className="w-4 h-4 text-gray-500" />
+                            )}
+                          </button>
+                          
+                          <div className="mr-3 flex-1">
+                            <div className="flex items-center justify-between">
+                              <h4 className="text-sm font-medium text-gray-900 truncate max-w-xs">
+                                {chat.title}
+                              </h4>
+                              <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
+                                chat.type === 'User' 
+                                  ? 'bg-blue-100 text-blue-800' 
+                                  : 'bg-green-100 text-green-800'
+                              }`}>
+                                {chat.type === 'User' ? 'פרטי' : 'קבוצה'}
+                              </span>
+                            </div>
                             
-                            <div className="flex items-center text-xs text-gray-500">
-                              <Calendar className="w-3 h-3 mr-1" />
-                              <span>סריקה אחרונה: {formatDate(chat.last_scan_date)}</span>
-                              {chat.last_deleted_count > 0 && (
-                                <>
-                                  <Trash2 className="w-3 h-3 mr-1 ml-2" />
-                                  <span>נמחקו: {chat.last_deleted_count}</span>
-                                </>
-                              )}
+                            <div className="flex items-center justify-between mt-1">
+                              <p className="text-xs text-gray-600">
+                                {getStatusText(chat)}
+                              </p>
+                              
+                              <div className="flex items-center text-xs text-gray-500">
+                                <Calendar className="w-3 h-3 mr-1" />
+                                <span>סריקה אחרונה: {formatDate(chat.last_scan_date)}</span>
+                                {chat.last_deleted_count > 0 && (
+                                  <>
+                                    <Trash2 className="w-3 h-3 mr-1 ml-2" />
+                                    <span>נמחקו: {chat.last_deleted_count}</span>
+                                  </>
+                                )}
+                              </div>
                             </div>
                           </div>
                         </div>
                       </div>
+                      
+                      {/* Progress bar for scanning chats */}
+                      {chat.status === 'scanning' && chat.messages_found !== undefined && (
+                        <div className="mt-2">
+                          <div className="flex justify-between text-xs text-gray-600 mb-1">
+                            <span>נמצאו {chat.messages_found} הודעות</span>
+                            {chat.messages_deleted !== undefined && (
+                              <span>נמחקו {chat.messages_deleted}</span>
+                            )}
+                          </div>
+                          <div className="w-full bg-gray-200 rounded-full h-1">
+                            <div 
+                              className="bg-blue-600 h-1 rounded-full transition-all duration-300 animate-pulse"
+                              style={{ width: '60%' }}
+                            ></div>
+                          </div>
+                        </div>
+                      )}
                     </div>
-                    
-                    {/* Progress bar for scanning chats */}
-                    {chat.status === 'scanning' && chat.messages_found !== undefined && (
-                      <div className="mt-2">
-                        <div className="flex justify-between text-xs text-gray-600 mb-1">
-                          <span>נמצאו {chat.messages_found} הודעות</span>
-                          {chat.messages_deleted !== undefined && (
-                            <span>נמחקו {chat.messages_deleted}</span>
-                          )}
-                        </div>
-                        <div className="w-full bg-gray-200 rounded-full h-1">
-                          <div 
-                            className="bg-blue-600 h-1 rounded-full transition-all duration-300 animate-pulse"
-                            style={{ width: '60%' }}
-                          ></div>
-                        </div>
+
+                    {/* Messages List */}
+                    {chat.expanded && chat.messages && chat.messages.length > 0 && (
+                      <div className="mt-3 mr-8 space-y-2">
+                        {chat.messages.map((message) => (
+                          <div key={message.id} className="bg-gray-50 p-3 rounded-lg border-r-2 border-blue-200">
+                            <div className="flex items-start justify-between">
+                              <div className="flex items-start flex-1">
+                                <input
+                                  type="checkbox"
+                                  checked={selectedMessages.has(message.id)}
+                                  onChange={() => handleSelectMessage(message.id)}
+                                  className="mt-1 mr-3 w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                                />
+                                
+                                <div className="flex-1">
+                                  <div className="flex items-center justify-between mb-2">
+                                    <div className="flex items-center text-xs text-gray-500">
+                                      <Calendar className="w-3 h-3 mr-1" />
+                                      <span>{formatMessageDate(message.date)}</span>
+                                    </div>
+                                    
+                                    {message.media_type && (
+                                      <div className="flex items-center">
+                                        <Image className="w-3 h-3 mr-1 text-purple-500" />
+                                        <span className="text-xs text-purple-600">{message.media_type}</span>
+                                      </div>
+                                    )}
+                                  </div>
+                                  
+                                  <p className="text-sm text-gray-800 leading-relaxed">
+                                    {message.content}
+                                  </p>
+                                  
+                                  {message.media_url && (
+                                    <div className="mt-2">
+                                      <img 
+                                        src={message.media_url} 
+                                        alt="Message media"
+                                        className="max-w-xs max-h-32 rounded-lg border"
+                                      />
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     )}
                   </div>
