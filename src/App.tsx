@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import VisualScanInterface from './components/VisualScanInterface';
+import MessagePreview from './components/MessagePreview';
 import { 
   Plus, 
   Trash2, 
@@ -72,10 +73,14 @@ const App: React.FC = () => {
   // Scan page states
   const [showScanPage, setShowScanPage] = useState(false);
   const [showVisualScan, setShowVisualScan] = useState(false);
+  const [showMessagePreview, setShowMessagePreview] = useState(false);
   const [scanningAccount, setScanningAccount] = useState<string | null>(null);
   const [scanProgress, setScanProgress] = useState<ScanProgress | null>(null);
   const [scanResult, setScanResult] = useState<ScanResult | null>(null);
   const [scanAborted, setScanAborted] = useState(false);
+  const [selectedChats, setSelectedChats] = useState<Set<number>>(new Set());
+  const [previewMessages, setPreviewMessages] = useState<any[]>([]);
+  const [isDeletingMessages, setIsDeletingMessages] = useState(false);
 
   // Form states
   const [newAccount, setNewAccount] = useState({
@@ -473,10 +478,71 @@ const App: React.FC = () => {
   const closeScanPage = () => {
     setShowVisualScan(false);
     setShowScanPage(false);
+    setShowMessagePreview(false);
     setScanningAccount(null);
     setScanProgress(null);
     setScanResult(null);
     setScanAborted(false);
+    setSelectedChats(new Set());
+    setPreviewMessages([]);
+  };
+
+  const handleChatSelection = (chatId: number, selected: boolean) => {
+    const newSelected = new Set(selectedChats);
+    if (selected) {
+      newSelected.add(chatId);
+    } else {
+      newSelected.delete(chatId);
+    }
+    setSelectedChats(newSelected);
+  };
+
+  const handleSelectAllChats = () => {
+    if (!scanResult) return;
+    
+    const allChatIds = scanResult.chats
+      .filter(chat => chat.candidates > 0)
+      .map(chat => chat.id);
+    
+    if (selectedChats.size === allChatIds.length) {
+      setSelectedChats(new Set());
+    } else {
+      setSelectedChats(new Set(allChatIds));
+    }
+  };
+
+  const showMessagesPreview = async () => {
+    if (!scanningAccount || selectedChats.size === 0) return;
+    
+    // Simulate loading messages for selected chats
+    const mockMessages = Array.from(selectedChats).flatMap(chatId => {
+      const chat = scanResult?.chats.find(c => c.id === chatId);
+      if (!chat) return [];
+      
+      return Array.from({ length: Math.min(chat.candidates, 5) }, (_, i) => ({
+        id: chatId * 1000 + i,
+        chat_id: chatId,
+        chat_title: chat.title,
+        chat_type: chat.type,
+        date: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString(),
+        content: `הודעה דוגמה ${i + 1} מ${chat.title}`,
+        participants_count: chat.participants
+      }));
+    });
+    
+    setPreviewMessages(mockMessages);
+    setShowMessagePreview(true);
+  };
+
+  const deleteSelectedMessages = async (messageIds: number[]) => {
+    setIsDeletingMessages(true);
+    
+    // Simulate deletion
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    // Remove deleted messages from preview
+    setPreviewMessages(prev => prev.filter(msg => !messageIds.includes(msg.id)));
+    setIsDeletingMessages(false);
   };
 
   const deleteAccount = async (accountId: string) => {
@@ -499,6 +565,18 @@ const App: React.FC = () => {
       console.error('Error deleting account:', error);
     }
   };
+
+  // Message Preview Component
+  if (showMessagePreview && previewMessages.length > 0) {
+    return (
+      <MessagePreview
+        messages={previewMessages}
+        onDeleteSelected={deleteSelectedMessages}
+        onBack={() => setShowMessagePreview(false)}
+        isDeleting={isDeletingMessages}
+      />
+    );
+  }
 
   // Visual Scan Interface
   if (showVisualScan && scanningAccount) {
@@ -632,6 +710,47 @@ const App: React.FC = () => {
                 </div>
               </div>
 
+              {/* Selection Controls */}
+              <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <button
+                      onClick={handleSelectAllChats}
+                      className="flex items-center px-4 py-2 text-gray-600 hover:text-gray-800 mr-4"
+                    >
+                      {selectedChats.size === scanResult.chats.filter(chat => chat.candidates > 0).length ? (
+                        <CheckSquare className="w-5 h-5 mr-2" />
+                      ) : (
+                        <Square className="w-5 h-5 mr-2" />
+                      )}
+                      בחר הכל ({scanResult.chats.filter(chat => chat.candidates > 0).length} קבוצות)
+                    </button>
+                    <span className="text-sm text-gray-600">
+                      נבחרו {selectedChats.size} קבוצות
+                    </span>
+                  </div>
+                  
+                  <div className="flex space-x-3">
+                    <button
+                      onClick={showMessagesPreview}
+                      disabled={selectedChats.size === 0}
+                      className="flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                    >
+                      <Eye className="w-4 h-4 mr-2" />
+                      תצוגה מקדימה ({selectedChats.size})
+                    </button>
+                    
+                    <button
+                      disabled={selectedChats.size === 0}
+                      className="flex items-center px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                    >
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      מחק נבחרות ({selectedChats.size})
+                    </button>
+                  </div>
+                </div>
+              </div>
+
               {/* Chat Results */}
               <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-6">
                 <div className="px-6 py-4 border-b border-gray-200">
@@ -642,16 +761,46 @@ const App: React.FC = () => {
                   <table className="w-full">
                     <thead className="bg-gray-50">
                       <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <button
+                            onClick={handleSelectAllChats}
+                            className="flex items-center text-gray-600 hover:text-gray-800"
+                          >
+                            {selectedChats.size === scanResult.chats.filter(chat => chat.candidates > 0).length ? (
+                              <CheckSquare className="w-4 h-4" />
+                            ) : (
+                              <Square className="w-4 h-4" />
+                            )}
+                          </button>
+                        </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Chat</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Members</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Messages Found</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Preview</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
                       {scanResult.chats.map((chat) => (
-                        <tr key={chat.id} className="hover:bg-gray-50">
+                        <tr key={chat.id} className={`hover:bg-gray-50 transition-colors group ${
+                          selectedChats.has(chat.id) ? 'bg-blue-50' : ''
+                        }`}>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            {chat.candidates > 0 && (
+                              <button
+                                onClick={() => handleChatSelection(chat.id, !selectedChats.has(chat.id))}
+                                className="text-gray-600 hover:text-gray-800"
+                              >
+                                {selectedChats.has(chat.id) ? (
+                                  <CheckSquare className="w-4 h-4 text-blue-600" />
+                                ) : (
+                                  <Square className="w-4 h-4" />
+                                )}
+                              </button>
+                            )}
+                          </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="text-sm font-medium text-gray-900">{chat.title}</div>
                           </td>
@@ -665,6 +814,37 @@ const App: React.FC = () => {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                             {chat.candidates}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            {chat.candidates > 0 && (
+                              <div className="relative group">
+                                <div className="text-xs text-gray-600 bg-gray-100 rounded px-2 py-1 cursor-pointer hover:bg-gray-200 transition-colors">
+                                  {chat.candidates} הודעות
+                                </div>
+                                
+                                {/* Hover Preview */}
+                                <div className="absolute left-0 top-full mt-2 w-80 bg-white border border-gray-200 rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-2 group-hover:translate-y-0">
+                                  <div className="p-4">
+                                    <h4 className="font-medium text-gray-900 mb-3">תצוגה מקדימה - {chat.title}</h4>
+                                    <div className="space-y-2 max-h-48 overflow-y-auto">
+                                      {Array.from({ length: Math.min(chat.candidates, 3) }, (_, i) => (
+                                        <div key={i} className="text-sm text-gray-700 bg-gray-50 rounded p-2">
+                                          <div className="text-xs text-gray-500 mb-1">
+                                            {new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toLocaleDateString('he-IL')}
+                                          </div>
+                                          הודעה דוגמה {i + 1} מהקבוצה {chat.title}
+                                        </div>
+                                      ))}
+                                      {chat.candidates > 3 && (
+                                        <div className="text-xs text-gray-500 text-center py-2">
+                                          ועוד {chat.candidates - 3} הודעות...
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             {chat.skipped_reason ? (
@@ -682,6 +862,20 @@ const App: React.FC = () => {
                                 <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
                                 <span className="text-xs text-green-700">Processed</span>
                               </div>
+                            )}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            {chat.candidates > 0 && (
+                              <button
+                                className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center px-3 py-1 bg-red-600 text-white rounded text-xs hover:bg-red-700"
+                                onClick={() => {
+                                  // Handle single chat deletion
+                                  console.log('Delete messages from', chat.title);
+                                }}
+                              >
+                                <Trash2 className="w-3 h-3 mr-1" />
+                                מחק
+                              </button>
                             )}
                           </td>
                         </tr>
@@ -712,6 +906,17 @@ const App: React.FC = () => {
       </div>
     );
   }
+
+  // Initialize selected chats when scan result is available
+  useEffect(() => {
+    if (scanResult && selectedChats.size === 0) {
+      // Select all chats with messages by default
+      const chatsWithMessages = scanResult.chats
+        .filter(chat => chat.candidates > 0)
+        .map(chat => chat.id);
+      setSelectedChats(new Set(chatsWithMessages));
+    }
+  }, [scanResult]);
 
   // Main App Component
   return (
