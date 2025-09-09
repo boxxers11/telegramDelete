@@ -120,33 +120,28 @@ class TelegramDeleter:
                     await asyncio.sleep(3)
             
             raise Exception("Failed to connect after multiple attempts")
-        """Safely call Telegram API with flood wait handling"""
+
+    async def safe_api_call(self, method, *args, max_retries=5, **kwargs):
+        """Safely call Telegram API with flood wait handling and retries."""
         for attempt in range(max_retries):
             try:
                 result = await method(*args, **kwargs)
                 return result
             except FloodWaitError as e:
                 wait_time = e.seconds
-                self.update_status(f"Rate limited. Waiting {wait_time} seconds...", {
+                self.update_status(f"Rate limited. Waiting {wait_time} seconds... (attempt {attempt + 1}/{max_retries})", {
                     'type': 'flood_wait',
                     'wait_time': wait_time,
                     'attempt': attempt + 1,
                     'max_retries': max_retries
                 })
                 await asyncio.sleep(wait_time + 1)  # Add 1 second buffer
-            except Exception as e:
+            except Exception as e: # Catch other exceptions for retry
                 if attempt >= max_retries - 1:
                     raise
                 self.log(f"API call failed (attempt {attempt + 1}): {e}")
                 await asyncio.sleep(2 ** attempt)  # Exponential backoff
         raise Exception(f"Failed after {max_retries} attempts")
-
-    def log(self, message: str):
-        """Add a timestamped log entry"""
-        timestamp = datetime.now().strftime("%H:%M:%S")
-        log_entry = f"[{timestamp}] {message}"
-        self.logs.append(log_entry)
-        logger.info(message)
 
     async def connect(self, phone: str = None) -> Dict[str, Any]:
         """Connect to Telegram"""
