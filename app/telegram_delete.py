@@ -12,6 +12,7 @@ import sqlite3
 import time
 import os
 import threading
+from .checkpoint_manager import CheckpointManager
 
 logger = logging.getLogger(__name__)
 
@@ -66,6 +67,9 @@ class TelegramDeleter:
         self.logs = []
         self.status_callback = None
         self._session_lock = threading.Lock()
+        # Extract account ID from session name for checkpoint manager
+        account_id = session_name.split('_')[-1] if '_' in session_name else 'default'
+        self.checkpoint_manager = CheckpointManager(account_id)
 
     def set_status_callback(self, callback):
         """Set callback function for status updates"""
@@ -293,6 +297,26 @@ class TelegramDeleter:
                     break
             
             total_dialogs = len(all_dialogs)
+            
+            # Send initial chat list with checkpoints
+            chat_list_data = []
+            for dialog in all_dialogs:
+                checkpoint = self.checkpoint_manager.get_checkpoint(dialog.id)
+                chat_list_data.append({
+                    'id': dialog.id,
+                    'title': dialog.name or "Unknown",
+                    'type': "User" if dialog.is_user else "Group",
+                    'last_scan_date': checkpoint.last_scan_date if checkpoint else None,
+                    'last_deleted_count': checkpoint.messages_deleted if checkpoint else 0,
+                    'status': 'pending'
+                })
+            
+            self.update_status("Chat list loaded", {
+                'type': 'chat_list',
+                'chats': chat_list_data,
+                'total': total_dialogs
+            })
+            
             self.update_status(f"Found {total_dialogs} chats to process", {
                 'total': total_dialogs,
                 'processed': 0
@@ -301,6 +325,17 @@ class TelegramDeleter:
             for i, dialog in enumerate(all_dialogs):
                 
                 chat_name = dialog.name or "Unknown"
+                
+                # Update chat status to scanning
+                self.update_status(f"Scanning chat: {chat_name} ({i+1}/{total_dialogs})", {
+                    'type': 'chat_scanning',
+                    'chat_id': dialog.id,
+                    'chat_name': chat_name,
+                    'current_index': i,
+                    'total': total_dialogs,
+                    'status': 'scanning'
+                })
+                
                 self.update_status(f"Scanning chat: {chat_name} ({i+1}/{total_dialogs})", {
                     'current_chat': chat_name,
                     'processed': i,
@@ -311,35 +346,70 @@ class TelegramDeleter:
                 # Apply filters
                 if not filters.include_private and dialog.is_user:
                     self.update_status(f"Skipping private chat: {chat_name}")
+                    self.update_status("Chat skipped", {
+                        'type': 'chat_completed',
+                        'chat_id': dialog.id,
+                        'status': 'skipped',
+                        'reason': 'Private chat excluded'
+                    })
                     skipped_count += 1
                     continue
                 
                 if filters.chat_name_filters:
                     if not any(filter_term.lower() in chat_name.lower() for filter_term in filters.chat_name_filters):
                         self.update_status(f"Skipping filtered chat: {chat_name}")
+                        self.update_status("Chat skipped", {
+                            'type': 'chat_completed',
+                            'chat_id': dialog.id,
+                            'status': 'skipped',
+                            'reason': 'Name filter excluded'
+                        })
                         skipped_count += 1
                         continue
                 
+                # Get checkpoint for this chat
+                checkpoint = self.checkpoint_manager.get_checkpoint(dialog.id)
+                start_from_id = checkpoint.last_message_id if checkpoint else None
+                
                 # Count messages with progress updates
                 message_count = 0
+                last_message_id = None
                 try:
                     me = await self.client.get_me()
                     my_id = me.id
                     
-                    async for message in self.client.iter_messages(dialog, limit=filters.limit_per_chat or 1000):
+                    # Start from checkpoint if available
+                    iter_kwargs = {'limit': filters.limit_per_chat or 1000}
+                    if start_from_id:
+                        iter_kwargs['min_id'] = start_from_id
+                        self.update_status(f"Resuming from checkpoint in {chat_name} (message ID: {start_from_id})")
+                    
+                    async for message in self.client.iter_messages(dialog, **iter_kwargs):
                         if message.sender_id == my_id:
                             if filters.after and message.date.date() < filters.after:
                                 continue
                             if filters.before and message.date.date() > filters.before:
                                 continue
                             message_count += 1
+                            last_message_id = message.id
                             
                             # Update progress every 10 messages
                             if message_count % 10 == 0:
                                 self.update_status(f"Found {message_count} messages in {chat_name}...")
+                                self.update_status("Scanning progress", {
+                                    'type': 'chat_progress',
+                                    'chat_id': dialog.id,
+                                    'messages_found': message_count
+                                })
                 
                 except Exception as e:
                     self.log(f"Error scanning {chat_name}: {e}")
+                    self.update_status("Chat error", {
+                        'type': 'chat_completed',
+                        'chat_id': dialog.id,
+                        'status': 'error',
+                        'error': str(e)
+                    })
                     chats.append(ChatResult(
                         id=dialog.id,
                         title=chat_name,
@@ -350,6 +420,15 @@ class TelegramDeleter:
                         error=str(e)
                     ))
                     continue
+                
+                # Update checkpoint
+                self.checkpoint_manager.update_checkpoint(
+                    dialog.id, 
+                    chat_name, 
+                    last_message_id,
+                    0,  # No messages deleted in scan mode
+                    message_count
+                )
                 
                 total_candidates += message_count
                 processed_count += 1
@@ -368,6 +447,14 @@ class TelegramDeleter:
                     'processed': i + 1,
                     'total': total_dialogs,
                     'status': f'Completed {chat_name} - {message_count} messages'
+                })
+                
+                # Update chat status to completed
+                self.update_status("Chat completed", {
+                    'type': 'chat_completed',
+                    'chat_id': dialog.id,
+                    'status': 'completed',
+                    'messages_found': message_count
                 })
             
             self.update_status(f"🎉 Scan complete! Found {total_candidates} messages across {processed_count} chats", {
@@ -511,35 +598,94 @@ class TelegramDeleter:
             processed_count = 0
             skipped_count = 0
             
+            # Get all dialogs first
+            all_dialogs = []
             async for dialog in self.client.iter_dialogs():
+                all_dialogs.append(dialog)
+                if filters.test_mode and processed_count >= 5:
+                    break
+            
+            # Send initial chat list with checkpoints
+            chat_list_data = []
+            for dialog in all_dialogs:
+                checkpoint = self.checkpoint_manager.get_checkpoint(dialog.id)
+                chat_list_data.append({
+                    'id': dialog.id,
+                    'title': dialog.name or "Unknown",
+                    'type': "User" if dialog.is_user else "Group",
+                    'last_scan_date': checkpoint.last_scan_date if checkpoint else None,
+                    'last_deleted_count': checkpoint.messages_deleted if checkpoint else 0,
+                    'status': 'pending'
+                })
+            
+            self.update_status("Chat list loaded", {
+                'type': 'chat_list',
+                'chats': chat_list_data,
+                'total': len(all_dialogs)
+            })
+            
+            for dialog in all_dialogs:
                 if filters.test_mode and processed_count >= 5:
                     break
                 
                 chat_name = dialog.name or "Unknown"
+                
+                # Update chat status to processing
+                self.update_status(f"Processing chat: {chat_name}", {
+                    'type': 'chat_scanning',
+                    'chat_id': dialog.id,
+                    'chat_name': chat_name,
+                    'status': 'processing'
+                })
+                
                 self.update_status(f"Processing chat: {chat_name}")
                 
                 # Apply filters
                 if not filters.include_private and dialog.is_user:
+                    self.update_status("Chat skipped", {
+                        'type': 'chat_completed',
+                        'chat_id': dialog.id,
+                        'status': 'skipped',
+                        'reason': 'Private chat excluded'
+                    })
                     skipped_count += 1
                     continue
                 
                 if filters.chat_name_filters:
                     if not any(filter_term.lower() in chat_name.lower() for filter_term in filters.chat_name_filters):
+                        self.update_status("Chat skipped", {
+                            'type': 'chat_completed',
+                            'chat_id': dialog.id,
+                            'status': 'skipped',
+                            'reason': 'Name filter excluded'
+                        })
                         skipped_count += 1
                         continue
+                
+                # Get checkpoint for this chat
+                checkpoint = self.checkpoint_manager.get_checkpoint(dialog.id)
+                start_from_id = checkpoint.last_message_id if checkpoint else None
                 
                 # Delete messages
                 message_count = 0
                 deleted_count = 0
                 messages_to_delete = []
+                last_message_id = None
                 
-                async for message in self.client.iter_messages(dialog, limit=filters.limit_per_chat or 1000):
+                # Start from checkpoint if available
+                iter_kwargs = {'limit': filters.limit_per_chat or 1000}
+                if start_from_id:
+                    iter_kwargs['min_id'] = start_from_id
+                    self.update_status(f"Resuming deletion from checkpoint in {chat_name} (message ID: {start_from_id})")
+                
+                async for message in self.client.iter_messages(dialog, **iter_kwargs):
                     if message.sender_id == (await self.client.get_me()).id:
                         if filters.after and message.date.date() < filters.after:
                             continue
                         if filters.before and message.date.date() > filters.before:
                             continue
                         message_count += 1
+                        last_message_id = message.id
                         messages_to_delete.append(message)
                 
                 if messages_to_delete:
@@ -548,9 +694,28 @@ class TelegramDeleter:
                         try:
                             await self.safe_api_call(message.delete, revoke=filters.revoke)
                             deleted_count += 1
+                            
+                            # Update progress every 5 deletions
+                            if deleted_count % 5 == 0:
+                                self.update_status("Deletion progress", {
+                                    'type': 'chat_progress',
+                                    'chat_id': dialog.id,
+                                    'messages_deleted': deleted_count,
+                                    'total_to_delete': len(messages_to_delete)
+                                })
+                            
                             await asyncio.sleep(0.1)  # Small delay to avoid rate limits
                         except Exception as e:
                             self.log(f"Failed to delete message {message.id}: {e}")
+                
+                # Update checkpoint with deletion results
+                self.checkpoint_manager.update_checkpoint(
+                    dialog.id, 
+                    chat_name, 
+                    last_message_id,
+                    deleted_count,
+                    message_count
+                )
                 
                 total_candidates += message_count
                 total_deleted += deleted_count
@@ -566,6 +731,15 @@ class TelegramDeleter:
                 ))
                 
                 self.update_status(f"Deleted {deleted_count}/{message_count} messages from {chat_name}")
+                
+                # Update chat status to completed
+                self.update_status("Chat completed", {
+                    'type': 'chat_completed',
+                    'chat_id': dialog.id,
+                    'status': 'completed',
+                    'messages_deleted': deleted_count,
+                    'messages_found': message_count
+                })
             
             self.update_status(f"Deletion complete! Deleted {total_deleted} messages across {processed_count} chats")
             
