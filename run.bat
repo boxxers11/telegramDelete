@@ -28,6 +28,7 @@ python -m ensurepip --upgrade
 echo 📥 Installing dependencies...
 python -m pip install --upgrade pip
 pip install -r requirements.txt
+pip install uvicorn
 
 :: Create session directory if it doesn't exist
 if not exist "sessions" mkdir sessions
