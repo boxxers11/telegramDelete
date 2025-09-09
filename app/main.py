@@ -10,7 +10,6 @@ from fastapi.responses import HTMLResponse, JSONResponse
 from pydantic import BaseModel
 import uvicorn
 import logging
-from telethon import TelegramClient
 from .telegram_delete import TelegramDeleter, Filters
 from .accounts import account_store, Account
 from .telegram_client_factory import get_deleter_for_account
@@ -82,6 +81,60 @@ app.mount("/static", StaticFiles(directory="app/static"), name="static")
 # Initialize telegram deleter instance
 deleter: Optional[TelegramDeleter] = None
 
+async def _check_account_status(account: Account) -> dict:
+    """Check authentication status for a single account"""
+    try:
+        account_deleter = get_deleter_for_account(account.id)
+        if not account_deleter:
+            return {
+                "id": account.id,
+                "label": account.label,
+                "phone": account.phone,
+                "api_id": account.api_id,
+                "api_hash": account.api_hash,
+                "is_authenticated": False,
+                "username": None
+            }
+        
+        try:
+            await account_deleter.safe_client_connect()
+            if await account_deleter.client.is_user_authorized():
+                me = await account_deleter.client.get_me()
+                username = me.username or me.first_name
+                return {
+                    "id": account.id,
+                    "label": account.label,
+                    "phone": account.phone,
+                    "api_id": account.api_id,
+                    "api_hash": account.api_hash,
+                    "is_authenticated": True,
+                    "username": username
+                }
+            else:
+                return {
+                    "id": account.id,
+                    "label": account.label,
+                    "phone": account.phone,
+                    "api_id": account.api_id,
+                    "api_hash": account.api_hash,
+                    "is_authenticated": False,
+                    "username": None
+                }
+        finally:
+            if account_deleter.client:
+                await account_deleter.client.disconnect()
+    except Exception as e:
+        logger.error(f"Error checking status for account {account.id}: {e}")
+        return {
+            "id": account.id,
+            "label": account.label,
+            "phone": account.phone,
+            "api_id": account.api_id,
+            "api_hash": account.api_hash,
+            "is_authenticated": False,
+            "username": None
+        }
+
 # Routes
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
@@ -102,9 +155,19 @@ async def index(request: Request):
 async def get_accounts():
     """Get all accounts with basic authentication status"""
     logger.info("GET /accounts called")
-    accounts_data = []
-    for account in account_store.get_all_accounts():
-        accounts_data.append({
+    
+    all_accounts = account_store.get_all_accounts()
+    if not all_accounts:
+        logger.info("No accounts found")
+        return []
+    
+    try:
+        # Check authentication status for all accounts concurrently
+        accounts_data = await asyncio.gather(*[_check_account_status(account) for account in all_accounts])
+    except Exception as e:
+        logger.error(f"Error checking account statuses: {e}")
+        # Fallback to basic account data without authentication status
+        accounts_data = [{
             "id": account.id,
             "label": account.label,
             "phone": account.phone,
@@ -112,7 +175,7 @@ async def get_accounts():
             "api_hash": account.api_hash,
             "is_authenticated": False,
             "username": None
-        })
+        } for account in all_accounts]
     
     logger.info(f"Returning {len(accounts_data)} accounts")
     return accounts_data
