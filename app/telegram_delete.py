@@ -41,6 +41,7 @@ class ChatResult:
     deleted: int
     error: Optional[str] = None
     skipped_reason: Optional[str] = None
+    messages: Optional[List[Dict]] = None
 
 @dataclass
 class OperationResult:
@@ -289,7 +290,11 @@ class TelegramDeleter:
             processed_count = 0
             skipped_count = 0
             
-            # Get total dialogs count first
+            # Get me info once
+            me = await self.safe_api_call(self.client.get_me)
+            my_id = me.id
+            
+            # Get all dialogs and send initial list
             all_dialogs = []
             async for dialog in self.client.iter_dialogs():
                 all_dialogs.append(dialog)
@@ -298,7 +303,7 @@ class TelegramDeleter:
             
             total_dialogs = len(all_dialogs)
             
-            # Send initial chat list with checkpoints
+            # Send initial chat list
             chat_list_data = []
             for dialog in all_dialogs:
                 checkpoint = self.checkpoint_manager.get_checkpoint(dialog.id)
@@ -317,11 +322,7 @@ class TelegramDeleter:
                 'total': total_dialogs
             })
             
-            self.update_status(f"Found {total_dialogs} chats to process", {
-                'total': total_dialogs,
-                'processed': 0
-            })
-            
+            # Process each dialog
             for i, dialog in enumerate(all_dialogs):
                 
                 chat_name = dialog.name or "Unknown"
@@ -334,13 +335,6 @@ class TelegramDeleter:
                     'current_index': i,
                     'total': total_dialogs,
                     'status': 'scanning'
-                })
-                
-                self.update_status(f"Scanning chat: {chat_name} ({i+1}/{total_dialogs})", {
-                    'current_chat': chat_name,
-                    'processed': i,
-                    'total': total_dialogs,
-                    'status': f'Processing {chat_name}...'
                 })
                 
                 # Apply filters
@@ -374,10 +368,9 @@ class TelegramDeleter:
                 # Count messages with progress updates
                 message_count = 0
                 last_message_id = None
+                messages_data = []
+                
                 try:
-                    me = await self.client.get_me()
-                    my_id = me.id
-                    
                     # Start from checkpoint if available
                     iter_kwargs = {'limit': filters.limit_per_chat or 1000}
                     if start_from_id:
@@ -392,6 +385,34 @@ class TelegramDeleter:
                                 continue
                             message_count += 1
                             last_message_id = message.id
+                            
+                            # Collect message data
+                            message_data = {
+                                'id': message.id,
+                                'content': message.text or '[Media/File]',
+                                'date': message.date.isoformat(),
+                                'media_type': None,
+                                'media_url': None
+                            }
+                            
+                            # Handle media
+                            if message.photo:
+                                message_data['media_type'] = 'photo'
+                                try:
+                                    # Get photo URL (this is a simplified approach)
+                                    message_data['media_url'] = f"data:image/jpeg;base64,{message.photo}"
+                                except:
+                                    message_data['media_url'] = None
+                            elif message.video:
+                                message_data['media_type'] = 'video'
+                            elif message.document:
+                                message_data['media_type'] = 'document'
+                            elif message.sticker:
+                                message_data['media_type'] = 'sticker'
+                            elif message.voice:
+                                message_data['media_type'] = 'voice'
+                            
+                            messages_data.append(message_data)
                             
                             # Update progress every 10 messages
                             if message_count % 10 == 0:
@@ -433,36 +454,31 @@ class TelegramDeleter:
                 total_candidates += message_count
                 processed_count += 1
                 
-                chats.append(ChatResult(
+                chat_result = ChatResult(
                     id=dialog.id,
                     title=chat_name,
                     type="User" if dialog.is_user else "Group",
                     participants_count=1 if dialog.is_user else 0,
                     candidates_found=message_count,
                     deleted=0
-                ))
+                )
                 
-                self.update_status(f"✅ Found {message_count} messages in {chat_name}", {
-                    'current_chat': chat_name,
-                    'processed': i + 1,
-                    'total': total_dialogs,
-                    'status': f'Completed {chat_name} - {message_count} messages'
-                })
+                # Add messages data to the result
+                chat_result.messages = messages_data
+                chats.append(chat_result)
+                
+                self.update_status(f"✅ Found {message_count} messages in {chat_name}")
                 
                 # Update chat status to completed
                 self.update_status("Chat completed", {
                     'type': 'chat_completed',
                     'chat_id': dialog.id,
                     'status': 'completed',
-                    'messages_found': message_count
+                    'messages_found': message_count,
+                    'messages': messages_data
                 })
             
-            self.update_status(f"🎉 Scan complete! Found {total_candidates} messages across {processed_count} chats", {
-                'current_chat': 'Complete',
-                'processed': total_dialogs,
-                'total': total_dialogs,
-                'status': 'Scan completed successfully!'
-            })
+            self.update_status(f"🎉 Scan complete! Found {total_candidates} messages across {processed_count} chats")
             
             return OperationResult(
                 chats=chats,
