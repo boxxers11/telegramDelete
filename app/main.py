@@ -104,40 +104,14 @@ async def get_accounts():
     logger.info("GET /accounts called")
     accounts_data = []
     for account in account_store.get_all_accounts():
-        # Quick check if session file exists
-        session_exists = os.path.exists(account.session_path)
-        
-        # Try to check if actually authenticated
-        is_authenticated = False
-        username = None
-        
-        if session_exists:
-            try:
-                from .telegram_client_factory import get_deleter_for_account
-                deleter = get_deleter_for_account(account.id)
-                if deleter:
-                    deleter.client = deleter.client or TelegramClient(
-                        deleter.session_name, 
-                        deleter.api_id, 
-                        deleter.api_hash
-                    )
-                    await deleter.client.connect()
-                    if await deleter.client.is_user_authorized():
-                        is_authenticated = True
-                        me = await deleter.client.get_me()
-                        username = me.username or f"{me.first_name} {me.last_name or ''}".strip()
-                    await deleter.client.disconnect()
-            except Exception as e:
-                logger.warning(f"Error checking auth status for account {account.id}: {e}")
-        
         accounts_data.append({
             "id": account.id,
             "label": account.label,
             "phone": account.phone,
             "api_id": account.api_id,
             "api_hash": account.api_hash,
-            "is_authenticated": is_authenticated,
-            "username": username
+            "is_authenticated": False,
+            "username": None
         })
     
     logger.info(f"Returning {len(accounts_data)} accounts")
