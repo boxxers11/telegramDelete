@@ -113,6 +113,7 @@ function App() {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    setSuccess(null);
 
     try {
       const response = await fetch('/api/accounts', {
@@ -139,6 +140,7 @@ function App() {
         setError(data.error || 'Failed to add account');
       }
     } catch (error) {
+      console.error('Add account error:', error);
       setError('Network error occurred');
     } finally {
       setLoading(false);
@@ -613,8 +615,14 @@ function App() {
                 <div className="flex space-x-4">
                   <button
                     type="button"
-                    onClick={() => setShowAddForm(false)}
+                    onClick={() => {
+                      setShowAddForm(false);
+                      setLoading(false);
+                      setError(null);
+                      setSuccess(null);
+                    }}
                     className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                    disabled={loading}
                   >
                     Cancel
                   </button>
