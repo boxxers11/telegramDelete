@@ -63,6 +63,7 @@ function App() {
   const [selectedAccountForScan, setSelectedAccountForScan] = useState<string | null>(null);
   const [isScanning, setIsScanning] = useState(false);
   const [scanProgress, setScanProgress] = useState<ScanProgress | undefined>();
+  const [scanEventSource, setScanEventSource] = useState<EventSource | null>(null);
   
   // Message preview states
   const [showMessagePreview, setShowMessagePreview] = useState(false);
@@ -263,15 +264,109 @@ function App() {
   const handleScanStart = () => {
     setIsScanning(true);
     setScanProgress(undefined);
-    // Here you would start the actual scan process
-    // For now, we'll just simulate it
-    console.log('Starting scan for account:', selectedAccountForScan);
+    
+    if (!selectedAccountForScan) return;
+    
+    // Start the scan
+    startScan(selectedAccountForScan);
   };
 
   const handleScanStop = () => {
     setIsScanning(false);
     setScanProgress(undefined);
-    console.log('Stopping scan');
+    
+    // Close event source if exists
+    if (scanEventSource) {
+      scanEventSource.close();
+      setScanEventSource(null);
+    }
+  };
+
+  const startScan = async (accountId: string) => {
+    try {
+      setError(null);
+      
+      // Start the scan request
+      const response = await fetch(`/api/accounts/${accountId}/scan`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          account_id: accountId,
+          include_private: false,
+          chat_name_filters: [],
+          dry_run: true,
+          test_mode: true // Start with test mode for safety
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Simulate progress updates for now
+        simulateScanProgress(data.result);
+      } else {
+        setError(data.error || 'Scan failed');
+        setIsScanning(false);
+      }
+    } catch (error) {
+      setError('Network error occurred during scan');
+      setIsScanning(false);
+    }
+  };
+
+  const simulateScanProgress = (result: any) => {
+    // Simulate chat list loading
+    setTimeout(() => {
+      setScanProgress({
+        type: 'chat_list',
+        chats: result.chats.map((chat: any) => ({
+          id: chat.id,
+          title: chat.title,
+          type: chat.type,
+          status: 'pending',
+          last_deleted_count: 0
+        })),
+        total: result.chats.length
+      });
+    }, 1000);
+
+    // Simulate scanning each chat
+    result.chats.forEach((chat: any, index: number) => {
+      setTimeout(() => {
+        // Start scanning
+        setScanProgress(prev => ({
+          ...prev,
+          type: 'chat_scanning',
+          chat_id: chat.id,
+          chat_name: chat.title,
+          current_index: index,
+          total: result.chats.length,
+          status: 'scanning'
+        }));
+
+        // Complete scanning
+        setTimeout(() => {
+          setScanProgress(prev => ({
+            ...prev,
+            type: 'chat_completed',
+            chat_id: chat.id,
+            status: chat.error ? 'error' : (chat.skipped_reason ? 'skipped' : 'completed'),
+            messages_found: chat.candidates_found,
+            messages_deleted: chat.deleted,
+            error: chat.error,
+            reason: chat.skipped_reason
+          }));
+        }, 2000);
+      }, (index + 1) * 3000);
+    });
+
+    // Complete scan
+    setTimeout(() => {
+      setIsScanning(false);
+      setSuccess(`Scan completed! Found ${result.total_candidates} messages in ${result.total_chats_processed} chats`);
+    }, (result.chats.length + 1) * 3000);
   };
 
   const clearMessages = () => {
