@@ -87,7 +87,7 @@ const VisualScanInterface: React.FC<VisualScanInterfaceProps> = ({
   const [selectedChats, setSelectedChats] = useState<Set<number>>(new Set());
   const [selectedMessages, setSelectedMessages] = useState<Set<number>>(new Set());
   const [allChatsSelected, setAllChatsSelected] = useState(false);
-  const [showCheckboxes, setShowCheckboxes] = useState(false);
+  const [showCheckboxes, setShowCheckboxes] = useState(true);
   const [stats, setStats] = useState({
     total: 0,
     completed: 0,
@@ -111,6 +111,8 @@ const VisualScanInterface: React.FC<VisualScanInterfaceProps> = ({
           }));
           setChats(newChats);
           setStats(prev => ({ ...prev, total: scanProgress.chats!.length }));
+          // Show checkboxes immediately when we have chats
+          setShowCheckboxes(true);
         }
         break;
 
@@ -172,9 +174,7 @@ const VisualScanInterface: React.FC<VisualScanInterfaceProps> = ({
           });
           
           // Show checkboxes when we have chats with messages
-          if (scanProgress.messages_found && scanProgress.messages_found > 0) {
-            setShowCheckboxes(true);
-          }
+          setShowCheckboxes(true);
         }
         break;
 
@@ -190,12 +190,40 @@ const VisualScanInterface: React.FC<VisualScanInterfaceProps> = ({
         });
         
         // Show checkboxes when scan is complete and we have messages
-        if (scanProgress.totalMessages && scanProgress.totalMessages > 0) {
-          setShowCheckboxes(true);
-        }
+        setShowCheckboxes(true);
         break;
     }
   }, [scanProgress]);
+
+  // Initialize chats from lastScanResults when component mounts
+  useEffect(() => {
+    if (lastScanResults && lastScanResults.length > 0) {
+      setChats(lastScanResults.map(chat => ({
+        ...chat,
+        expanded: false,
+        selected: false
+      })));
+      
+      // Calculate stats from lastScanResults
+      const total = lastScanResults.length;
+      const completed = lastScanResults.filter(c => c.status === 'completed').length;
+      const skipped = lastScanResults.filter(c => c.status === 'skipped').length;
+      const errors = lastScanResults.filter(c => c.status === 'error').length;
+      const totalMessages = lastScanResults.reduce((sum, chat) => sum + (chat.messages_found || 0), 0);
+      const totalDeleted = lastScanResults.reduce((sum, chat) => sum + (chat.messages_deleted || 0), 0);
+      
+      setStats({
+        total,
+        completed,
+        skipped,
+        errors,
+        totalMessages,
+        totalDeleted
+      });
+      
+      setShowCheckboxes(true);
+    }
+  }, [lastScanResults]);
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return 'Never';
