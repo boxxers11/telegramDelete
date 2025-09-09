@@ -292,8 +292,10 @@ class TelegramDeleter:
             me = await self.safe_api_call(self.client.get_me)
             my_id = me.id
             
-            # Get all dialogs and send initial list
+            # Get all dialogs first
             all_dialogs = []
+            async for dialog in self.client.iter_dialogs():
+                all_dialogs.append(dialog)
             
             total_dialogs = len(all_dialogs)
             
