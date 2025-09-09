@@ -92,7 +92,7 @@ class TelegramDeleter:
                         await asyncio.sleep(3)  # Give more time for cleanup
                     
                     # Create unique session name to avoid conflicts
-                    unique_session = f"{self.session_name}_{int(time.time())}"
+                    unique_session = self.session_name
                     
                     self.client = TelegramClient(
                         unique_session, 
