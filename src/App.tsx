@@ -346,20 +346,28 @@ function App() {
   const processScanResult = (result: any) => {
     console.log('Processing scan result:', result);
     setIsScanning(false);
-    setLastScanResults(result.chats.map((chat: any) => ({
+    
+    // Process chats and add required fields
+    const processedChats = result.chats.map((chat: any) => ({
       ...chat,
+      status: chat.error ? 'error' : (chat.skipped_reason ? 'skipped' : 'completed'),
       expanded: false,
-      messages: chat.messages || []
-    })));
+      selected: false,
+      messages: chat.messages || [],
+      messages_found: chat.candidates_found || 0,
+      messages_deleted: chat.deleted || 0
+    }));
+    
+    setLastScanResults(processedChats);
     setSuccess(`Scan completed! Found ${result.total_candidates} messages in ${result.total_chats_processed} chats`);
 
-    // Update stats in VisualScanInterface based on final result
-    const total = result.chats.length;
-    const completed = result.chats.filter((c: any) => !c.error && !c.skipped_reason).length;
-    const skipped = result.chats.filter((c: any) => c.skipped_reason).length;
-    const errors = result.chats.filter((c: any) => c.error).length;
+    // Update final stats
+    const total = processedChats.length;
+    const completed = processedChats.filter((c: any) => c.status === 'completed').length;
+    const skipped = processedChats.filter((c: any) => c.status === 'skipped').length;
+    const errors = processedChats.filter((c: any) => c.status === 'error').length;
     const totalMessages = result.total_candidates;
-    const totalDeleted = result.total_deleted; // Should be 0 for dry_run scan
+    const totalDeleted = result.total_deleted;
 
     setScanProgress({
       type: 'final_summary',
@@ -369,17 +377,7 @@ function App() {
       errors: errors,
       totalMessages: totalMessages,
       totalDeleted: totalDeleted,
-      chats: result.chats.map((chat: any) => ({
-        id: chat.id,
-        title: chat.title,
-        type: chat.type,
-        status: chat.error ? 'error' : (chat.skipped_reason ? 'skipped' : 'completed'),
-        messages_found: chat.candidates_found,
-        messages_deleted: chat.deleted,
-        messages: chat.messages || [],
-        error: chat.error,
-        reason: chat.skipped_reason
-      }))
+      chats: processedChats
     });
   };
 
