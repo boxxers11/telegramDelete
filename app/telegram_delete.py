@@ -89,26 +89,6 @@ class TelegramDeleter:
             for attempt in range(max_retries):
                 try:
                     # Close any existing client first
-                        # For now, just indicate there's a photo
-                        message_data['media_url'] = 'photo_available'
-                        self.client = None
-                        await asyncio.sleep(3)  # Give more time for cleanup
-                    
-                    # Create unique session name to avoid conflicts
-                    unique_session = self.session_name
-                    
-                    self.client = TelegramClient(
-                        unique_session, 
-                        self.api_id, 
-                        self.api_hash,
-                        timeout=30,
-                        connection_retries=1,
-                        retry_delay=1
-                    )
-                    
-                    await self.client.connect()
-                    self.log(f"Successfully connected to Telegram (attempt {attempt + 1})")
-                    return True
                     
                 except sqlite3.OperationalError as e:
                     if "database is locked" in str(e).lower():
