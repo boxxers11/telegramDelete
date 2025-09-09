@@ -294,8 +294,6 @@ class TelegramDeleter:
             
             # Get all dialogs and send initial list
             all_dialogs = []
-            async for dialog in self.client.iter_dialogs():
-                all_dialogs.append(dialog)
             
             total_dialogs = len(all_dialogs)
             
@@ -644,8 +642,6 @@ class TelegramDeleter:
             })
             
             for dialog in all_dialogs:
-                if filters.test_mode and processed_count >= 5:
-                    break
                 
                 chat_name = dialog.name or "Unknown"
                 
