@@ -71,6 +71,7 @@ class TelegramDeleter:
         self._session_lock = session_lock
         # Extract account ID from session name for checkpoint manager
         account_id = session_name.split('_')[-1] if '_' in session_name else 'default'
+        self.logs = [] # Initialize logs list
         self.checkpoint_manager = CheckpointManager(account_id)
 
     def set_status_callback(self, callback):
@@ -78,6 +79,12 @@ class TelegramDeleter:
         self.status_callback = callback
 
     def update_status(self, status: str, data: Dict = None):
+        """Update status and call callback if set"""
+        self.log(status)
+        if self.status_callback:
+            self.status_callback(status, data or {})
+
+    def log(self, message: str):
         """Update status and call callback if set"""
         self.log(status)
         if self.status_callback:
