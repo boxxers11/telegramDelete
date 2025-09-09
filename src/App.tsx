@@ -289,7 +289,19 @@ function App() {
     if (!selectedAccountForScan) return;
     
     // Start the scan
-    startScan(selectedAccountForScan);
+    startScan(selectedAccountForScan, false);
+  };
+
+  const handleFullScan = () => {
+    if (confirm('⚠️ סריקה מלאה תסרוק את כל הקבוצות עד 5 שנים אחורה. זה עלול לקחת זמן רב. האם להמשיך?')) {
+      setIsScanning(true);
+      setScanProgress(undefined);
+      
+      if (!selectedAccountForScan) return;
+      
+      // Start full scan
+      startScan(selectedAccountForScan, true);
+    }
   };
 
   const handleScanStop = () => {
@@ -318,7 +330,8 @@ function App() {
           include_private: false,
           chat_name_filters: [],
           dry_run: true,
-          test_mode: true // Start with test mode for safety
+          test_mode: !isFullScan, // Only test mode if not full scan
+          full_scan: isFullScan
         }),
       });
 
@@ -426,6 +439,7 @@ function App() {
         }}
         onStartScan={handleScanStart}
         onStopScan={handleScanStop}
+        onFullScan={handleFullScan}
         isScanning={isScanning}
         scanProgress={scanProgress}
         lastScanResults={lastScanResults}

@@ -26,6 +26,7 @@ class Filters:
     revoke: bool = True
     dry_run: bool = True
     test_mode: bool = False
+    full_scan: bool = False
 
     def __post_init__(self):
         if self.chat_name_filters is None:
@@ -88,11 +89,8 @@ class TelegramDeleter:
             for attempt in range(max_retries):
                 try:
                     # Close any existing client first
-                    if self.client:
-                        try:
-                            await self.client.disconnect()
-                        except:
-                            pass
+                        # For now, just indicate there's a photo
+                        message_data['media_url'] = 'photo_available'
                         self.client = None
                         await asyncio.sleep(3)  # Give more time for cleanup
                     
@@ -298,7 +296,8 @@ class TelegramDeleter:
             all_dialogs = []
             async for dialog in self.client.iter_dialogs():
                 all_dialogs.append(dialog)
-                if filters.test_mode and len(all_dialogs) >= 5:
+                # Only limit in test mode if explicitly requested
+                if filters.test_mode and not filters.full_scan and len(all_dialogs) >= 5:
                     break
             
             total_dialogs = len(all_dialogs)
