@@ -310,7 +310,9 @@ class TelegramDeleter:
                     'last_scan_date': checkpoint.last_scan_date if checkpoint else None,
                     'last_deleted_count': checkpoint.messages_deleted if checkpoint else 0,
                     'status': 'pending',
-                    'selected': False
+                    'selected': False,
+                    'messages_found': 0,
+                    'messages': []
                 })
             
             self.update_status("Chat list loaded", {
@@ -319,8 +321,8 @@ class TelegramDeleter:
                 'total': total_dialogs
             })
             
-            # Give frontend time to display the chat list before starting scan
-            await asyncio.sleep(2)
+            # Give frontend time to display the chat list
+            await asyncio.sleep(1)
             
             # Process each dialog
             for i, dialog in enumerate(all_dialogs):
@@ -376,6 +378,10 @@ class TelegramDeleter:
                     if start_from_id:
                         iter_kwargs['min_id'] = start_from_id
                         self.update_status(f"Resuming from checkpoint in {chat_name} (message ID: {start_from_id})")
+                    
+                    # Get me info for this iteration
+                    me = await self.safe_api_call(self.client.get_me)
+                    my_id = me.id
                     
                     async for message in self.client.iter_messages(dialog, **iter_kwargs):
                         if message.sender_id == my_id:
