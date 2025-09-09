@@ -45,7 +45,7 @@ interface ChatInfo {
   reason?: string;
   messages?: Message[];
   expanded?: boolean;
-  selected?: boolean;
+  selected: boolean;
 }
 
 interface VisualScanInterfaceProps {
@@ -53,7 +53,7 @@ interface VisualScanInterfaceProps {
   accountLabel: string;
   onClose: () => void;
   onStartScan: () => void;
-  onStopScan: () => void;
+  onStopScan?: () => void;
   onFullScan?: () => void;
   isScanning: boolean;
   scanProgress?: {
@@ -86,7 +86,6 @@ const VisualScanInterface: React.FC<VisualScanInterfaceProps> = ({
   const [currentScanningId, setCurrentScanningId] = useState<number | null>(null);
   const [selectedChats, setSelectedChats] = useState<Set<number>>(new Set());
   const [selectedMessages, setSelectedMessages] = useState<Set<number>>(new Set());
-  const [showFullScanWarning, setShowFullScanWarning] = useState(false);
   const [allChatsSelected, setAllChatsSelected] = useState(false);
   const [stats, setStats] = useState({
     total: 0,
@@ -97,14 +96,19 @@ const VisualScanInterface: React.FC<VisualScanInterfaceProps> = ({
     totalDeleted: 0
   });
 
-  // Update chats based on scan progress
+  // Update chats and stats based on scan progress
   useEffect(() => {
     if (!scanProgress) return;
 
     switch (scanProgress.type) {
       case 'chat_list':
         if (scanProgress.chats) {
-          setChats(scanProgress.chats.map(chat => ({ ...chat, expanded: false, selected: false })));
+          const newChats = scanProgress.chats.map(chat => ({ 
+            ...chat, 
+            expanded: false, 
+            selected: false 
+          }));
+          setChats(newChats);
           setStats(prev => ({ ...prev, total: scanProgress.chats!.length }));
         }
         break;
@@ -144,9 +148,9 @@ const VisualScanInterface: React.FC<VisualScanInterfaceProps> = ({
                   status: scanProgress.status as any,
                   messages_found: scanProgress.messages_found || chat.messages_found,
                   messages_deleted: scanProgress.messages_deleted || chat.messages_deleted,
-                  messages: scanProgress.messages || chat.messages,
+                  messages: (scanProgress as any).messages || chat.messages,
                   error: scanProgress.error,
-                  reason: scanProgress.reason
+                  reason: (scanProgress as any).reason
                 }
               : chat
           ));
@@ -166,6 +170,18 @@ const VisualScanInterface: React.FC<VisualScanInterfaceProps> = ({
             return newStats;
           });
         }
+        break;
+
+      case 'final_summary':
+        // Update final stats
+        setStats({
+          total: scanProgress.total || 0,
+          completed: scanProgress.completed || 0,
+          skipped: scanProgress.skipped || 0,
+          errors: scanProgress.errors || 0,
+          totalMessages: scanProgress.totalMessages || 0,
+          totalDeleted: scanProgress.totalDeleted || 0
+        });
         break;
     }
   }, [scanProgress]);
@@ -230,49 +246,64 @@ const VisualScanInterface: React.FC<VisualScanInterfaceProps> = ({
   };
 
   const handleSelectAllChats = () => {
-    const completedChats = chats.filter(chat => chat.status === 'completed' && chat.messages && chat.messages.length > 0);
+    const chatsWithMessages = chats.filter(chat => 
+      (chat.status === 'completed' || chat.status === 'scanning') && 
+      chat.messages && 
+      chat.messages.length > 0
+    );
+    
     if (allChatsSelected) {
+      // Deselect all
       setSelectedChats(new Set());
       setChats(prev => prev.map(chat => ({ ...chat, selected: false })));
+      setSelectedMessages(new Set());
       setAllChatsSelected(false);
     } else {
-      setSelectedChats(new Set(completedChats.map(chat => chat.id)));
+      // Select all chats with messages
+      setSelectedChats(new Set(chatsWithMessages.map(chat => chat.id)));
       setChats(prev => prev.map(chat => 
-        completedChats.some(c => c.id === chat.id) 
+        chatsWithMessages.some(c => c.id === chat.id) 
           ? { ...chat, selected: true }
           : { ...chat, selected: false }
       ));
+      
+      // Select all messages from selected chats
+      const allMessageIds = new Set<number>();
+      chatsWithMessages.forEach(chat => {
+        if (chat.messages) {
+          chat.messages.forEach(msg => allMessageIds.add(msg.id));
+        }
+      });
+      setSelectedMessages(allMessageIds);
       setAllChatsSelected(true);
     }
   };
 
   const handleSelectChat = (chatId: number) => {
     const chat = chats.find(c => c.id === chatId);
-    if (!chat || chat.status !== 'completed' || !chat.messages || chat.messages.length === 0) {
+    if (!chat || !chat.messages || chat.messages.length === 0) {
       return;
     }
     
     const newSelected = new Set(selectedChats);
+    const newSelectedMessages = new Set(selectedMessages);
     let newChatSelected = false;
     
     if (newSelected.has(chatId)) {
       newSelected.delete(chatId);
-      // Deselect all messages from this chat
+      // Remove all messages from this chat
       const chatMessageIds = chat.messages.map(m => m.id);
-      const newSelectedMessages = new Set(selectedMessages);
       chatMessageIds.forEach(id => newSelectedMessages.delete(id));
-      setSelectedMessages(newSelectedMessages);
     } else {
       newSelected.add(chatId);
       newChatSelected = true;
-      // Select all messages from this chat
+      // Add all messages from this chat
       const chatMessageIds = chat.messages.map(m => m.id);
-      const newSelectedMessages = new Set(selectedMessages);
       chatMessageIds.forEach(id => newSelectedMessages.add(id));
-      setSelectedMessages(newSelectedMessages);
     }
     
     setSelectedChats(newSelected);
+    setSelectedMessages(newSelectedMessages);
     
     // Update chat selection state
     setChats(prev => prev.map(c => 
@@ -280,8 +311,12 @@ const VisualScanInterface: React.FC<VisualScanInterfaceProps> = ({
     ));
     
     // Update "select all" state
-    const completedChats = chats.filter(chat => chat.status === 'completed' && chat.messages && chat.messages.length > 0);
-    setAllChatsSelected(newSelected.size === completedChats.length);
+    const chatsWithMessages = chats.filter(chat => 
+      (chat.status === 'completed' || chat.status === 'scanning') && 
+      chat.messages && 
+      chat.messages.length > 0
+    );
+    setAllChatsSelected(newSelected.size === chatsWithMessages.length && chatsWithMessages.length > 0);
   };
 
   const handleSelectMessage = (messageId: number) => {
@@ -317,7 +352,6 @@ const VisualScanInterface: React.FC<VisualScanInterfaceProps> = ({
     if (selectedMessages.size === 0 && selectedChats.size === 0) return;
     
     const messageCount = selectedMessages.size;
-    const chatCount = selectedChats.size;
     
     if (confirm(`האם אתה בטוח שברצונך למחוק ${messageCount} הודעות נבחרות?`)) {
       // TODO: Implement delete logic
@@ -334,16 +368,11 @@ const VisualScanInterface: React.FC<VisualScanInterfaceProps> = ({
     }
   };
 
-  const handleFullScan = () => {
-    if (confirm('⚠️ סריקה מלאה תסרוק את כל הקבוצות עד 5 שנים אחורה. זה עלול לקחת זמן רב. האם להמשיך?')) {
-      // TODO: Implement full scan
-      console.log('Starting full scan');
-      onStartScan();
-    }
-  };
-
-  const completedChats = chats.filter(chat => chat.status === 'completed');
-  const chatsWithMessages = completedChats.filter(chat => chat.messages && chat.messages.length > 0);
+  const chatsWithMessages = chats.filter(chat => 
+    (chat.status === 'completed' || chat.status === 'scanning') && 
+    chat.messages && 
+    chat.messages.length > 0
+  );
   const totalSelectedMessages = Array.from(selectedMessages).length;
 
   return (
@@ -368,16 +397,6 @@ const VisualScanInterface: React.FC<VisualScanInterfaceProps> = ({
             </div>
             
             <div className="flex items-center space-x-4">
-              {lastScanResults && lastScanResults.length > 0 && (
-                <button
-                  onClick={() => setChats(lastScanResults)}
-                  className="flex items-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
-                >
-                  <Eye className="w-4 h-4 mr-2" />
-                  תוצאות אחרונות
-                </button>
-              )}
-              
               <button
                 onClick={() => onFullScan && onFullScan()}
                 disabled={isScanning}
@@ -398,6 +417,7 @@ const VisualScanInterface: React.FC<VisualScanInterfaceProps> = ({
               ) : (
                 <button
                   onClick={onStopScan}
+                  disabled={!onStopScan}
                   className="flex items-center px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
                 >
                   <Square className="w-4 h-4 mr-2" />
@@ -408,7 +428,8 @@ const VisualScanInterface: React.FC<VisualScanInterfaceProps> = ({
           </div>
 
           {/* Full Scan Warning */}
-          <div className="mt-4 p-3 bg-orange-50 border border-orange-200 rounded-lg">
+          {!isScanning && (
+            <div className="mt-4 p-3 bg-orange-50 border border-orange-200 rounded-lg">
             <div className="flex items-start">
               <Warning className="w-4 h-4 text-orange-500 mr-2 mt-0.5" />
               <div className="text-sm text-orange-800">
@@ -416,7 +437,8 @@ const VisualScanInterface: React.FC<VisualScanInterfaceProps> = ({
                 עלולה לקחת זמן רב ולמצוא אלפי הודעות.
               </div>
             </div>
-          </div>
+            </div>
+          )}
 
           {/* Stats */}
           <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mt-6">
@@ -481,6 +503,7 @@ const VisualScanInterface: React.FC<VisualScanInterfaceProps> = ({
                 
                 <button
                   onClick={handleDeleteAll}
+                  disabled={stats.totalMessages === 0}
                   className="flex items-center px-4 py-2 bg-red-800 text-white rounded-lg hover:bg-red-900 transition-colors text-sm"
                 >
                   <Trash2 className="w-3 h-3 mr-1" />
@@ -501,7 +524,9 @@ const VisualScanInterface: React.FC<VisualScanInterfaceProps> = ({
             {chats.length === 0 ? (
               <div className="p-12 text-center">
                 <Users className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">טוען רשימת קבוצות...</h3>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  {isScanning ? 'טוען רשימת קבוצות...' : 'לא נמצאו קבוצות'}
+                </h3>
                 <p className="text-gray-600">אנא המתן בזמן שהמערכת טוענת את רשימת הקבוצות</p>
               </div>
             ) : (
@@ -524,7 +549,7 @@ const VisualScanInterface: React.FC<VisualScanInterfaceProps> = ({
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center flex-1">
-                          {chat.status === 'completed' && chat.messages && chat.messages.length > 0 && (
+                          {chat.messages && chat.messages.length > 0 && (
                             <input
                               type="checkbox"
                               checked={chat.selected || false}

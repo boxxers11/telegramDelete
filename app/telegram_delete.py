@@ -309,7 +309,8 @@ class TelegramDeleter:
                     'type': "User" if dialog.is_user else "Group",
                     'last_scan_date': checkpoint.last_scan_date if checkpoint else None,
                     'last_deleted_count': checkpoint.messages_deleted if checkpoint else 0,
-                    'status': 'pending'
+                    'status': 'pending',
+                    'selected': False
                 })
             
             self.update_status("Chat list loaded", {
@@ -318,8 +319,8 @@ class TelegramDeleter:
                 'total': total_dialogs
             })
             
-            # Give frontend time to display the chat list
-            await asyncio.sleep(1)
+            # Give frontend time to display the chat list before starting scan
+            await asyncio.sleep(2)
             
             # Process each dialog
             for i, dialog in enumerate(all_dialogs):
