@@ -66,29 +66,27 @@ class TelegramDeleter:
         self.api_id = api_id
         self.api_hash = api_hash
         self.client = None
-        self.logs = []
+        self.logs = [] # Initialize logs list
         self.status_callback = None
         self._session_lock = session_lock
         # Extract account ID from session name for checkpoint manager
         account_id = session_name.split('_')[-1] if '_' in session_name else 'default'
-        self.logs = [] # Initialize logs list
         self.checkpoint_manager = CheckpointManager(account_id)
 
     def set_status_callback(self, callback):
         """Set callback function for status updates"""
         self.status_callback = callback
 
-    def update_status(self, status: str, data: Dict = None):
-        """Update status and call callback if set"""
-        self.log(status)
-        if self.status_callback:
-            self.status_callback(status, data or {})
-
     def log(self, message: str):
+        """Log messages to internal list and console"""
+        self.logs.append(f"[{datetime.now().strftime('%H:%M:%S')}] {message}")
+        logger.info(message)
+
+    def update_status(self, status_message: str, data: Dict = None):
         """Update status and call callback if set"""
-        self.log(status)
+        self.log(status_message) # Use the corrected log method
         if self.status_callback:
-            self.status_callback(status, data or {})
+            self.status_callback(status_message, data or {})
 
     async def safe_client_connect(self, max_retries=3):
         """Safely connect to Telegram with database lock handling"""
@@ -116,7 +114,12 @@ class TelegramDeleter:
                 except sqlite3.OperationalError as e:
                     if "database is locked" in str(e).lower():
                         wait_time = (attempt + 1) * 3
-                        self.update_status(f"Database locked, retrying in {wait_time} seconds... (attempt {attempt + 1}/{max_retries})")
+                        self.update_status(f"Database locked, retrying in {wait_time} seconds... (attempt {attempt + 1}/{max_retries})", {
+                            'type': 'flood_wait',
+                            'wait_time': wait_time,
+                            'attempt': attempt + 1,
+                            'max_retries': max_retries
+                        })
                         await asyncio.sleep(wait_time)
                         continue
                     else:
@@ -396,7 +399,9 @@ class TelegramDeleter:
                                 message_data['media_type'] = 'photo'
                                 try:
                                     # Get photo URL (this is a simplified approach)
-                                    message_data['media_url'] = f"data:image/jpeg;base64,{message.photo}"
+                                    # This part is complex and usually requires downloading the photo
+                                    # For now, we'll just indicate it's a photo
+                                    message_data['media_url'] = None # Cannot directly get URL from message.photo object
                                 except:
                                     message_data['media_url'] = None
                             elif message.video:
@@ -565,8 +570,9 @@ class TelegramDeleter:
                             })
                         
                         # Stop early if we hit the limit to prevent hanging
-                        if filters.limit_per_chat and message_count >= filters.limit_per_chat:
-                            break
+                        # This condition was incorrect, it should be based on total found messages, not message_count
+                        # if filters.limit_per_chat and message_count >= filters.limit_per_chat:
+                        #     break
                 
                 except Exception as e:
                     self.log(f"Error searching in {chat_name}: {e}")
@@ -779,6 +785,3 @@ class TelegramDeleter:
                 total_deleted=0,
                 logs=[error_msg]
             )
-    # ... שאר שיטות מחלקה TelegramDeleter ללא שינוי (כפי ששלחת)
-
-# שאר הקוד נותר כפי שהיה בלי שינוי
