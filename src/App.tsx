@@ -118,7 +118,12 @@ const App: React.FC = () => {
       const response = await fetch(`${API_BASE}/accounts`);
       if (response.ok) {
         const data = await response.json();
-        setAccounts(data);
+        // Map the backend response to include proper authentication status
+        const accountsWithStatus = data.map((account: any) => ({
+          ...account,
+          is_authenticated: account.is_authenticated || false
+        }));
+        setAccounts(accountsWithStatus);
       } else {
         console.error('Failed to load accounts:', response.status);
         // Show demo data if API fails
@@ -227,7 +232,18 @@ const App: React.FC = () => {
           }));
         } else if (result.status === 'AUTHENTICATED') {
           updateAccountStatus(accountId, `Connected as ${result.username}`);
-          loadAccounts();
+          // Update the account's authentication status in the accounts list
+          setAccounts(prev => prev.map(acc => 
+            acc.id === accountId 
+              ? { ...acc, is_authenticated: true, username: result.username }
+              : acc
+          ));
+          // Clear login data
+          setLoginData(prev => {
+            const newData = { ...prev };
+            delete newData[accountId];
+            return newData;
+          });
         }
       } else {
         updateAccountStatus(accountId, `Error: ${result.error}`);
@@ -267,12 +283,18 @@ const App: React.FC = () => {
       if (result.success) {
         if (result.status === 'AUTHENTICATED') {
           updateAccountStatus(accountId, `Connected as ${result.username}`);
+          // Update the account's authentication status in the accounts list
+          setAccounts(prev => prev.map(acc => 
+            acc.id === accountId 
+              ? { ...acc, is_authenticated: true, username: result.username }
+              : acc
+          ));
+          // Clear login data
           setLoginData(prev => {
             const newData = { ...prev };
             delete newData[accountId];
             return newData;
           });
-          loadAccounts();
         }
       } else {
         if (result.error === '2FA_REQUIRED') {

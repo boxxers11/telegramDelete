@@ -84,17 +84,38 @@ async def create_account(data: CreateAccountRequest):
 async def get_accounts():
     try:
         accounts = account_store.get_all_accounts()
-        return [
-            {
+        
+        # Check authentication status for each account
+        account_list = []
+        for acc in accounts:
+            # Try to get deleter instance to check auth status
+            deleter = get_deleter_for_account(acc.id)
+            is_authenticated = False
+            username = None
+            
+            if deleter and deleter.client:
+                try:
+                    # Check if client is connected and authorized
+                    if hasattr(deleter.client, 'is_user_authorized'):
+                        is_authenticated = await deleter.client.is_user_authorized()
+                        if is_authenticated:
+                            me = await deleter.client.get_me()
+                            username = me.username or f"{me.first_name} {me.last_name or ''}".strip()
+                except Exception:
+                    # If there's an error checking auth status, assume not authenticated
+                    is_authenticated = False
+            
+            account_list.append({
                 "id": acc.id,
                 "label": acc.label,
                 "phone": acc.phone,
                 "api_id": acc.api_id,
                 "api_hash": acc.api_hash,
-                "is_authenticated": False  # TODO: Check actual auth status
-            }
-            for acc in accounts
-        ]
+                "is_authenticated": is_authenticated,
+                "username": username
+            })
+        
+        return account_list
     except Exception as e:
         logger.error(f"Error getting accounts: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
