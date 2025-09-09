@@ -52,6 +52,7 @@ interface VisualScanInterfaceProps {
   onClose: () => void;
   onStartScan: () => void;
   onStopScan: () => void;
+  onFullScan?: () => void;
   isScanning: boolean;
   scanProgress?: {
     type?: string;
@@ -74,6 +75,7 @@ const VisualScanInterface: React.FC<VisualScanInterfaceProps> = ({
   onClose,
   onStartScan,
   onStopScan,
+  onFullScan,
   isScanning,
   scanProgress,
   lastScanResults
@@ -319,7 +321,7 @@ const VisualScanInterface: React.FC<VisualScanInterfaceProps> = ({
               )}
               
               <button
-                onClick={handleFullScan}
+                onClick={() => onFullScan && onFullScan()}
                 disabled={isScanning}
                 className="flex items-center px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:bg-orange-400 transition-colors"
               >
@@ -542,6 +544,9 @@ const VisualScanInterface: React.FC<VisualScanInterfaceProps> = ({
                     {/* Messages List */}
                     {chat.expanded && chat.messages && chat.messages.length > 0 && (
                       <div className="mt-3 mr-8 space-y-2">
+                        <div className="text-sm text-gray-600 mb-2">
+                          {chat.messages.length} הודעות נמצאו:
+                        </div>
                         {chat.messages.map((message) => (
                           <div key={message.id} className="bg-gray-50 p-3 rounded-lg border-r-2 border-blue-200">
                             <div className="flex items-start justify-between">
@@ -579,6 +584,12 @@ const VisualScanInterface: React.FC<VisualScanInterfaceProps> = ({
                                         alt="Message media"
                                         className="max-w-xs max-h-32 rounded-lg border"
                                       />
+                                    </div>
+                                  )}
+                                  
+                                  {message.media_type === 'photo' && (
+                                    <div className="mt-2 text-xs text-purple-600">
+                                      📷 תמונה מצורפת
                                     </div>
                                   )}
                                 </div>
