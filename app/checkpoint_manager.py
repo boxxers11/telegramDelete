@@ -52,9 +52,13 @@ class CheckpointManager:
         except Exception as e:
             logger.error(f"Error saving checkpoints: {e}")
     
-    def get_checkpoint(self, chat_id: int) -> Optional[ChatCheckpoint]:
-        """Get checkpoint for a specific chat"""
-        return self.checkpoints.get(chat_id)
+    def get_checkpoint(self, chat_id: int, only_if_deleted: bool = False) -> Optional[ChatCheckpoint]:
+        """Get checkpoint for a specific chat, optionally only if messages were deleted"""
+        checkpoint = self.checkpoints.get(chat_id)
+        if only_if_deleted and checkpoint and checkpoint.messages_deleted == 0:
+            # If no messages were deleted, don't use checkpoint (scan from beginning)
+            return None
+        return checkpoint
     
     def update_checkpoint(self, chat_id: int, chat_title: str, last_message_id: Optional[int], 
                          messages_deleted: int, total_messages_found: int):
