@@ -139,16 +139,6 @@ async def _check_account_status(account: Account) -> dict:
                 "username": None
             }
 
-                return {
-                    "id": account.id,
-                    "label": account.label,
-                    "phone": account.phone,
-                    "api_id": account.api_id,
-                    "api_hash": account.api_hash,
-                    "is_authenticated": False,
-                    "username": None
-                }
-
 # Routes
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
