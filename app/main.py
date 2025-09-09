@@ -15,6 +15,9 @@ from .accounts import account_store, Account
 from .telegram_client_factory import get_deleter_for_account
 import re
 
+# Semaphore to prevent concurrent database access
+_account_status_lock = asyncio.Semaphore(1)
+
 # Define request models
 class DeleteSelectedRequest(BaseModel):
     message_ids: List[int]
@@ -83,34 +86,10 @@ deleter: Optional[TelegramDeleter] = None
 
 async def _check_account_status(account: Account) -> dict:
     """Check authentication status for a single account"""
-    try:
-        account_deleter = get_deleter_for_account(account.id)
-        if not account_deleter:
-            return {
-                "id": account.id,
-                "label": account.label,
-                "phone": account.phone,
-                "api_id": account.api_id,
-                "api_hash": account.api_hash,
-                "is_authenticated": False,
-                "username": None
-            }
-        
+    async with _account_status_lock:
         try:
-            await account_deleter.safe_client_connect()
-            if await account_deleter.client.is_user_authorized():
-                me = await account_deleter.client.get_me()
-                username = me.username or me.first_name
-                return {
-                    "id": account.id,
-                    "label": account.label,
-                    "phone": account.phone,
-                    "api_id": account.api_id,
-                    "api_hash": account.api_hash,
-                    "is_authenticated": True,
-                    "username": username
-                }
-            else:
+            account_deleter = get_deleter_for_account(account.id)
+            if not account_deleter:
                 return {
                     "id": account.id,
                     "label": account.label,
@@ -120,20 +99,55 @@ async def _check_account_status(account: Account) -> dict:
                     "is_authenticated": False,
                     "username": None
                 }
-        finally:
-            if account_deleter.client:
-                await account_deleter.client.disconnect()
-    except Exception as e:
-        logger.error(f"Error checking status for account {account.id}: {e}")
-        return {
-            "id": account.id,
-            "label": account.label,
-            "phone": account.phone,
-            "api_id": account.api_id,
-            "api_hash": account.api_hash,
-            "is_authenticated": False,
-            "username": None
-        }
+            
+            try:
+                await account_deleter.safe_client_connect()
+                if await account_deleter.client.is_user_authorized():
+                    me = await account_deleter.client.get_me()
+                    username = me.username or me.first_name
+                    return {
+                        "id": account.id,
+                        "label": account.label,
+                        "phone": account.phone,
+                        "api_id": account.api_id,
+                        "api_hash": account.api_hash,
+                        "is_authenticated": True,
+                        "username": username
+                    }
+                else:
+                    return {
+                        "id": account.id,
+                        "label": account.label,
+                        "phone": account.phone,
+                        "api_id": account.api_id,
+                        "api_hash": account.api_hash,
+                        "is_authenticated": False,
+                        "username": None
+                    }
+            finally:
+                if account_deleter.client:
+                    await account_deleter.client.disconnect()
+        except Exception as e:
+            logger.error(f"Error checking status for account {account.id}: {e}")
+            return {
+                "id": account.id,
+                "label": account.label,
+                "phone": account.phone,
+                "api_id": account.api_id,
+                "api_hash": account.api_hash,
+                "is_authenticated": False,
+                "username": None
+            }
+
+                return {
+                    "id": account.id,
+                    "label": account.label,
+                    "phone": account.phone,
+                    "api_id": account.api_id,
+                    "api_hash": account.api_hash,
+                    "is_authenticated": False,
+                    "username": None
+                }
 
 # Routes
 @app.get("/", response_class=HTMLResponse)
