@@ -319,6 +319,7 @@ function App() {
       });
 
       const data = await response.json();
+      console.log('Backend response data:', data);
 
       if (data.success) {
         // Backend returns the full result, so we process it directly
@@ -343,6 +344,7 @@ function App() {
 
   // Function to process the final scan result from the backend
   const processScanResult = (result: any) => {
+    console.log('Processing scan result:', result);
     setIsScanning(false);
     setLastScanResults(result.chats.map((chat: any) => ({
       ...chat,
