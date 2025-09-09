@@ -362,7 +362,7 @@ class TelegramDeleter:
                         continue
                 
                 # Get checkpoint for this chat
-                checkpoint = self.checkpoint_manager.get_checkpoint(dialog.id)
+                checkpoint = self.checkpoint_manager.get_checkpoint(dialog.id, only_if_deleted=True)
                 start_from_id = checkpoint.last_message_id if checkpoint else None
                 
                 # Count messages with progress updates
@@ -683,7 +683,7 @@ class TelegramDeleter:
                         continue
                 
                 # Get checkpoint for this chat
-                checkpoint = self.checkpoint_manager.get_checkpoint(dialog.id)
+                checkpoint = self.checkpoint_manager.get_checkpoint(dialog.id, only_if_deleted=True)
                 start_from_id = checkpoint.last_message_id if checkpoint else None
                 
                 # Delete messages

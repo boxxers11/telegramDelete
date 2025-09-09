@@ -89,17 +89,23 @@ function App() {
   }, []);
 
   const loadAccounts = async () => {
+    setLoading(true);
     try {
       const response = await fetch('/api/accounts');
       if (response.ok) {
         const data = await response.json();
-        setAccounts(data.map((acc: any) => ({
+        const updatedAccounts = data.map((acc: any) => ({
           ...acc,
           is_authenticated: acc.is_authenticated || false
-        })));
+        }));
+        setAccounts(updatedAccounts);
+        console.log('Loaded accounts:', updatedAccounts);
       }
     } catch (error) {
       console.error('Failed to load accounts:', error);
+      setError('Failed to load accounts');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -257,8 +263,23 @@ function App() {
   };
 
   const handleStartVisualScan = (accountId: string) => {
+    console.log('Starting visual scan for account:', accountId);
+    const account = accounts.find(acc => acc.id === accountId);
+    console.log('Found account:', account);
+    
+    if (!account) {
+      setError('Account not found');
+      return;
+    }
+    
+    if (!account.is_authenticated) {
+      setError('Account is not authenticated. Please connect first.');
+      return;
+    }
+    
     setSelectedAccountForScan(accountId);
     setShowVisualScan(true);
+    console.log('Visual scan state updated');
   };
 
   const handleScanStart = () => {
@@ -356,14 +377,48 @@ function App() {
   };
 
 
+  const clearMessages = () => {
+    setError(null);
+    setSuccess(null);
+  };
+
   // If showing visual scan interface
   if (showVisualScan && selectedAccountForScan) {
+    console.log('Rendering visual scan interface for:', selectedAccountForScan);
     const account = accounts.find(acc => acc.id === selectedAccountForScan);
+    console.log('Account for visual scan:', account);
+    
+    if (!account) {
+      console.error('Account not found for visual scan');
+      return (
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+          <div className="max-w-4xl mx-auto">
+            <div className="bg-white rounded-xl shadow-lg p-6">
+              <div className="text-center">
+                <h2 className="text-xl font-bold text-red-600 mb-4">Account Not Found</h2>
+                <p className="text-gray-600 mb-4">The selected account could not be found.</p>
+                <button
+                  onClick={() => {
+                    setShowVisualScan(false);
+                    setSelectedAccountForScan(null);
+                  }}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                >
+                  Back to Main
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    
     return (
       <VisualScanInterface
         accountId={selectedAccountForScan}
         accountLabel={account?.label || 'Unknown'}
         onClose={() => {
+          console.log('Closing visual scan interface');
           setShowVisualScan(false);
           setSelectedAccountForScan(null);
           setIsScanning(false);
