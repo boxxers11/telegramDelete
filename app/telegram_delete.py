@@ -296,9 +296,6 @@ class TelegramDeleter:
             all_dialogs = []
             async for dialog in self.client.iter_dialogs():
                 all_dialogs.append(dialog)
-                # Only limit in test mode if explicitly requested
-                if filters.test_mode and not filters.full_scan and len(all_dialogs) >= 5:
-                    break
             
             total_dialogs = len(all_dialogs)
             
