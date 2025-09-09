@@ -63,7 +63,7 @@ function App() {
   const [selectedAccountForScan, setSelectedAccountForScan] = useState<string | null>(null);
   const [isScanning, setIsScanning] = useState(false);
   const [scanProgress, setScanProgress] = useState<ScanProgress | undefined>();
-  const [scanEventSource, setScanEventSource] = useState<EventSource | null>(null);
+  const [lastScanResults, setLastScanResults] = useState<any[]>([]);
   
   // Message preview states
   const [showMessagePreview, setShowMessagePreview] = useState(false);
@@ -365,13 +365,26 @@ function App() {
     // Complete scan
     setTimeout(() => {
       setIsScanning(false);
+      setLastScanResults(result.chats.map((chat: any) => ({
+        ...chat,
+        expanded: false,
+        messages: generateMockMessages(chat.candidates_found)
+      })));
       setSuccess(`Scan completed! Found ${result.total_candidates} messages in ${result.total_chats_processed} chats`);
     }, (result.chats.length + 1) * 3000);
   };
 
-  const clearMessages = () => {
-    setError(null);
-    setSuccess(null);
+  const generateMockMessages = (count: number) => {
+    const messages = [];
+    for (let i = 0; i < Math.min(count, 10); i++) {
+      messages.push({
+        id: Math.random() * 1000000,
+        content: `הודעה דוגמה ${i + 1} - זהו תוכן ההודעה שנשלחה בקבוצה`,
+        date: new Date(Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000).toISOString(),
+        media_type: Math.random() > 0.7 ? 'photo' : undefined,
+        media_url: Math.random() > 0.7 ? 'https://via.placeholder.com/300x200' : undefined
+      });
+    }
   };
 
   // If showing visual scan interface
@@ -391,6 +404,7 @@ function App() {
         onStopScan={handleScanStop}
         isScanning={isScanning}
         scanProgress={scanProgress}
+        lastScanResults={lastScanResults}
       />
     );
   }

@@ -65,6 +65,7 @@ class ScanRequest(BaseModel):
     revoke: bool = True
     dry_run: bool = True
     test_mode: bool = False
+    full_scan: bool = False
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
@@ -199,12 +200,14 @@ async def scan_account(account_id: str, data: ScanRequest):
         filters = Filters(
             include_private=data.include_private,
             chat_name_filters=data.chat_name_filters,
-            after=date.fromisoformat(data.after) if data.after else None,
+            after=date.fromisoformat(data.after) if data.after else (
+                date.today().replace(year=date.today().year - 5) if data.full_scan else None
+            ),
             before=date.fromisoformat(data.before) if data.before else None,
             limit_per_chat=data.limit_per_chat,
             revoke=data.revoke,
             dry_run=data.dry_run,
-            test_mode=data.test_mode
+            test_mode=data.test_mode and not data.full_scan
         )
         
         # Start scan
