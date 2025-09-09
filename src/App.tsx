@@ -57,9 +57,9 @@ interface ScanProgress {
   status: string;
 }
 
-const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-  ? 'http://127.0.0.1:8000' 
-  : '/api';
+// Check if we're in a deployed environment (no backend available)
+const isDeployedEnvironment = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+const API_BASE = isDeployedEnvironment ? null : 'http://127.0.0.1:8000';
 
 const App: React.FC = () => {
   const [accounts, setAccounts] = useState<Account[]>([]);
@@ -91,6 +91,23 @@ const App: React.FC = () => {
   const loadAccounts = async () => {
     try {
       setLoading(true);
+      
+      // If no backend available (deployed environment), show demo data
+      if (!API_BASE) {
+        setAccounts([
+          {
+            id: 'demo_1',
+            label: 'Demo Account',
+            phone: '+1234567890',
+            api_id: 12345,
+            api_hash: 'demo_hash',
+            is_authenticated: false
+          }
+        ]);
+        return;
+      }
+      
+      // Try to connect to local backend
       const response = await fetch(`${API_BASE}/accounts`);
       if (response.ok) {
         const data = await response.json();
@@ -141,6 +158,11 @@ const App: React.FC = () => {
       return;
     }
 
+    // Check if backend is available
+    if (!API_BASE) {
+      alert('This feature requires running the application locally. Please download and run the app from GitHub to add real accounts.');
+      return;
+    }
     try {
       const response = await fetch(`${API_BASE}/accounts`, {
         method: 'POST',
@@ -168,6 +190,12 @@ const App: React.FC = () => {
   };
 
   const connectAccount = async (accountId: string) => {
+    // Check if backend is available
+    if (!API_BASE) {
+      alert('This feature requires running the application locally. Please download and run the app from GitHub to connect to Telegram.');
+      return;
+    }
+
     setOperationState(accountId, true);
     updateAccountStatus(accountId, 'Connecting...');
 
@@ -206,6 +234,12 @@ const App: React.FC = () => {
   };
 
   const submitCode = async (accountId: string, code: string, password?: string) => {
+    // Check if backend is available
+    if (!API_BASE) {
+      alert('This feature requires running the application locally.');
+      return;
+    }
+
     setOperationState(accountId, true);
     updateAccountStatus(accountId, 'Verifying code...');
 
@@ -271,8 +305,8 @@ const App: React.FC = () => {
     });
 
     try {
-      // Check if this is demo mode
-      const isDemoMode = API_BASE.includes('/api') || accountId.startsWith('demo_');
+      // Check if this is demo mode (no backend or demo account)
+      const isDemoMode = !API_BASE || accountId.startsWith('demo_');
       
       if (isDemoMode) {
         // Demo mode - simulate scan
@@ -435,6 +469,11 @@ const App: React.FC = () => {
   const deleteAccount = async (accountId: string) => {
     if (!confirm('Are you sure you want to delete this account?')) return;
 
+    // Check if backend is available
+    if (!API_BASE) {
+      alert('This feature requires running the application locally.');
+      return;
+    }
     try {
       const response = await fetch(`${API_BASE}/accounts/${accountId}`, {
         method: 'DELETE'
@@ -655,9 +694,32 @@ const App: React.FC = () => {
               <MessageSquare className="w-10 h-10 text-blue-600 mr-4" />
               <div>
                 <h1 className="text-3xl font-bold text-gray-900">Telegram Message Manager</h1>
-                <p className="text-gray-600">Safely manage your Telegram messages across multiple accounts</p>
+                <p className="text-gray-600">
+                  {isDeployedEnvironment 
+                    ? "Demo interface - Download and run locally for full functionality" 
+                    : "Safely manage your Telegram messages across multiple accounts"
+                  }
+                </p>
               </div>
             </div>
+            
+            {isDeployedEnvironment && (
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+                <div className="flex items-center">
+                  <AlertTriangle className="w-5 h-5 text-yellow-600 mr-2" />
+                  <div>
+                    <h3 className="text-sm font-medium text-yellow-800">Demo Mode</h3>
+                    <p className="text-sm text-yellow-700">
+                      This is a demo interface. To connect to Telegram and manage messages, 
+                      <a href="https://github.com/your-repo" className="underline ml-1" target="_blank" rel="noopener noreferrer">
+                        download and run the app locally
+                      </a>.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+            
             <button
               onClick={() => setShowAddAccount(true)}
               disabled={accounts.length >= 5}
