@@ -89,6 +89,22 @@ class TelegramDeleter:
             for attempt in range(max_retries):
                 try:
                     # Close any existing client first
+                    if self.client:
+                        try:
+                            await self.client.disconnect()
+                        except:
+                            pass
+                    
+                    # Create new client
+                    self.client = TelegramClient(
+                        self.session_name,
+                        self.api_id,
+                        self.api_hash
+                    )
+                    
+                    # Connect to Telegram
+                    await self.client.connect()
+                    return
                     
                 except sqlite3.OperationalError as e:
                     if "database is locked" in str(e).lower():
@@ -104,7 +120,6 @@ class TelegramDeleter:
                     await asyncio.sleep(3)
             
             raise Exception("Failed to connect after multiple attempts")
-    async def safe_api_call(self, method, *args, max_retries=3, **kwargs):
         """Safely call Telegram API with flood wait handling"""
         for attempt in range(max_retries):
             try:
