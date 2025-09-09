@@ -58,7 +58,7 @@ PYTHON_PID=$!
 # Wait for Python server to be ready
 echo "⏳ Waiting for Python server to start..."
 for i in {1..30}; do
-    if curl -s http://127.0.0.1:8000/accounts > /dev/null 2>&1; then
+    if curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8000/accounts | grep -q "200"; then
         echo "✅ Python server is ready!"
         break
     fi
