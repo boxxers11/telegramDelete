@@ -9,7 +9,7 @@ import logging
 import asyncio
 import os
 from app.accounts import account_store
-from app.telegram_client_factory import get_deleter_for_account
+from app.telegram_client_factory import get_deleter_for_account, clear_deleter_cache
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -140,6 +140,8 @@ async def connect_account(account_id: str, data: ConnectAccountRequest):
 async def delete_account(account_id: str):
     try:
         logger.info(f"Deleting account {account_id}")
+        # Clear cached deleter instance before deleting account
+        clear_deleter_cache(account_id)
         success = account_store.delete_account(account_id)
         if success:
             return {"success": True, "message": "Account deleted successfully"}

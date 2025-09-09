@@ -59,14 +59,14 @@ class SmartSearchResult:
     logs: List[str]
 
 class TelegramDeleter:
-    def __init__(self, session_name: str, api_id: int, api_hash: str):
+    def __init__(self, session_name: str, api_id: int, api_hash: str, session_lock: threading.Lock):
         self.session_name = session_name
         self.api_id = api_id
         self.api_hash = api_hash
         self.client = None
         self.logs = []
         self.status_callback = None
-        self._session_lock = threading.Lock()
+        self._session_lock = session_lock
         # Extract account ID from session name for checkpoint manager
         account_id = session_name.split('_')[-1] if '_' in session_name else 'default'
         self.checkpoint_manager = CheckpointManager(account_id)
