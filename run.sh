@@ -38,6 +38,7 @@ python3 -m ensurepip --upgrade
 echo "📥 Installing dependencies..."
 python3 -m pip install --upgrade pip
 python3 -m pip install -r requirements.txt
+python3 -m pip install uvicorn
 
 # Create session directory if it doesn't exist
 mkdir -p sessions
