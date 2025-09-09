@@ -139,6 +139,7 @@ const VisualScanInterface: React.FC<VisualScanInterfaceProps> = ({
                   status: scanProgress.status as any,
                   messages_found: scanProgress.messages_found || chat.messages_found,
                   messages_deleted: scanProgress.messages_deleted || chat.messages_deleted,
+                  messages: scanProgress.messages || chat.messages,
                   error: scanProgress.error,
                   reason: scanProgress.reason
                 }

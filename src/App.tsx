@@ -317,75 +317,44 @@ function App() {
   };
 
   const simulateScanProgress = (result: any) => {
-    // Simulate chat list loading
-    setTimeout(() => {
-      setScanProgress({
-        type: 'chat_list',
-        chats: result.chats.map((chat: any) => ({
-          id: chat.id,
-          title: chat.title,
-          type: chat.type,
-          status: 'pending',
-          last_deleted_count: 0
-        })),
-        total: result.chats.length
-      });
-    }, 1000);
+    // Send chat list immediately
+    setScanProgress({
+      type: 'chat_list',
+      chats: result.chats.map((chat: any) => ({
+        id: chat.id,
+        title: chat.title,
+        type: chat.type,
+        status: 'pending',
+        last_deleted_count: 0
+      })),
+      total: result.chats.length
+    });
 
-    // Simulate scanning each chat
-    result.chats.forEach((chat: any, index: number) => {
-      setTimeout(() => {
-        // Start scanning
-        setScanProgress(prev => ({
-          ...prev,
-          type: 'chat_scanning',
-          chat_id: chat.id,
-          chat_name: chat.title,
-          current_index: index,
-          total: result.chats.length,
-          status: 'scanning'
-        }));
-
-        // Complete scanning
-        setTimeout(() => {
-          setScanProgress(prev => ({
-            ...prev,
-            type: 'chat_completed',
-            chat_id: chat.id,
-            status: chat.error ? 'error' : (chat.skipped_reason ? 'skipped' : 'completed'),
-            messages_found: chat.candidates_found,
-            messages_deleted: chat.deleted,
-            error: chat.error,
-            reason: chat.skipped_reason
-          }));
-        }, 2000);
-      }, (index + 1) * 3000);
+    // Send completed results immediately
+    result.chats.forEach((chat: any) => {
+      setScanProgress(prev => ({
+        ...prev,
+        type: 'chat_completed',
+        chat_id: chat.id,
+        status: chat.error ? 'error' : (chat.skipped_reason ? 'skipped' : 'completed'),
+        messages_found: chat.candidates_found,
+        messages_deleted: chat.deleted,
+        messages: chat.messages || [],
+        error: chat.error,
+        reason: chat.skipped_reason
+      }));
     });
 
     // Complete scan
-    setTimeout(() => {
-      setIsScanning(false);
-      setLastScanResults(result.chats.map((chat: any) => ({
-        ...chat,
-        expanded: false,
-        messages: generateMockMessages(chat.candidates_found)
-      })));
-      setSuccess(`Scan completed! Found ${result.total_candidates} messages in ${result.total_chats_processed} chats`);
-    }, (result.chats.length + 1) * 3000);
+    setIsScanning(false);
+    setLastScanResults(result.chats.map((chat: any) => ({
+      ...chat,
+      expanded: false,
+      messages: chat.messages || []
+    })));
+    setSuccess(`Scan completed! Found ${result.total_candidates} messages in ${result.total_chats_processed} chats`);
   };
 
-  const generateMockMessages = (count: number) => {
-    const messages = [];
-    for (let i = 0; i < Math.min(count, 10); i++) {
-      messages.push({
-        id: Math.random() * 1000000,
-        content: `הודעה דוגמה ${i + 1} - זהו תוכן ההודעה שנשלחה בקבוצה`,
-        date: new Date(Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000).toISOString(),
-        media_type: Math.random() > 0.7 ? 'photo' : undefined,
-        media_url: Math.random() > 0.7 ? 'https://via.placeholder.com/300x200' : undefined
-      });
-    }
-  };
 
   // If showing visual scan interface
   if (showVisualScan && selectedAccountForScan) {
