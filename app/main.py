@@ -10,6 +10,9 @@ import asyncio
 import os
 from app.accounts import account_store
 from app.telegram_client_factory import get_deleter_for_account, clear_deleter_cache
+from app.telegram_delete import Filters
+import json
+from datetime import date
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -52,6 +55,16 @@ class ConnectAccountRequest(BaseModel):
 class ConnectRequest(BaseModel):
     phone: str
 
+class ScanRequest(BaseModel):
+    account_id: str
+    include_private: bool = False
+    chat_name_filters: List[str] = []
+    after: Optional[str] = None
+    before: Optional[str] = None
+    limit_per_chat: Optional[int] = None
+    revoke: bool = True
+    dry_run: bool = True
+    test_mode: bool = False
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
@@ -171,6 +184,58 @@ async def delete_account(account_id: str):
     except Exception as e:
         logger.error(f"Error deleting account {account_id}: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/accounts/{account_id}/scan")
+async def scan_account(account_id: str, data: ScanRequest):
+    try:
+        logger.info(f"Starting scan for account {account_id}")
+        
+        # Get deleter instance for this account
+        deleter = get_deleter_for_account(account_id)
+        if not deleter:
+            return {"success": False, "error": "Account not found"}
+        
+        # Create filters
+        filters = Filters(
+            include_private=data.include_private,
+            chat_name_filters=data.chat_name_filters,
+            after=date.fromisoformat(data.after) if data.after else None,
+            before=date.fromisoformat(data.before) if data.before else None,
+            limit_per_chat=data.limit_per_chat,
+            revoke=data.revoke,
+            dry_run=data.dry_run,
+            test_mode=data.test_mode
+        )
+        
+        # Start scan
+        result = await deleter.scan(filters)
+        
+        return {
+            "success": True,
+            "result": {
+                "total_chats_processed": result.total_chats_processed,
+                "total_chats_skipped": result.total_chats_skipped,
+                "total_candidates": result.total_candidates,
+                "total_deleted": result.total_deleted,
+                "chats": [
+                    {
+                        "id": chat.id,
+                        "title": chat.title,
+                        "type": chat.type,
+                        "participants_count": chat.participants_count,
+                        "candidates_found": chat.candidates_found,
+                        "deleted": chat.deleted,
+                        "error": chat.error,
+                        "skipped_reason": chat.skipped_reason
+                    }
+                    for chat in result.chats
+                ]
+            }
+        }
+        
+    except Exception as e:
+        logger.error(f"Error scanning account {account_id}: {str(e)}")
+        return {"success": False, "error": str(e)}
 
 @app.post("/connect")
 async def connect(data: ConnectRequest):
