@@ -48,6 +48,12 @@ interface ScanProgress {
   messages_found?: number;
   messages_deleted?: number;
   total_to_delete?: number;
+  // For final summary
+  completed?: number;
+  skipped?: number;
+  errors?: number;
+  totalMessages?: number;
+  totalDeleted?: number;
 }
 
 function App() {
@@ -264,124 +270,79 @@ function App() {
     }
   };
 
-  const handleStartVisualScan = (accountId: string) => {
-    console.log('Starting visual scan for account:', accountId);
+  // Function to open the visual scan interface
+  const openVisualScanInterface = (accountId: string) => {
     const account = accounts.find(acc => acc.id === accountId);
-    console.log('Found account:', account);
-    
     if (!account) {
       setError('Account not found');
       return;
     }
-    
     if (!account.is_authenticated) {
       setError('Account is not authenticated. Please connect first.');
       return;
     }
-    
     setSelectedAccountForScan(accountId);
     setShowVisualScan(true);
-    console.log('Visual scan state updated');
-  };
-
-  const handleScanStart = () => {
-    setIsScanning(true);
-    setScanProgress(undefined);
-    
-    if (!selectedAccountForScan) return;
-    
-    // Start the scan
-    startScan(selectedAccountForScan, false);
-  };
-
-  const handleFullScan = () => {
-    if (confirm('⚠️ סריקה מלאה תסרוק את כל הקבוצות עד 5 שנים אחורה. זה עלול לקחת זמן רב. האם להמשיך?')) {
-      setIsScanning(true);
-      setScanProgress(undefined);
-      
-      if (!selectedAccountForScan) return;
-      
-      // Start full scan
-      startScan(selectedAccountForScan, true);
-    }
-  };
-
-  const handleScanStop = () => {
+    // Reset scan states when opening the interface
     setIsScanning(false);
     setScanProgress(undefined);
-    
-    // Close event source if exists
-    if (scanEventSource) {
-      scanEventSource.close();
-      setScanEventSource(null);
-    }
+    setLastScanResults([]);
   };
 
-  const startScan = async (accountId: string) => {
+  // Function to initiate the scan process (called from VisualScanInterface)
+  const startScanProcess = async (isFullScan: boolean) => {
+    if (!selectedAccountForScan) {
+      setError('No account selected for scan.');
+      return;
+    }
+
+    setIsScanning(true);
+    setScanProgress(undefined); // Clear previous progress
+    setError(null);
+    setSuccess(null);
+
     try {
-      setError(null);
-      
-      // Start the scan request
-      const response = await fetch(`/api/accounts/${accountId}/scan`, {
+      console.log(`Attempting to send scan request for account: ${selectedAccountForScan}, full scan: ${isFullScan}`); // Debug log
+      const response = await fetch(`/api/accounts/${selectedAccountForScan}/scan`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          account_id: accountId,
+          account_id: selectedAccountForScan,
           include_private: false,
           chat_name_filters: [],
-          dry_run: true,
-          test_mode: !isFullScan, // Only test mode if not full scan
-          full_scan: isFullScan
+          dry_run: true, // Always dry run for scan
+          test_mode: !isFullScan, // Test mode if not full scan
+          full_scan: isFullScan // Full scan if requested
         }),
       });
 
       const data = await response.json();
 
       if (data.success) {
-        // Simulate progress updates for now
-        simulateScanProgress(data.result);
+        // Backend returns the full result, so we process it directly
+        processScanResult(data.result);
       } else {
         setError(data.error || 'Scan failed');
         setIsScanning(false);
       }
     } catch (error) {
-      setError('Network error occurred during scan');
+      console.error('Scan network request failed:', error); // Debug log with error object
+      setError('Network error occurred during scan. Please check your connection and server logs.');
       setIsScanning(false);
     }
   };
 
-  const simulateScanProgress = (result: any) => {
-    // Send chat list immediately
-    setScanProgress({
-      type: 'chat_list',
-      chats: result.chats.map((chat: any) => ({
-        id: chat.id,
-        title: chat.title,
-        type: chat.type,
-        status: 'pending',
-        last_deleted_count: 0
-      })),
-      total: result.chats.length
-    });
+  // Function to stop the scan (client-side only, as backend is request-response)
+  const handleScanStop = () => {
+    setIsScanning(false);
+    setScanProgress(undefined);
+    // No backend action needed as it's a single request-response
+  };
 
-    // Send completed results immediately
-    result.chats.forEach((chat: any) => {
-      setScanProgress(prev => ({
-        ...prev,
-        type: 'chat_completed',
-        chat_id: chat.id,
-        status: chat.error ? 'error' : (chat.skipped_reason ? 'skipped' : 'completed'),
-        messages_found: chat.candidates_found,
-        messages_deleted: chat.deleted,
-        messages: chat.messages || [],
-        error: chat.error,
-        reason: chat.skipped_reason
-      }));
-    });
-
-    // Complete scan
+  // Function to process the final scan result from the backend
+  const processScanResult = (result: any) => {
     setIsScanning(false);
     setLastScanResults(result.chats.map((chat: any) => ({
       ...chat,
@@ -389,6 +350,35 @@ function App() {
       messages: chat.messages || []
     })));
     setSuccess(`Scan completed! Found ${result.total_candidates} messages in ${result.total_chats_processed} chats`);
+
+    // Update stats in VisualScanInterface based on final result
+    const total = result.chats.length;
+    const completed = result.chats.filter((c: any) => !c.error && !c.skipped_reason).length;
+    const skipped = result.chats.filter((c: any) => c.skipped_reason).length;
+    const errors = result.chats.filter((c: any) => c.error).length;
+    const totalMessages = result.total_candidates;
+    const totalDeleted = result.total_deleted; // Should be 0 for dry_run scan
+
+    setScanProgress({
+      type: 'final_summary',
+      total: total,
+      completed: completed,
+      skipped: skipped,
+      errors: errors,
+      totalMessages: totalMessages,
+      totalDeleted: totalDeleted,
+      chats: result.chats.map((chat: any) => ({
+        id: chat.id,
+        title: chat.title,
+        type: chat.type,
+        status: chat.error ? 'error' : (chat.skipped_reason ? 'skipped' : 'completed'),
+        messages_found: chat.candidates_found,
+        messages_deleted: chat.deleted,
+        messages: chat.messages || [],
+        error: chat.error,
+        reason: chat.skipped_reason
+      }))
+    });
   };
 
 
@@ -438,10 +428,10 @@ function App() {
           setSelectedAccountForScan(null);
           setIsScanning(false);
           setScanProgress(undefined);
+          setLastScanResults([]);
         }}
-        onStartScan={handleScanStart}
-        onStopScan={handleScanStop}
-        onFullScan={handleFullScan}
+        onStartScan={() => startScanProcess(false)}
+        onFullScan={() => startScanProcess(true)}
         isScanning={isScanning}
         scanProgress={scanProgress}
         lastScanResults={lastScanResults}
@@ -735,7 +725,7 @@ function App() {
                   {account.is_authenticated ? (
                     <div className="flex space-x-2">
                       <button
-                        onClick={() => handleStartVisualScan(account.id)}
+                        onClick={() => openVisualScanInterface(account.id)}
                         className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center"
                       >
                         <Eye className="w-4 h-4 mr-1" />
