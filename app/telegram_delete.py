@@ -318,6 +318,9 @@ class TelegramDeleter:
                 'total': total_dialogs
             })
             
+            # Give frontend time to display the chat list
+            await asyncio.sleep(1)
+            
             # Process each dialog
             for i, dialog in enumerate(all_dialogs):
                 
