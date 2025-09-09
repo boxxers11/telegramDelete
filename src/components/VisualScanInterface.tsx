@@ -87,6 +87,7 @@ const VisualScanInterface: React.FC<VisualScanInterfaceProps> = ({
   const [selectedChats, setSelectedChats] = useState<Set<number>>(new Set());
   const [selectedMessages, setSelectedMessages] = useState<Set<number>>(new Set());
   const [allChatsSelected, setAllChatsSelected] = useState(false);
+  const [showCheckboxes, setShowCheckboxes] = useState(false);
   const [stats, setStats] = useState({
     total: 0,
     completed: 0,
@@ -169,6 +170,11 @@ const VisualScanInterface: React.FC<VisualScanInterfaceProps> = ({
             }
             return newStats;
           });
+          
+          // Show checkboxes when we have chats with messages
+          if (scanProgress.messages_found && scanProgress.messages_found > 0) {
+            setShowCheckboxes(true);
+          }
         }
         break;
 
@@ -182,6 +188,11 @@ const VisualScanInterface: React.FC<VisualScanInterfaceProps> = ({
           totalMessages: scanProgress.totalMessages || 0,
           totalDeleted: scanProgress.totalDeleted || 0
         });
+        
+        // Show checkboxes when scan is complete and we have messages
+        if (scanProgress.totalMessages && scanProgress.totalMessages > 0) {
+          setShowCheckboxes(true);
+        }
         break;
     }
   }, [scanProgress]);
@@ -247,7 +258,7 @@ const VisualScanInterface: React.FC<VisualScanInterfaceProps> = ({
 
   const handleSelectAllChats = () => {
     const chatsWithMessages = chats.filter(chat => 
-      (chat.status === 'completed' || chat.status === 'scanning') && 
+      chat.status === 'completed' && 
       chat.messages && 
       chat.messages.length > 0
     );
@@ -281,7 +292,7 @@ const VisualScanInterface: React.FC<VisualScanInterfaceProps> = ({
 
   const handleSelectChat = (chatId: number) => {
     const chat = chats.find(c => c.id === chatId);
-    if (!chat || !chat.messages || chat.messages.length === 0) {
+    if (!chat || !chat.messages || chat.messages.length === 0 || chat.status !== 'completed') {
       return;
     }
     
@@ -312,7 +323,7 @@ const VisualScanInterface: React.FC<VisualScanInterfaceProps> = ({
     
     // Update "select all" state
     const chatsWithMessages = chats.filter(chat => 
-      (chat.status === 'completed' || chat.status === 'scanning') && 
+      chat.status === 'completed' && 
       chat.messages && 
       chat.messages.length > 0
     );
@@ -369,7 +380,7 @@ const VisualScanInterface: React.FC<VisualScanInterfaceProps> = ({
   };
 
   const chatsWithMessages = chats.filter(chat => 
-    (chat.status === 'completed' || chat.status === 'scanning') && 
+    chat.status === 'completed' && 
     chat.messages && 
     chat.messages.length > 0
   );
@@ -470,7 +481,7 @@ const VisualScanInterface: React.FC<VisualScanInterfaceProps> = ({
         </div>
 
         {/* Action Buttons */}
-        {chatsWithMessages.length > 0 && (
+        {showCheckboxes && chatsWithMessages.length > 0 && (
           <div className="bg-white rounded-xl shadow-lg p-4 mb-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
@@ -549,7 +560,7 @@ const VisualScanInterface: React.FC<VisualScanInterfaceProps> = ({
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center flex-1">
-                          {chat.messages && chat.messages.length > 0 && (
+                          {showCheckboxes && chat.status === 'completed' && chat.messages && chat.messages.length > 0 && (
                             <input
                               type="checkbox"
                               checked={chat.selected || false}
