@@ -8,9 +8,9 @@ import {
   Clock,
   Save,
   Trash2,
+  X,
   Edit,
   Copy,
-  X,
   Plus,
   History
 } from 'lucide-react';
@@ -62,6 +62,18 @@ const MessageWizard: React.FC<MessageWizardProps> = ({ accountId, accountLabel, 
     loadMessageHistory();
     loadGroupPresets();
   }, [accountId]);
+
+  // Handle Escape key to close modal
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onBack();
+      }
+    };
+    
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [onBack]);
 
   const loadMessageHistory = () => {
     const saved = localStorage.getItem(`message_history_${accountId}`);
@@ -192,8 +204,27 @@ const MessageWizard: React.FC<MessageWizardProps> = ({ accountId, accountLabel, 
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" dir="rtl">
-      <div className="glass-advanced max-w-6xl w-full max-h-[90vh] overflow-y-auto rounded-2xl">
+    <div 
+      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" 
+      dir="rtl"
+      onClick={onBack}
+    >
+      {/* Close button outside modal */}
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          onBack();
+        }}
+        className="absolute top-4 right-4 z-60 bg-red-600 hover:bg-red-700 text-white rounded-full p-2 transition-colors"
+        title="סגור חלון"
+      >
+        <X className="w-5 h-5" />
+      </button>
+      
+      <div 
+        className="glass-advanced max-w-6xl w-full h-[90vh] min-h-[600px] overflow-y-auto rounded-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-white/10">
           <button
