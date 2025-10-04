@@ -606,9 +606,35 @@ async def verify_deletion(account_id: str, request: dict):
         logger.error(f"Error verifying deletion: {str(e)}")
         return {"success": False, "error": str(e)}
 
+@app.get("/accounts/{account_id}/chats/summary")
+async def get_chats_summary(account_id: str):
+    """Get quick summary of chats for the account (fast response)"""
+    try:
+        # Get deleter instance for this account
+        deleter = get_deleter_for_account(account_id)
+        if not deleter:
+            return {"success": False, "error": "Account not found"}
+        
+        # Check if client is connected
+        if not deleter.client or not deleter.client.is_connected():
+            return {"success": False, "error": "Account not connected"}
+        
+        # Get only count of dialogs (fast)
+        all_dialogs = await deleter.client.get_dialogs()
+        group_dialogs = [d for d in all_dialogs if hasattr(d.entity, 'megagroup') and d.entity.megagroup]
+        
+        return {
+            "success": True,
+            "total": len(group_dialogs),
+            "message": f"Found {len(group_dialogs)} groups"
+        }
+    except Exception as e:
+        logger.error(f"Error getting chats summary: {str(e)}")
+        return {"success": False, "error": str(e)}
+
 @app.get("/accounts/{account_id}/chats")
-async def get_all_chats(account_id: str):
-    """Get all chats for the account"""
+async def get_all_chats(account_id: str, page: int = 1, limit: int = 50):
+    """Get all chats for the account with pagination"""
     try:
         # Get deleter instance for this account
         deleter = get_deleter_for_account(account_id)
