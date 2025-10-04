@@ -1,0 +1,62 @@
+{
+  "account_id": "1",
+  "data_type": "scan_data",
+  "timestamp": "2025-10-01T23:37:56.805447",
+  "data": {
+    "current_chat": "Girl Boy il🇮🇱 סטרייטים ישראלים בלבד🇮🇱",
+    "current_chat_id": -1002529310667,
+    "chat_id": -1001258862444,
+    "status": "completed",
+    "total_chats": 174,
+    "current_index": 19,
+    "completed": 5,
+    "skipped": 0,
+    "errors": 0,
+    "total_messages": 0,
+    "scanned_chats": [
+      {
+        "id": -1002254728142,
+        "title": "Sexy tlv סקסי ישראל 🇮🇱",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001684740037,
+        "title": "🔥נותנים בראש🔥",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002316307431,
+        "title": "|ⓀⓄⓀⓈⒾ🫦ⓁⒶⓃⒹ②|©",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001753882117,
+        "title": "🫦🍓🍆💦 מתלבשות מוצצות תל-אביב",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001258862444,
+        "title": "Girl Boy il🇮🇱 סטרייטים ישראלים בלבד🇮🇱",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      }
+    ],
+    "messages_found": 0,
+    "progress_percent": 8
+  },
+  "hash": "097281cadcdfbcb0bdb2b5eb217f6d71"
+}

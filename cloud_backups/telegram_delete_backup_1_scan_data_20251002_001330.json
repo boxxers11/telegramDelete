@@ -1,0 +1,142 @@
+{
+  "account_id": "1",
+  "data_type": "scan_data",
+  "timestamp": "2025-10-02T00:13:30.356194",
+  "data": {
+    "current_chat": "חרדים / חרדיות",
+    "current_chat_id": -1001221122299,
+    "chat_id": -1002544959919,
+    "status": "completed",
+    "total_chats": 174,
+    "current_index": 84,
+    "completed": 23,
+    "skipped": 0,
+    "errors": 0,
+    "total_messages": 2,
+    "scanned_chats": [
+      {
+        "id": -1001344573395,
+        "title": "סקס הכרויות הכול מהכול!",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002374031632,
+        "title": "קוקהולד זוגות מצרפים ישראל",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002091903868,
+        "title": "הכרויות שליטה סאדו סטוצים",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001406113886,
+        "title": "חדשות מהשטח בטלגרם",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001757858757,
+        "title": "דו ישראלים ואורגיות",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001709986377,
+        "title": "kOkSi dReSs קוקסי דרס",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002557279382,
+        "title": "קבוצת הכרויות",
+        "status": "completed",
+        "messages_found": 1,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001193154875,
+        "title": "קרוסיות וקוקסינליות מהממות",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001692212602,
+        "title": "סקס ישראל 2024",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001632829782,
+        "title": "קרוס קוקס וחברים 💄💋👠",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001765354213,
+        "title": "👿angel of death🔥",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001613161072,
+        "title": "דניאל עמרם ללא צנזורה",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001446484767,
+        "title": "חילופי זוגות Naturis Team נטוריסטים",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002127424462,
+        "title": "הכרויות ישראליות סטוצים חדשות",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002544959919,
+        "title": "חרדים / חרדיות",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      }
+    ],
+    "messages_found": 0,
+    "progress_percent": 45
+  },
+  "hash": "69be36e6026d921f48735fae44dd93c4"
+}

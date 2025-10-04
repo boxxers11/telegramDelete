@@ -1,0 +1,45 @@
+{
+  "account_id": "1",
+  "data_type": "scan_data",
+  "timestamp": "2025-10-01T23:29:43.109359",
+  "data": {
+    "current_chat": "|ⓀⓄⓀⓈⒾ🫦ⓁⒶⓃⒹ②|©",
+    "current_chat_id": 0,
+    "chat_id": -1002316307431,
+    "status": "completed",
+    "total_chats": 4568,
+    "current_index": 4,
+    "completed": 4,
+    "skipped": 0,
+    "errors": 0,
+    "total_messages": 0,
+    "scanned_chats": [
+      {
+        "id": -1002004400874,
+        "title": "❤️מתענגים ומענגנים❤️",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001757858757,
+        "title": "דו ישראלים ואורגיות",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002316307431,
+        "title": "|ⓀⓄⓀⓈⒾ🫦ⓁⒶⓃⒹ②|©",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      }
+    ],
+    "messages_found": 0
+  },
+  "hash": "0c2e45e584481f0a4dbc1a5a32d3d07e"
+}

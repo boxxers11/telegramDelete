@@ -1,0 +1,62 @@
+{
+  "account_id": "2",
+  "data_type": "scan_data",
+  "timestamp": "2025-10-01T23:19:23.682172",
+  "data": {
+    "current_chat": "צאט עירום",
+    "current_chat_id": -1001333488188,
+    "chat_id": -1001333488188,
+    "status": "completed",
+    "total_chats": 131,
+    "current_index": 6,
+    "completed": 5,
+    "skipped": 0,
+    "errors": 0,
+    "total_messages": 21,
+    "scanned_chats": [
+      {
+        "id": -1002282499461,
+        "title": "ישבן כחול לבן || סטוצים",
+        "status": "completed",
+        "messages_found": 10,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001239682653,
+        "title": "קרוסיות",
+        "status": "completed",
+        "messages_found": 11,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002063974054,
+        "title": "הצינור - סקס ישראלי 🔞💢®️ ישראליות | חרדיות | דתיות | ערביות | זורמות | סטוצים | קבוצות סקס | קבוצת סקס |",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001444468254,
+        "title": "סטוץ וחתונה",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001333488188,
+        "title": "צאט עירום",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      }
+    ],
+    "messages_found": 0,
+    "progress_percent": 3
+  },
+  "hash": "0d80c51d50eddd3566c5d35b849ebbbb"
+}

@@ -1,0 +1,78 @@
+{
+  "account_id": "2",
+  "data_type": "scan_data",
+  "timestamp": "2025-10-02T00:28:00.223481",
+  "data": {
+    "current_chat": "חילופי זוגות ואורגיות",
+    "current_chat_id": -1001439617993,
+    "chat_id": -1001439617993,
+    "status": "completed",
+    "total_chats": 131,
+    "current_index": 8,
+    "completed": 7,
+    "skipped": 0,
+    "errors": 0,
+    "total_messages": 24,
+    "scanned_chats": [
+      {
+        "id": -1002282499461,
+        "title": "ישבן כחול לבן || סטוצים",
+        "status": "completed",
+        "messages_found": 10,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001239682653,
+        "title": "קרוסיות",
+        "status": "completed",
+        "messages_found": 11,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002063974054,
+        "title": "הצינור - סקס ישראלי 🔞💢®️ ישראליות | חרדיות | דתיות | ערביות | זורמות | סטוצים | קבוצות סקס | קבוצת סקס |",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002124944331,
+        "title": "חילופי זוגות הכרויות | סווינגרס ⚜️🔞 ישראליות | חרדיות | דתיות | ערביות | זורמות | סטוצים | קבוצות סקס | קבוצת סקס |ישראלי",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002506520169,
+        "title": "מחפשי זיון",
+        "status": "completed",
+        "messages_found": 3,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001333488188,
+        "title": "צאט עירום",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001439617993,
+        "title": "חילופי זוגות ואורגיות",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      }
+    ],
+    "messages_found": 0,
+    "progress_percent": 4
+  },
+  "hash": "518e0e6e261ccc148b9ba5585b176547"
+}

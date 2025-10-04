@@ -1,0 +1,206 @@
+{
+  "account_id": "2",
+  "data_type": "scan_data",
+  "timestamp": "2025-10-01T23:54:40.060216",
+  "data": {
+    "current_chat": "✨️ שיווק ומכירת קהילות ✨️",
+    "current_chat_id": -1002162454490,
+    "chat_id": -1002162454490,
+    "status": "completed",
+    "total_chats": 131,
+    "current_index": 124,
+    "completed": 22,
+    "skipped": 0,
+    "errors": 1,
+    "total_messages": 32,
+    "scanned_chats": [
+      {
+        "id": -1002834787996,
+        "title": "קמגרה Kamagra ויאגרה",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002665240746,
+        "title": "ODAYA CABILI🍒",
+        "status": "error",
+        "messages_found": 0,
+        "error": "The channel specified is private and you lack permission to access it. Another reason may be that you were banned from it (caused by GetHistoryRequest)",
+        "skipped_reason": null
+      },
+      {
+        "id": -1002282499461,
+        "title": "ישבן כחול לבן || סטוצים",
+        "status": "completed",
+        "messages_found": 10,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002887617085,
+        "title": "Eden queen 👑👄💦",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002811419874,
+        "title": "ערוץ מעבר",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002787139244,
+        "title": "The green elf - השדון הירוק",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001239682653,
+        "title": "קרוסיות",
+        "status": "completed",
+        "messages_found": 11,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1003098695422,
+        "title": "הכל כלול במרכז שלנו",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002158918983,
+        "title": "כניסה לקבוצת סקס דיבור חופשי",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002589626565,
+        "title": "ערסיות מוצצות - מאגר התוכן הבלעדי הגדול בישראל",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002657525227,
+        "title": "החרמניות של תל אביב",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002446442210,
+        "title": "שמנות ונהנות - סקס ישראלי 🔞 | זורמות |סטוץ מרכז | סטוץ צפון | סטוץ דרום | כולם על כולם | טרנסיות | קרוסיות | רווקות | גרושות",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001256092732,
+        "title": "🛍המוצרים הכי שווים באליאקספרס🛍",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002373599258,
+        "title": "הכלוב - סקס ישראלי 🔞 | זורמות |סטוץ מרכז | סטוץ צפון | סטוץ דרום | כולם על כולם | טרנסיות | קרוסיות | רווקות | גרושות",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001786472835,
+        "title": "🛍המוצרים הכי שווים באליאקספרס🛍",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001212211035,
+        "title": "חילופי זוגות ואורגיות",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002379626147,
+        "title": "טרנסיות ישראל 🏳️‍⚧️ Trans Israel",
+        "status": "completed",
+        "messages_found": 11,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002128794891,
+        "title": "The King Rom",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002364864642,
+        "title": "פיור לאב קהילת המאומתות",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001534430638,
+        "title": "🌹יוצרות תוכן מאומתות🌹",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001603907672,
+        "title": "כולם על כולם 🔞 😇 ⚡️",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002075305471,
+        "title": "👑ערוץ המאומתים של הגבירה מג👑",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002162454490,
+        "title": "✨️ שיווק ומכירת קהילות ✨️",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      }
+    ],
+    "messages_found": 0,
+    "progress_percent": 93
+  },
+  "hash": "a8253ba1ea9cd6521cd3d2f7a872f848"
+}

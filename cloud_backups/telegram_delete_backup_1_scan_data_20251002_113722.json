@@ -1,0 +1,142 @@
+{
+  "account_id": "1",
+  "data_type": "scan_data",
+  "timestamp": "2025-10-02T11:37:22.908296",
+  "data": {
+    "current_chat": "מאהבות וספונסרים",
+    "current_chat_id": -1002471565213,
+    "chat_id": -1002471565213,
+    "status": "completed",
+    "total_chats": 173,
+    "current_index": 11,
+    "completed": 10,
+    "skipped": 0,
+    "errors": 0,
+    "total_messages": 0,
+    "scanned_chats": [
+      {
+        "id": -1002127424462,
+        "title": "הכרויות ישראליות סטוצים חדשות",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T11:36:43.294045",
+        "member_count": 17541
+      },
+      {
+        "id": -1001444468254,
+        "title": "סטוץ וחתונה",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T11:36:46.025037",
+        "member_count": 10347
+      },
+      {
+        "id": -1002030880695,
+        "title": "כיוונים בוטיק קרית גת ירוק",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T11:36:49.766015",
+        "member_count": 471
+      },
+      {
+        "id": -1001258862444,
+        "title": "Girl Boy il🇮🇱 סטרייטים ישראלים בלבד🇮🇱",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T11:36:52.953997",
+        "member_count": 1967
+      },
+      {
+        "id": -1002529310667,
+        "title": "דיבורים 18+ ונתמכות",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T11:36:55.698568",
+        "member_count": 725
+      },
+      {
+        "id": -1002282499461,
+        "title": "ישבן כחול לבן || סטוצים",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T11:36:58.050877",
+        "member_count": 13756
+      },
+      {
+        "id": -1001344573395,
+        "title": "סקס הכרויות הכול מהכול!",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T11:37:15.165051",
+        "member_count": 334
+      },
+      {
+        "id": -1002657525227,
+        "title": "החרמניות של תל אביב",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T11:37:18.164607",
+        "member_count": 3032
+      },
+      {
+        "id": -1001757858757,
+        "title": "דו ישראלים ואורגיות",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T11:37:20.458567",
+        "member_count": 4272
+      },
+      {
+        "id": -1002471565213,
+        "title": "מאהבות וספונסרים",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T11:37:22.901782",
+        "member_count": 734
+      }
+    ],
+    "messages_found": 0,
+    "progress_percent": 5
+  },
+  "hash": "9de82974c2f4d11fba61a89d2a3dd140"
+}

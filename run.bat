@@ -1,4 +1,4 @@
-@echo off
+fd@echo off
 echo 🚀 Starting Telegram Message Deleter...
 
 :: Check if Python is available

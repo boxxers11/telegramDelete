@@ -1,0 +1,46 @@
+{
+  "account_id": "1",
+  "data_type": "scan_data",
+  "timestamp": "2025-10-01T23:08:09.084601",
+  "data": {
+    "current_chat": "Open your mouth 💋 XXL Cocks",
+    "current_chat_id": -1002898656788,
+    "chat_id": -1002898656788,
+    "status": "completed",
+    "total_chats": 174,
+    "current_index": 4,
+    "completed": 3,
+    "skipped": 0,
+    "errors": 0,
+    "total_messages": 0,
+    "scanned_chats": [
+      {
+        "id": -1002127424462,
+        "title": "הכרויות ישראליות סטוצים חדשות",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001439617993,
+        "title": "חילופי זוגות ואורגיות",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002898656788,
+        "title": "Open your mouth 💋 XXL Cocks",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      }
+    ],
+    "messages_found": 0,
+    "progress_percent": 1
+  },
+  "hash": "f1cade548e45c0454350f406db7babfa"
+}

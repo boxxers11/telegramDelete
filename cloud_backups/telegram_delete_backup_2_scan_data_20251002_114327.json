@@ -1,0 +1,33 @@
+{
+  "account_id": "2",
+  "data_type": "scan_data",
+  "timestamp": "2025-10-02T11:43:27.591161",
+  "data": {
+    "current_chat": "צאט עירום",
+    "current_chat_id": 0,
+    "chat_id": -1001333488188,
+    "status": "completed",
+    "total_chats": 130,
+    "current_index": 1,
+    "completed": 1,
+    "skipped": 0,
+    "errors": 0,
+    "total_messages": 0,
+    "scanned_chats": [
+      {
+        "id": -1001333488188,
+        "title": "צאט עירום",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T11:43:27.586915",
+        "member_count": 7533
+      }
+    ],
+    "messages_found": 0
+  },
+  "hash": "05e82fc09e598c0411254f91fd3ed7b9"
+}

@@ -1,0 +1,2258 @@
+{
+  "account_id": "1",
+  "data_type": "scan_data",
+  "timestamp": "2025-10-02T08:44:09.345647",
+  "data": {
+    "current_chat": "ערוץ העיסויים Andi669 💆‍♂️💆‍♀️💆‍♂️",
+    "current_chat_id": -1002473660793,
+    "chat_id": -1002473660793,
+    "status": "completed",
+    "total_chats": 173,
+    "current_index": 142,
+    "completed": 153,
+    "skipped": 0,
+    "errors": 0,
+    "total_messages": 77,
+    "scanned_chats": [
+      {
+        "id": -1002127424462,
+        "title": "הכרויות ישראליות סטוצים חדשות",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:34:12.292698",
+        "member_count": 17542
+      },
+      {
+        "id": -1001655090842,
+        "title": "😈בזאר ההכרויות👿",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:34:13.171155",
+        "member_count": 2222
+      },
+      {
+        "id": -1001258862444,
+        "title": "Girl Boy il🇮🇱 סטרייטים ישראלים בלבד🇮🇱",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:34:16.234222",
+        "member_count": 1968
+      },
+      {
+        "id": -1001748346980,
+        "title": "www.xzuza.com",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:34:18.737730",
+        "member_count": 7275
+      },
+      {
+        "id": -1002657525227,
+        "title": "החרמניות של תל אביב",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:34:42.944522",
+        "member_count": 3032
+      },
+      {
+        "id": -1001239682653,
+        "title": "קרוסיות",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:34:45.485690",
+        "member_count": 7209
+      },
+      {
+        "id": -1001344573395,
+        "title": "סקס הכרויות הכול מהכול!",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:34:48.190356",
+        "member_count": 335
+      },
+      {
+        "id": -1001333488188,
+        "title": "צאט עירום",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:35:13.595032",
+        "member_count": 7530
+      },
+      {
+        "id": -1002379626147,
+        "title": "טרנסיות ישראל 🏳️‍⚧️ Trans Israel",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:35:16.389836",
+        "member_count": 3592
+      },
+      {
+        "id": -1001832527222,
+        "title": "גייז ישראל gay סטוץ וחתונה",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:35:18.767734",
+        "member_count": 3007
+      },
+      {
+        "id": -1002282499461,
+        "title": "ישבן כחול לבן || סטוצים",
+        "status": "completed",
+        "messages_found": 1,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [
+          {
+            "id": 252019,
+            "content": "מאמן כושר חתיך מחפש אח שותף לישיבה יש דירה שווה במרכז תא",
+            "date": "2025-10-01T19:17:04+00:00",
+            "media_type": null,
+            "media_url": null
+          }
+        ],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:35:20.927676",
+        "member_count": 13759
+      },
+      {
+        "id": -1002316307431,
+        "title": "|ⓀⓄⓀⓈⒾ🫦ⓁⒶⓃⒹ②|©",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:35:46.541016",
+        "member_count": 2890
+      },
+      {
+        "id": -1001439617993,
+        "title": "חילופי זוגות ואורגיות",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:35:49.239805",
+        "member_count": 10031
+      },
+      {
+        "id": -1002490992173,
+        "title": "טלטינדר - צ׳אט TeleTinder 🔞",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:35:51.493396",
+        "member_count": 1803
+      },
+      {
+        "id": -1001757858757,
+        "title": "דו ישראלים ואורגיות",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:36:16.786084",
+        "member_count": 4269
+      },
+      {
+        "id": -1001361929514,
+        "title": "BDSM ISRAEL 👠🔞",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:36:17.745333",
+        "member_count": 1908
+      },
+      {
+        "id": -1001444468254,
+        "title": "סטוץ וחתונה",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:36:19.273608",
+        "member_count": 10348
+      },
+      {
+        "id": -1001632829782,
+        "title": "קרוס קוקס וחברים 💄💋👠",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:36:20.372897",
+        "member_count": 1698
+      },
+      {
+        "id": -1002030880695,
+        "title": "כיוונים בוטיק קרית גת ירוק",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:36:22.438063",
+        "member_count": 471
+      },
+      {
+        "id": -1001808712511,
+        "title": "סטוצים תל אביב 🌃🌆🏙",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:36:23.064167",
+        "member_count": 1819
+      },
+      {
+        "id": -1002602980351,
+        "title": "דיבורים למבוגרים 18+",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:36:47.165661",
+        "member_count": 1465
+      },
+      {
+        "id": -1001301606845,
+        "title": "סקס קפה ורוקנרול 🎻🎼🎼🎻💓💋",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:36:47.724479",
+        "member_count": 1678
+      },
+      {
+        "id": -1002642584963,
+        "title": "רק זורמות לסקס",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:36:49.498424",
+        "member_count": 1735
+      },
+      {
+        "id": -1001709237823,
+        "title": "פרסום קבוצות למבוגרים",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:36:50.006385",
+        "member_count": 1475
+      },
+      {
+        "id": -1001684740037,
+        "title": "🔥נותנים בראש🔥",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:36:50.333100",
+        "member_count": 2107
+      },
+      {
+        "id": -1001709986377,
+        "title": "kOkSi dReSs קוקסי דרס",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:36:52.466757",
+        "member_count": 1438
+      },
+      {
+        "id": -1002529310667,
+        "title": "דיבורים 18+ ונתמכות",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:36:52.504126",
+        "member_count": 725
+      },
+      {
+        "id": -1002043479086,
+        "title": "vip🫦top🫦sexxyytt🫦",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:37:19.463958",
+        "member_count": 5958
+      },
+      {
+        "id": -1001392772096,
+        "title": "קרוזינג ישראל - סקס במקומות ציבוריים",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:37:19.617489",
+        "member_count": 1755
+      },
+      {
+        "id": -1001243182454,
+        "title": "שוק הפשפושים יד 2",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:37:21.883506",
+        "member_count": 6916
+      },
+      {
+        "id": -1002328262253,
+        "title": "עיסוי מגבר לגבר 💆‍♂️ עיסויים לגברים - הקבוצה המקורית והמובילה בישראל",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:37:22.667078",
+        "member_count": 2342
+      },
+      {
+        "id": -1001268006873,
+        "title": "כלבי ישראל",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:37:24.388343",
+        "member_count": 3776
+      },
+      {
+        "id": -1001768427006,
+        "title": "©|🍓 הסיוופלה 🍓|",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:37:25.211345",
+        "member_count": 10027
+      },
+      {
+        "id": -1001353207512,
+        "title": "❤️ המסיבות של עמית וגולן 2025 ❤️",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:37:49.863768",
+        "member_count": 947
+      },
+      {
+        "id": -1002144252980,
+        "title": "♣️ שדונים ושולטות ♥️",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:37:50.812301",
+        "member_count": 905
+      },
+      {
+        "id": -1001254043455,
+        "title": "Gloryhole גלורי הול ת״א",
+        "status": "completed",
+        "messages_found": 5,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [
+          {
+            "id": 5640,
+            "content": "שני חברים מאמני כושר שריריים חתיכים בדירה שווה במרכז ת״א מחפשים צופות/צופים בלייב! לא במצלמה. תגיעו לפה ותאוננו מלהסתכל על פורנו ועלינו",
+            "date": "2025-06-21T06:26:38+00:00",
+            "media_type": null,
+            "media_url": null
+          },
+          {
+            "id": 5227,
+            "content": "[Media/File]",
+            "date": "2024-08-14T02:41:14+00:00",
+            "media_type": "photo",
+            "media_url": null
+          },
+          {
+            "id": 5226,
+            "content": "עם בת זוג כוסית 👄\nמחפשים חתיך חטוב שווה דו 💪\nלמפגש עכשיו בתל אביב",
+            "date": "2024-08-14T00:28:10+00:00",
+            "media_type": null,
+            "media_url": null
+          },
+          {
+            "id": 5225,
+            "content": "זוג גבר ואישה שווים מאד בוייב כיפי ומכבד, נראים טוב מאד (גבר שרירי הנשים בלונדיניות רזות וחטובות) בראש לכיף \nעכשיו.\n🍑👄\nמחפשים סינגליות או זוגות שווים למפגש עכשיו אצלנו בדירה כיפית במרכז תל אביב.\n\nשלחו תמונות בפנייה בבקשה 🙏🏽 \nתודה",
+            "date": "2024-08-13T23:33:53+00:00",
+            "media_type": null,
+            "media_url": null
+          },
+          {
+            "id": 5218,
+            "content": "זוג גבר ואישה שווים מאד בוייב כיפי ומכבד, נראים טוב מאד (גבר שרירי הנשים בלונדיניות רזות וחטובות) בראש לכיף \nעכשיו.\n🍑👄\nמחפשים סינגליות או זוגות שווים למפגש עכשיו אצלנו בדירה כיפית במרכז תל אביב.\n\nשלחו תמונות בפנייה בבקשה 🙏🏽 \nתודה",
+            "date": "2024-08-08T22:39:46+00:00",
+            "media_type": null,
+            "media_url": null
+          }
+        ],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:37:52.415739",
+        "member_count": 44
+      },
+      {
+        "id": -1001627260938,
+        "title": "הכרויות חילופי סטוצים טינדר",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:37:53.635738",
+        "member_count": 3635
+      },
+      {
+        "id": -1001544217801,
+        "title": "קרוסיות טרנסיות וסטרייטים בלבד ! סקס, הכרות ושיחה מכבדת",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:37:55.137391",
+        "member_count": 2912
+      },
+      {
+        "id": -1001714965735,
+        "title": "Pretty girls💋 -חילופי זוגות,אורגיות,קוקהולד וסקס",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:37:56.355334",
+        "member_count": 757
+      },
+      {
+        "id": -1001505561877,
+        "title": "מחפשות:ים עבודה",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:38:20.765961",
+        "member_count": 6188
+      },
+      {
+        "id": -1001753882117,
+        "title": "🫦🍓🍆💦 מתלבשות מוצצות תל-אביב",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:38:21.579157",
+        "member_count": 1278
+      },
+      {
+        "id": -1002163098708,
+        "title": "HOT ISRAELI GUYS 🔥",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:38:21.992203",
+        "member_count": 3048
+      },
+      {
+        "id": -1001971027448,
+        "title": "חרמנים וחרמניות למפגשים💋",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:38:23.849570",
+        "member_count": 904
+      },
+      {
+        "id": -1002004400874,
+        "title": "❤️מתענגים ומענגנים❤️",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:38:24.473008",
+        "member_count": 2002
+      },
+      {
+        "id": -1001796076404,
+        "title": "הפרעה מינית",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:38:24.884322",
+        "member_count": 105
+      },
+      {
+        "id": -1002024537775,
+        "title": "Gifts Keeper",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:38:26.387165",
+        "member_count": 71167
+      },
+      {
+        "id": -1001189219990,
+        "title": "💦 SHORT MAN VIDEOS 🔥",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:38:51.404696",
+        "member_count": 77299
+      },
+      {
+        "id": -1002544959919,
+        "title": "חרדים / חרדיות",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:38:52.060470",
+        "member_count": 1369
+      },
+      {
+        "id": -1002396772338,
+        "title": "Xxx",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:38:53.228759",
+        "member_count": 7734
+      },
+      {
+        "id": -1001406113886,
+        "title": "חדשות מהשטח בטלגרם",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:38:55.288206",
+        "member_count": 643795
+      },
+      {
+        "id": -1001446484767,
+        "title": "חילופי זוגות Naturis Team נטוריסטים",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:38:55.776353",
+        "member_count": 685
+      },
+      {
+        "id": -1001765354213,
+        "title": "👿angel of death🔥",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:38:57.906742",
+        "member_count": 1189
+      },
+      {
+        "id": -1002120778216,
+        "title": "FootFetish",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:38:58.081184",
+        "member_count": 1602
+      },
+      {
+        "id": -1001801988049,
+        "title": "Sharing&having fun🏳️‍⚧️🔞🇮🇱🦋Original sex group",
+        "status": "completed",
+        "messages_found": 1,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [
+          {
+            "id": 125266,
+            "content": "שני שריריים חטובים חתיכים אחרי יציאה בדירה לבד בתא, מחפשים לעכשיו",
+            "date": "2025-09-06T02:30:14+00:00",
+            "media_type": null,
+            "media_url": null
+          }
+        ],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:39:23.390248",
+        "member_count": 1134
+      },
+      {
+        "id": -1001139387742,
+        "title": "Gays & Sisi's",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:39:23.410695",
+        "member_count": 1141
+      },
+      {
+        "id": -1001472080487,
+        "title": "Gay's Boy IL 🏳️‍🌈 גייז דיבורים סירטונים ומפגשים",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:39:26.350453",
+        "member_count": 919
+      },
+      {
+        "id": -1001343247145,
+        "title": "Gay’s Boy IL 🏳️‍🌈 טרמפיסטים גייז ודו מיניים בכל הארץ 🏳️‍🌈",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:39:26.812064",
+        "member_count": 1121
+      },
+      {
+        "id": -1001711634296,
+        "title": "РУССКИЕ ПАРНИ",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:39:30.180790",
+        "member_count": 97698
+      },
+      {
+        "id": -1001318162241,
+        "title": "🍌 Бля, я Кончил 👅🍑",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:39:31.350748",
+        "member_count": 103004
+      },
+      {
+        "id": -1002471565213,
+        "title": "מאהבות וספונסרים",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:39:32.547913",
+        "member_count": 734
+      },
+      {
+        "id": -1001276084925,
+        "title": "ברטר - החלפת עיסויים",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:39:55.029874",
+        "member_count": 449
+      },
+      {
+        "id": -1002368174978,
+        "title": "🏳️‍🌈 Gay room 🏳️‍🌈",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:39:55.427560",
+        "member_count": 954
+      },
+      {
+        "id": -1002401762904,
+        "title": "שולטים גייז שליטה פרופר",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:39:58.211785",
+        "member_count": 836
+      },
+      {
+        "id": -1001613161072,
+        "title": "דניאל עמרם ללא צנזורה",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:39:59.449188",
+        "member_count": 589778
+      },
+      {
+        "id": -1002370179741,
+        "title": "Secretime - סודות כמוסים",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:40:00.570808",
+        "member_count": 891
+      },
+      {
+        "id": -1001221122299,
+        "title": "דיווחים בזמן אמת",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:40:24.938207",
+        "member_count": 140208
+      },
+      {
+        "id": -1002374031632,
+        "title": "קוקהולד זוגות מצרפים ישראל",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:40:25.138686",
+        "member_count": 733
+      },
+      {
+        "id": -1002301157983,
+        "title": "מעסים ומעסות קבוצת העיסויים של ישראל",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:40:27.562469",
+        "member_count": 673
+      },
+      {
+        "id": -1001677988324,
+        "title": "HOT TEENS 🔥👬 | Channel",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:40:29.138252",
+        "member_count": 34000
+      },
+      {
+        "id": -1002386165110,
+        "title": "גייז שולטים ונשלטים יוצרי תוכן",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:40:30.125580",
+        "member_count": 582
+      },
+      {
+        "id": -1001220737535,
+        "title": "גייז טריניטי",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:40:32.029219",
+        "member_count": 982
+      },
+      {
+        "id": -1002092081716,
+        "title": "קוקהולדים זוגות מאומתים",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:40:32.645183",
+        "member_count": 1639
+      },
+      {
+        "id": -1001665207655,
+        "title": "Trinity - Mrs. D PLAYGROUND",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:40:57.156124",
+        "member_count": 1774
+      },
+      {
+        "id": -1002090566436,
+        "title": "אפטרים אחרי מסיבות | יוצרות תוכן | סקס והכרויות",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:40:57.238600",
+        "member_count": 1670
+      },
+      {
+        "id": -1002213830531,
+        "title": "The kinks🍹",
+        "status": "completed",
+        "messages_found": 13,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [
+          {
+            "id": 30384,
+            "content": "שני שריריים חטובים חתיכים אחרי יציאה בדירה לבד בתא, מחפשים לעכשיו",
+            "date": "2025-09-06T02:30:14+00:00",
+            "media_type": null,
+            "media_url": null
+          },
+          {
+            "id": 30279,
+            "content": "שני שריריים חתיכים דיסקרטיים אש בתל-אביב ממוקמים יש הכל מחפשים כיף לעכשיו",
+            "date": "2025-07-19T03:04:30+00:00",
+            "media_type": null,
+            "media_url": null
+          },
+          {
+            "id": 30277,
+            "content": "שני שריריים חתיכים בתל-אביב ממוקמים יש הכל מחפשים כיף עם זוגות בודדות שווים",
+            "date": "2025-07-19T00:55:25+00:00",
+            "media_type": null,
+            "media_url": null
+          },
+          {
+            "id": 30183,
+            "content": "שרירי מאמן כושר ועוד חבר מחפשים זוג או סינגליות סינגלים דסקדטים לעכשיו.. הכל..",
+            "date": "2025-06-27T03:20:40+00:00",
+            "media_type": null,
+            "media_url": null
+          },
+          {
+            "id": 30163,
+            "content": "שני חברים מאמני כושר שריריים חתיכים בדירה שווה במרכז ת״א מחפשים צופות/צופים בלייב! לא במצלמה. תגיעו לפה ותאוננו מלהסתכל על פורנו ועלינו",
+            "date": "2025-06-21T06:26:38+00:00",
+            "media_type": null,
+            "media_url": null
+          },
+          {
+            "id": 30119,
+            "content": "שני שריריים חטובים חתיכים אחרי יציאה בדירה לבד בתא, מחפשים לעכשיו",
+            "date": "2025-06-15T03:21:59+00:00",
+            "media_type": null,
+            "media_url": null
+          },
+          {
+            "id": 30116,
+            "content": "אנחנו שריריים חתיכים בתל אביב עכשיו",
+            "date": "2025-06-14T04:32:21+00:00",
+            "media_type": null,
+            "media_url": null
+          },
+          {
+            "id": 29737,
+            "content": "שרירי חתיך במלון בכנרת בעיסוי לעכשיו",
+            "date": "2025-04-04T20:58:08+00:00",
+            "media_type": null,
+            "media_url": null
+          },
+          {
+            "id": 29736,
+            "content": "שרירי חתיך במלון בכנרת בעיסוי לעכשיו",
+            "date": "2025-04-04T20:05:28+00:00",
+            "media_type": null,
+            "media_url": null
+          },
+          {
+            "id": 29697,
+            "content": "זוג יפים ושני סינגלים שריריים חתיכים מחפשים זוגות וסינגליות לדרינק והיי במרכז תל אביב.\nשלחו פרטי",
+            "date": "2025-03-29T13:51:32+00:00",
+            "media_type": null,
+            "media_url": null
+          },
+          {
+            "id": 29694,
+            "content": "שני חברים שריריים חתיכים, מאמני כושר שנראים מעולה באווירה טובה ומכבדת, נמצאים בתל אביב מחפשים זוגות וסינגלית שוות לכיף. מוזמנות.ים לפנות בפרטי.\nדסקרטים בוייב כיפי לעכשיו 🍓",
+            "date": "2025-03-29T02:18:29+00:00",
+            "media_type": null,
+            "media_url": null
+          },
+          {
+            "id": 29305,
+            "content": "שריריים חתיכים ודיסקרטיים בתל אביב מחפשים זוגות, סינגליות להרפתקאה שווה במיוחד. יש הכל.",
+            "date": "2025-01-24T22:37:06+00:00",
+            "media_type": null,
+            "media_url": null
+          },
+          {
+            "id": 29284,
+            "content": "שריריים חתיכים ודיסקרטיים בתל אביב מחפשים זוגות, סינגליות להרפתקאה שווה במיוחד. יש הכל.",
+            "date": "2025-01-23T23:41:44+00:00",
+            "media_type": null,
+            "media_url": null
+          }
+        ],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:40:59.822040",
+        "member_count": 156
+      },
+      {
+        "id": -1001297706770,
+        "title": "יוצרות תוכן מהממות מפרסמות",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:41:00.036781",
+        "member_count": 1206
+      },
+      {
+        "id": -1001224554356,
+        "title": "Ibiza Guest List & Tickets",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:41:02.472405",
+        "member_count": 2422
+      },
+      {
+        "id": -1002254728142,
+        "title": "Sexy tlv סקסי ישראל 🇮🇱",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:41:02.703386",
+        "member_count": 1263
+      },
+      {
+        "id": -1001628005418,
+        "title": "SEX-See 🔞",
+        "status": "completed",
+        "messages_found": 1,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [
+          {
+            "id": 370013,
+            "content": "שני שריריים חטובים חתיכים אחרי יציאה בדירה לבד בתא, מחפשים לעכשיו",
+            "date": "2025-09-06T02:30:14+00:00",
+            "media_type": null,
+            "media_url": null
+          }
+        ],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:41:27.004381",
+        "member_count": 1984
+      },
+      {
+        "id": -1002130658789,
+        "title": "שולטים ונשלטות הקבוצה הרשמית",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:41:28.283735",
+        "member_count": 932
+      },
+      {
+        "id": -1001390339279,
+        "title": "👅 XXXL Болт 🍆",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:41:29.192346",
+        "member_count": 23632
+      },
+      {
+        "id": -1001402680842,
+        "title": "Wellcome to TiMc18+",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:41:30.062942",
+        "member_count": 14303
+      },
+      {
+        "id": -1002217324161,
+        "title": "מותגים חברים ומה שביניהם",
+        "status": "completed",
+        "messages_found": 1,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [
+          {
+            "id": 48721,
+            "content": "שני שריריים חטובים חתיכים אחרי יציאה בדירה לבד בתא, מחפשים לעכשיו",
+            "date": "2025-09-06T02:30:14+00:00",
+            "media_type": null,
+            "media_url": null
+          }
+        ],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:41:30.558865",
+        "member_count": 403
+      },
+      {
+        "id": -1002324990562,
+        "title": "נשלטים משרתים עוזרים (לוח שקט)",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:41:30.938688",
+        "member_count": 258
+      },
+      {
+        "id": -1002250952206,
+        "title": "היכרויות מרכז",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:41:32.892052",
+        "member_count": 919
+      },
+      {
+        "id": -1001179753797,
+        "title": "מסיבות סודיות בישראל",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:41:33.533344",
+        "member_count": 9145
+      },
+      {
+        "id": -1001989911962,
+        "title": "פורום שליטה",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:41:58.696448",
+        "member_count": 1818
+      },
+      {
+        "id": -1001854640573,
+        "title": "IsraeIi guys ||| גברים ישראלים",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:41:59.809331",
+        "member_count": 2003
+      },
+      {
+        "id": -1001310858390,
+        "title": "❤️חילופי זוגות הכרויות ומפגשים❤️",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:42:01.424275",
+        "member_count": 5128
+      },
+      {
+        "id": -1002898656788,
+        "title": "Open your mouth 💋 XXL Cocks",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:42:02.640090",
+        "member_count": 15094
+      },
+      {
+        "id": -1001809901028,
+        "title": "😋🔞🔐 שמים ז* ן 🔕 (מותר לפרסם זין)",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:42:03.058397",
+        "member_count": 705
+      },
+      {
+        "id": -1003091341972,
+        "title": "מחירון -SuperWeed",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:42:03.778727",
+        "member_count": 67
+      },
+      {
+        "id": -1001610769071,
+        "title": "Aizik-love (מסיבות ליברליות בישראל)",
+        "status": "completed",
+        "messages_found": 6,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [
+          {
+            "id": 113227,
+            "content": "שני שריריים חטובים חתיכים אחרי יציאה בדירה לבד בתא, מחפשים לעכשיו",
+            "date": "2025-09-06T02:30:14+00:00",
+            "media_type": null,
+            "media_url": null
+          },
+          {
+            "id": 112857,
+            "content": "2 בחורות שוות עם 3 גברים שריריים חתיכים בפנטהאוז מדהים במרכז תא עם ג׳קוזי ופינוקים. בראש לצרף עוד סינגלית שווה או זוגות שנראים טוב להצטרף עכשיו. שלחו תמונות בפניה",
+            "date": "2025-07-25T22:33:41+00:00",
+            "media_type": null,
+            "media_url": null
+          },
+          {
+            "id": 112779,
+            "content": "שני שריריים חתיכים דיסקרטיים אש בתל-אביב ממוקמים יש הכל מחפשים כיף לעכשיו",
+            "date": "2025-07-19T03:04:30+00:00",
+            "media_type": null,
+            "media_url": null
+          },
+          {
+            "id": 112778,
+            "content": "שני שריריים חתיכים בתל-אביב ממוקמים יש הכל מחפשים כיף עם זוגות בודדות שווים",
+            "date": "2025-07-19T00:55:25+00:00",
+            "media_type": null,
+            "media_url": null
+          },
+          {
+            "id": 112099,
+            "content": "שרירי מאמן כושר ועוד חבר מחפשים זוג או סינגליות סינגלים דסקדטים לעכשיו.. הכל..",
+            "date": "2025-06-27T03:20:39+00:00",
+            "media_type": null,
+            "media_url": null
+          },
+          {
+            "id": 112029,
+            "content": "שני חברים מאמני כושר שריריים חתיכים בדירה שווה במרכז ת״א מחפשים צופות/צופים בלייב! לא במצלמה. תגיעו לפה ותאוננו מלהסתכל על פורנו ועלינו",
+            "date": "2025-06-21T06:26:38+00:00",
+            "media_type": null,
+            "media_url": null
+          }
+        ],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:42:05.793729",
+        "member_count": 824
+      },
+      {
+        "id": -1002875969121,
+        "title": "🔞 EROTICA- GAYS 🔞",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:42:06.638959",
+        "member_count": 368
+      },
+      {
+        "id": -1001701535026,
+        "title": "♀️ ♂️ ⚧ ️ 🍊 📛 הכל הולך🍹 🎯 - חרמני חרמניות ישראל",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:42:29.926676",
+        "member_count": 2636
+      },
+      {
+        "id": -1001405007437,
+        "title": "נשואים בארון - גייז דו וכו'",
+        "status": "completed",
+        "messages_found": 34,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [
+          {
+            "id": 26282,
+            "content": "שני שריריים חטובים חתיכים אחרי יציאה בדירה לבד בתא, מחפשים לעכשיו",
+            "date": "2025-09-06T02:30:14+00:00",
+            "media_type": null,
+            "media_url": null
+          },
+          {
+            "id": 26272,
+            "content": "שני שריריים חתיכים דיסקרטיים אש בתל-אביב ממוקמים יש הכל מחפשים כיף לעכשיו",
+            "date": "2025-07-19T03:04:30+00:00",
+            "media_type": null,
+            "media_url": null
+          },
+          {
+            "id": 26264,
+            "content": "שרירי מאמן כושר ועוד חבר מחפשים זוג או סינגליות סינגלים דסקדטים לעכשיו.. הכל..",
+            "date": "2025-06-27T03:20:39+00:00",
+            "media_type": null,
+            "media_url": null
+          },
+          {
+            "id": 26263,
+            "content": "שני חברים מאמני כושר שריריים חתיכים בדירה שווה במרכז ת״א מחפשים צופות/צופים בלייב! לא במצלמה. תגיעו לפה ותאוננו מלהסתכל על פורנו ועלינו",
+            "date": "2025-06-21T06:26:38+00:00",
+            "media_type": null,
+            "media_url": null
+          },
+          {
+            "id": 26257,
+            "content": "שני שריריים חטובים חתיכים אחרי יציאה בדירה לבד בתא, מחפשים לעכשיו",
+            "date": "2025-06-15T03:22:00+00:00",
+            "media_type": null,
+            "media_url": null
+          },
+          {
+            "id": 26254,
+            "content": "אנחנו שריריים חתיכים בתל אביב עכשיו",
+            "date": "2025-06-14T04:32:21+00:00",
+            "media_type": null,
+            "media_url": null
+          },
+          {
+            "id": 26232,
+            "content": "שני חברים שריריים חתיכים, מאמני כושר שנראים מעולה באווירה טובה ומכבדת, נמצאים בתל אביב מחפשים זוגות וסינגלית שוות לכיף. מוזמנות.ים לפנות בפרטי.\nדסקרטים בוייב כיפי לעכשיו 🍓",
+            "date": "2025-03-29T02:18:29+00:00",
+            "media_type": null,
+            "media_url": null
+          },
+          {
+            "id": 26190,
+            "content": "שני שריריים חתיכים מאד ודיסקרטיים, בדירה שווה בתל אביב, יש הכל .. מחפשים 2 סינגליות לערב כיף נטול מחויבויות.\nשלחו תמונה בפרטי",
+            "date": "2024-12-27T23:01:02+00:00",
+            "media_type": null,
+            "media_url": null
+          },
+          {
+            "id": 26153,
+            "content": "2 גברים שריריים חתיכים דסקרטיים בדירה שווה בתל אביב מחפשים 2 סינגליות או זוג קקהולד לעכשיו.\nשלחו תמונות בפניה 🤗",
+            "date": "2024-11-08T02:32:26+00:00",
+            "media_type": null,
+            "media_url": null
+          },
+          {
+            "id": 26152,
+            "content": "2 גברים שריריים חתיכים דסקרטיים בדירה שווה בתל אביב מחפשים 2 סינגליות או זוג קקהולד לעכשיו.\nשלחו תמונות בפניה 🤗",
+            "date": "2024-11-08T00:05:06+00:00",
+            "media_type": null,
+            "media_url": null
+          },
+          {
+            "id": 26085,
+            "content": "2 זוגות שווים במרכז תל אביב מחפשים עוד זוג שווה שיצטרף למשהו מיוחד במינו. שלחו תמונות בפניה. לעכשיו",
+            "date": "2024-07-19T20:29:15+00:00",
+            "media_type": null,
+            "media_url": null
+          },
+          {
+            "id": 26074,
+            "content": "זוג גבר ואישה בוייב כיפי ומכבד, נראים טוב מאד (גבר שרירי האישה בלונדינית חטובה) בראש לכיף \nעכשיו.\n\nמחפשים סינגלית שווה וזוגות למפגש עכשיו אצלנו בדירה כיפית במרכז תל אביב.\n\nאם יש 👃🏼 אז מעולה 😇\nשלחו תמונות בפנייה בבקשה 🙏🏽 \nתודה",
+            "date": "2024-07-06T23:05:50+00:00",
+            "media_type": null,
+            "media_url": null
+          },
+          {
+            "id": 26073,
+            "content": "💪🏽👩🏼 זוג בתל אביב לעכשיו בלבד, גבר שרירי נראה טוב מאד ואישה שווה בלונדינית מצרפים סינגליות בלבד בדירה שווה במרכז תל אביב.\nלעכשיו\n**שלחו תמונות בפניה **בבקשה",
+            "date": "2024-07-04T18:54:46+00:00",
+            "media_type": null,
+            "media_url": null
+          },
+          {
+            "id": 26072,
+            "content": "💪🏽👩🏼 זוג בתל אביב לעכשיו בלבד, גבר שרירי נראה טוב מאד ואישה שווה בלונדינית מארחים זוגות שווים, או סינגליות לפאן בדירה שווה במרכז תל אביב.\nלעכשיו\n**שלחו תמונות בפניה **בבקשה",
+            "date": "2024-07-04T17:09:01+00:00",
+            "media_type": null,
+            "media_url": null
+          },
+          {
+            "id": 26071,
+            "content": "💪🏽👩🏼 זוג בתל אביב לעכשיו בלבד, גבר שרירי נראה טוב מאד ואישה שווה בלונדינית מארחים זוגות שווים, או סינגליות לפאן בדירה שווה במרכז תל אביב.\nלעכשיו\n**שלחו תמונות בפניה **בבקשה",
+            "date": "2024-07-04T15:53:36+00:00",
+            "media_type": null,
+            "media_url": null
+          },
+          {
+            "id": 26043,
+            "content": "🤙🏽ישראלי שרירי חתיך 🤙🏽\nעם ברזילאי שרירי מצויידים 🍆🍆מחפשים דו מצוייד בראש טוב שיצטרף לעכשיו בדירה שווה במרכז תא. שלחו תמונות בפנייה.\nלעכשיו בלבד\nבבקשה רק מה שכתבתי לפנות 🫶🫶",
+            "date": "2024-04-02T03:10:40+00:00",
+            "media_type": null,
+            "media_url": null
+          },
+          {
+            "id": 26007,
+            "content": "2 שריריים שווים חתיכים מחפשים זוג אישה או טרנסית שווה לעכשיו בתל אביב. ממוקמים בדירה שווה במרכז העיר",
+            "date": "2024-02-09T05:17:58+00:00",
+            "media_type": null,
+            "media_url": null
+          },
+          {
+            "id": 26006,
+            "content": "שני חתיכים בדירה שווה במרכז תא מחפשים עכשיו זוגות / נשים / טרנסיות בלבד. למפגש עכשיו רציניים בלבד",
+            "date": "2024-02-09T04:59:00+00:00",
+            "media_type": "photo",
+            "media_url": null
+          },
+          {
+            "id": 26005,
+            "content": "2 שריריים שווים חתיכים מחפשים זוג אישה או טרנסית שווה לעכשיו בתל אביב. ממוקמים בדירה שווה במרכז העיר",
+            "date": "2024-02-09T04:39:23+00:00",
+            "media_type": null,
+            "media_url": null
+          },
+          {
+            "id": 26004,
+            "content": "2 שריריים חתיכים מחפשים זוג אישה או טרנסית שווה לעכשיו בתל אביב",
+            "date": "2024-02-09T04:18:00+00:00",
+            "media_type": "photo",
+            "media_url": null
+          },
+          {
+            "id": 26003,
+            "content": "2 שריריים שווים חתיכים מחפשים זוג אישה או טרנסית שווה לעכשיו בתל אביב. ממוקמים בדירה שווה במרכז העיר",
+            "date": "2024-02-09T03:51:31+00:00",
+            "media_type": null,
+            "media_url": null
+          },
+          {
+            "id": 26002,
+            "content": "2 שריריים חתיכים מחפשים זוג אישה או טרנסית שווה לעכשיו בתל אביב",
+            "date": "2024-02-09T03:38:16+00:00",
+            "media_type": "photo",
+            "media_url": null
+          },
+          {
+            "id": 25981,
+            "content": "חתיכים אש בדירה בתל אביב מחפשים דו דיסקרטי חטוב לעכשיו",
+            "date": "2024-01-26T04:01:25+00:00",
+            "media_type": null,
+            "media_url": null
+          },
+          {
+            "id": 25946,
+            "content": "🍑💪 חטוב ספורטיבי חתיך אש \n\n 🏠 אנונימי, ממוקם לעכשיו\n\n 🏙️  דיסקרטי, תל אביב \n\n💬 שלחו פרטי \n\n🥸 רק דסקרטים",
+            "date": "2024-01-02T17:11:40+00:00",
+            "media_type": null,
+            "media_url": null
+          },
+          {
+            "id": 25937,
+            "content": "חתיך אנונימי שווה מתל אביב מחפש נשוי דסקרטי נייד. פרטים בפרטי",
+            "date": "2023-12-27T12:45:34+00:00",
+            "media_type": null,
+            "media_url": null
+          },
+          {
+            "id": 25932,
+            "content": "חתיך מחפש נשוי דסקרטי בתל אביב",
+            "date": "2023-12-26T16:36:32+00:00",
+            "media_type": null,
+            "media_url": null
+          },
+          {
+            "id": 25871,
+            "content": "זוג גבר ואישה שווים מאדד מחפשים גברים שריריים מצויידים להצטרף לעכשיו בתל אביב",
+            "date": "2023-12-02T18:18:19+00:00",
+            "media_type": null,
+            "media_url": null
+          },
+          {
+            "id": 25842,
+            "content": "🍑💪 חטוב ספורטיבי חתיך אש \n\n 🏠 אנונימי, ממוקם לעכשיו\n\n 🏙️  דיסקרטי, תל אביב \n\n💬 שלחו פרטי \n\n🥸 רק דסקרטים",
+            "date": "2023-11-20T18:02:37+00:00",
+            "media_type": null,
+            "media_url": null
+          },
+          {
+            "id": 25814,
+            "content": "🍑💪 חטוב ספורטיבי חתיך אש \n\n 🏠 אנונימי, ממוקם לעכשיו\n\n 🏙️  דיסקרטי, תל אביב \n\n💬 שלחו פרטי \n\n🥸 רק דסקרטים",
+            "date": "2023-11-06T12:45:20+00:00",
+            "media_type": null,
+            "media_url": null
+          },
+          {
+            "id": 25739,
+            "content": "שרירי חתיך ממוקם בתל אביב מחפש מפגש דסקרטי לעכשיו",
+            "date": "2023-10-04T23:11:06+00:00",
+            "media_type": null,
+            "media_url": null
+          },
+          {
+            "id": 25660,
+            "content": "חתיכים/שוות ערב עכשיו בדירה שווה בתל אביב. זוגות ונשים שלחו פרטי.\nבגבוה",
+            "date": "2023-08-20T19:17:56+00:00",
+            "media_type": null,
+            "media_url": null
+          },
+          {
+            "id": 25592,
+            "content": "מאמן כושר צעיר מחפש עיסוי! \nמי מעסה מקצועי רקמות עמוק? \nאני בדירה בתל אביב.\nרק רציניים לא לסוטים בבקשה",
+            "date": "2023-07-26T13:18:48+00:00",
+            "media_type": "photo",
+            "media_url": null
+          },
+          {
+            "id": 25557,
+            "content": "חתיך מחפש עיסוי מפנק 🥷🏽 אני נראה טוב, שרירי דסקרטי בן 30 מתל אביב,  צריך פירוק לשרירים שלי. אני לבד בדירה שווה במרכז העיר. מי מעסה ובאזור לעכשיו?",
+            "date": "2023-07-13T23:44:06+00:00",
+            "media_type": "photo",
+            "media_url": null
+          },
+          {
+            "id": 25436,
+            "content": "🥷🏽 נראה טוב, שרירי דסקרטי בן 30 מתל אביב, לבד בדירה שווה במרכז העיר. מחפש הרפתקאה. 👀👀 אני שולט שאוהב גם עיסוי (מקצועי) ופינוקים\n 🫧  פנו בפרטי עם תמונות",
+            "date": "2023-06-12T18:10:08+00:00",
+            "media_type": "photo",
+            "media_url": null
+          }
+        ],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:42:30.226819",
+        "member_count": 87
+      },
+      {
+        "id": -1001542658063,
+        "title": "קבוצות פרטיות",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:42:31.086391",
+        "member_count": 1970
+      },
+      {
+        "id": -1001774450599,
+        "title": "שלישיות ומעלה +++ פרסומים אחרים ייחסמו",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:42:32.234596",
+        "member_count": 576
+      },
+      {
+        "id": -1001257998920,
+        "title": "קופיקו - נהג ישראלי השמח",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:42:32.569007",
+        "member_count": 4255
+      },
+      {
+        "id": -1002876839121,
+        "title": "מעבר גק to jack🍄❄️",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:42:33.344961",
+        "member_count": 110
+      },
+      {
+        "id": -1001793622430,
+        "title": "חילופי זוגות - קישורים לקבוצות",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:42:34.176328",
+        "member_count": 5329
+      },
+      {
+        "id": -1001197673203,
+        "title": "FETISH CLUB",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:42:36.445865",
+        "member_count": 46771
+      },
+      {
+        "id": -1001302086064,
+        "title": "סטוצים סקס לחיילים בצהל",
+        "status": "completed",
+        "messages_found": 1,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [
+          {
+            "id": 4254,
+            "content": "אורגיה בתל אביב מחפשים זוגות ובודדות שיטרפו. צעירים שווים בלבד",
+            "date": "2021-09-25T14:57:10+00:00",
+            "media_type": null,
+            "media_url": null
+          }
+        ],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:42:36.761538",
+        "member_count": 39
+      },
+      {
+        "id": -1002619541414,
+        "title": "התפריט של דון🇮🇱",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:42:37.485319",
+        "member_count": 937
+      },
+      {
+        "id": -1002434641539,
+        "title": "התפריט של הצל💜",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:42:59.363406",
+        "member_count": 194
+      },
+      {
+        "id": -1001764142554,
+        "title": "‍⚜️ Mistress Meg ⚜️",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:43:00.745453",
+        "member_count": 2464
+      },
+      {
+        "id": -1002091903868,
+        "title": "הכרויות שליטה סאדו סטוצים",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:43:00.786316",
+        "member_count": 1392
+      },
+      {
+        "id": -1002762447788,
+        "title": "😍 Sale Top Shelf ‼️",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:43:01.492730",
+        "member_count": 194
+      },
+      {
+        "id": -1002557279382,
+        "title": "קבוצת הכרויות",
+        "status": "completed",
+        "messages_found": 1,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [
+          {
+            "id": 76941,
+            "content": "מאמן כושר חתיך מחפש אח שותף לישיבה יש דירה שווה במרכז תא",
+            "date": "2025-10-01T19:17:01+00:00",
+            "media_type": null,
+            "media_url": null
+          }
+        ],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:43:03.011472",
+        "member_count": 952
+      },
+      {
+        "id": -1001786472835,
+        "title": "🛍המוצרים הכי שווים באליאקספרס🛍",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:43:03.555681",
+        "member_count": 1807
+      },
+      {
+        "id": -1002090167786,
+        "title": "משתמשים לא רציניים ומסוכנים !",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:43:04.313797",
+        "member_count": 2694
+      },
+      {
+        "id": -1001688783512,
+        "title": "©|המצוידים של ישראל |",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:43:05.101820",
+        "member_count": 7432
+      },
+      {
+        "id": -1002860674305,
+        "title": "🤤🤤🤤כלים🤤🤤🤤",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:43:07.223501",
+        "member_count": 1268
+      },
+      {
+        "id": -1001420779020,
+        "title": "נתי מדיה 228",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:43:07.592842",
+        "member_count": 267
+      },
+      {
+        "id": -1002665243158,
+        "title": "🌎~💥מעבר ג׳מיקה💥~🇯🇲",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:43:08.342491",
+        "member_count": 620
+      },
+      {
+        "id": -1002128794891,
+        "title": "The King Rom",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:43:31.311021",
+        "member_count": 1087
+      },
+      {
+        "id": -1002370446945,
+        "title": "©|האקסלוסיבים פרימיום|",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:43:32.054101",
+        "member_count": 1984
+      },
+      {
+        "id": -1001692212602,
+        "title": "סקס ישראל 2024",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:43:32.113846",
+        "member_count": 1975
+      },
+      {
+        "id": -1002364864642,
+        "title": "פיור לאב קהילת המאומתות",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:43:32.828677",
+        "member_count": 971
+      },
+      {
+        "id": -1001534430638,
+        "title": "🌹יוצרות תוכן מאומתות🌹",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:43:33.770262",
+        "member_count": 2600
+      },
+      {
+        "id": -1002075305471,
+        "title": "👑ערוץ המאומתים של הגבירה מג👑",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:43:34.843413",
+        "member_count": 1932
+      },
+      {
+        "id": -1001720476207,
+        "title": "קוקסיות מחפשות מוצץ",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:43:35.122850",
+        "member_count": 1830
+      },
+      {
+        "id": -1002162454490,
+        "title": "✨️ שיווק ומכירת קהילות ✨️",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:43:35.644009",
+        "member_count": 713
+      },
+      {
+        "id": -1002394825520,
+        "title": "❤️קהילת קבוצות שו\"ת ❤️",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:43:36.529769",
+        "member_count": 756
+      },
+      {
+        "id": -1001516227057,
+        "title": "סטוצים כולם עם כולם",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:43:37.646291",
+        "member_count": 2236
+      },
+      {
+        "id": -1001253456782,
+        "title": "דיבורים הכרויות שיחות קבוצה קהילה",
+        "status": "completed",
+        "messages_found": 3,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [
+          {
+            "id": 83430,
+            "content": "שרירי חתיך במלון בכנרת בעיסוי לעכשיו",
+            "date": "2025-04-04T20:58:09+00:00",
+            "media_type": null,
+            "media_url": null
+          },
+          {
+            "id": 83297,
+            "content": "זוג יפים ושני סינגלים שריריים חתיכים מחפשים זוגות וסינגליות לדרינק והיי במרכז תל אביב.\nשלחו פרטי",
+            "date": "2025-03-29T13:51:32+00:00",
+            "media_type": null,
+            "media_url": null
+          },
+          {
+            "id": 83290,
+            "content": "שני חברים שריריים חתיכים, מאמני כושר שנראים מעולה באווירה טובה ומכבדת, נמצאים בתל אביב מחפשים זוגות וסינגלית שוות לכיף. מוזמנות.ים לפנות בפרטי.\nדסקרטים בוייב כיפי לעכשיו 🍓",
+            "date": "2025-03-29T02:18:29+00:00",
+            "media_type": null,
+            "media_url": null
+          }
+        ],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:43:38.920425",
+        "member_count": 1168
+      },
+      {
+        "id": -1002018313241,
+        "title": "𝔾👣𝔸𝕃𝔹ℕ𝔹",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:43:39.679281",
+        "member_count": 1102
+      },
+      {
+        "id": -1001193154875,
+        "title": "קרוסיות וקוקסינליות מהממות",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:43:40.215743",
+        "member_count": 2025
+      },
+      {
+        "id": -1001665469017,
+        "title": "©|מאוננים ביחד | 💦",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:43:40.618157",
+        "member_count": 6478
+      },
+      {
+        "id": -1001703902817,
+        "title": "Findom 🇮🇱 פינדום",
+        "status": "completed",
+        "messages_found": 9,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [
+          {
+            "id": 6015,
+            "content": "זוג בתל אביב לעכשיו בלבד, גבר שרירי נראה טוב מאד ואישה שווה בלונדינית מארחים זוגות שווים, בודדות או דו חטובים/שריריים (בלבד) לפאן בדירה שווה במרכז תל אביב.\nלעכשיו\n**שלחו תמונות בפניה **בבקשה",
+            "date": "2024-06-01T07:20:20+00:00",
+            "media_type": null,
+            "media_url": null
+          },
+          {
+            "id": 5683,
+            "content": "דו שרירי חתיך ממוקם במרכז תא מחפש דסקרטיים ניידים לעכשיו או סטרייטים לחויה אנונימית חד פעמית",
+            "date": "2024-05-10T01:11:39+00:00",
+            "media_type": null,
+            "media_url": null
+          },
+          {
+            "id": 5601,
+            "content": "זוג בתל אביב לעכשיו בלבד, גבר שרירי נראה טוב מאד ואישה שווה בלונדינית מארחים זוגות שווים, בודדות או דו חטובים/שריריים (בלבד) לפאן בדירה שווה במרכז תל אביב.\nלעכשיו\n**שלחו תמונות בפניה **בבקשה",
+            "date": "2024-05-04T02:52:03+00:00",
+            "media_type": null,
+            "media_url": null
+          },
+          {
+            "id": 5600,
+            "content": "זוג בתל אביב לעכשיו בלבד, גבר שרירי נראה טוב מאד ואישה שווה בלונדינית מארחים זוגות שווים, בודדות או דו חטובים/שריריים (בלבד) לפאן בדירה שווה במרכז תל אביב.\nלעכשיו\n**שלחו תמונות בפניה **בבקשה",
+            "date": "2024-05-04T00:39:31+00:00",
+            "media_type": null,
+            "media_url": null
+          },
+          {
+            "id": 5495,
+            "content": "זוג שווים. גברי שחום שרירי וכוסית על בלונדינית מארחים בדירה במרכז תא לעכשיו מחפשים זוגות צעירים שווים בלבד למפגש עכשיו.\nשלחו תמונות בפנייה בבקשה",
+            "date": "2024-04-27T04:43:57+00:00",
+            "media_type": null,
+            "media_url": null
+          },
+          {
+            "id": 5285,
+            "content": "זוג בתל אביב לעכשיו בלבד, גבר שרירי שחום נראה טוב מאד ואישה שווה ממש בלונדינית באפטר אנשים יפים בדירה שווה במרכז תל-אביב, מחפשים זוגות שווים, או בנות מלידה לפאן כיפי דיסקרטי ומכבד.\nלעכשיו\n**שלחו תמונות בפניה **בבקשה",
+            "date": "2024-04-20T16:51:47+00:00",
+            "media_type": null,
+            "media_url": null
+          },
+          {
+            "id": 5266,
+            "content": "זוג בתל אביב לעכשיו בלבד, גבר שרירי שחום נראה טוב מאד ואישה שווה ממש בלונדינית בדירה שווה במרכז תל-אביב, מחפשים זוגות שווים, או בנות מלידה לפאן כיפי דיסקרטי ומכבד.\nלעכשיו\n**שלחו תמונות בפניה **בבקשה",
+            "date": "2024-04-19T22:36:56+00:00",
+            "media_type": null,
+            "media_url": null
+          },
+          {
+            "id": 4935,
+            "content": "🤙🏽ישראלי שרירי חתיך 🤙🏽\nעם ברזילאי שרירי מצויידים 🍆🍆מחפשים דו מצוייד בראש טוב שיצטרף לעכשיו בדירה שווה במרכז תא. שלחו תמונות בפנייה.\nלעכשיו בלבד\nבבקשה רק מה שכתבתי לפנות 🫶🫶",
+            "date": "2024-04-02T03:10:40+00:00",
+            "media_type": null,
+            "media_url": null
+          },
+          {
+            "id": 4627,
+            "content": "3 בנות שוות 4 גברים חתיכים שריריים מחפשים זוגות או נשים שוות שיצטרפו לעכשיו לאפטר שווה במרכז תל אביב.\nשלחו תמונות בפנייה בבקשה",
+            "date": "2024-03-23T20:45:09+00:00",
+            "media_type": null,
+            "media_url": null
+          }
+        ],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:44:03.015056",
+        "member_count": 244
+      },
+      {
+        "id": -1001328372400,
+        "title": "סטרייטים משתרללים",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:44:03.040676",
+        "member_count": 2150
+      },
+      {
+        "id": -1001616859872,
+        "title": "🍓גיבוי הסיוופלה 🍓",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:44:03.771551",
+        "member_count": 5720
+      },
+      {
+        "id": -1001843366156,
+        "title": "המאוננים",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:44:04.497249",
+        "member_count": 2871
+      },
+      {
+        "id": -1002385876241,
+        "title": "ISRAELI GUYS 4RENT",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:44:05.268604",
+        "member_count": 330
+      },
+      {
+        "id": -1001394527357,
+        "title": "הנשים הכי יפות באינסטגרם !!!😜💋",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:44:05.721291",
+        "member_count": 2418
+      },
+      {
+        "id": -1001870168016,
+        "title": "nini_shani",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:44:06.094878",
+        "member_count": 2618
+      },
+      {
+        "id": -1001861107856,
+        "title": "𝕂𝕒𝕣𝕚𝕟𝕒 ᵗʰᵉ ᶜʰᵃⁿⁿᵉˡ",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:44:07.024937",
+        "member_count": 4652
+      },
+      {
+        "id": -1001527529402,
+        "title": "אישי שלי 😘",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:44:07.826875",
+        "member_count": 3193
+      },
+      {
+        "id": -1002063052780,
+        "title": "ציצילנד",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:44:08.608232",
+        "member_count": 4645
+      },
+      {
+        "id": -1001707670315,
+        "title": "קרוסיות וקוקס מחפשות ערס⁨",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:44:08.858961",
+        "member_count": 1990
+      },
+      {
+        "id": -1002473660793,
+        "title": "ערוץ העיסויים Andi669 💆‍♂️💆‍♀️💆‍♂️",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:44:09.337307",
+        "member_count": 317
+      }
+    ],
+    "messages_found": 0,
+    "progress_percent": 80
+  },
+  "hash": "d2460fb371f5ccfd3835af0c94c82d4e"
+}

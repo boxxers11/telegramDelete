@@ -1,0 +1,69 @@
+#!/bin/bash
+
+# --- הגדרת נתיבים ---
+DESKTOP_DIR="$HOME/Desktop"
+PROJECT_HISTORY_DIR=""
+
+# --- זיהוי מערכת ההפעלה וקביעת נתיב האחסון של Cursor ---
+OS_TYPE=$(uname)
+if [ "$OS_TYPE" == "Darwin" ]; then
+    # macOS
+    CURSOR_STORAGE_DIR="$HOME/Library/Application Support/Cursor/User/workspaceStorage"
+elif [ "$OS_TYPE" == "Linux" ]; then
+    # Linux
+    CURSOR_STORAGE_DIR="$HOME/.config/Cursor/User/workspaceStorage"
+else
+    echo "מערכת הפעלה לא נתמכת."
+    exit 1
+fi
+
+# --- בדיקה אם תיקיית האחסון קיימת ---
+if [ ! -d "$CURSOR_STORAGE_DIR" ]; then
+    echo "לא נמצאה תיקיית האחסון של Cursor בנתיב: $CURSOR_STORAGE_DIR"
+    exit 1
+fi
+
+# --- קבלת נתיב הפרויקט מהמשתמש ---
+echo "אנא גרור ושחרר את תיקיית הפרויקט שלך (telegramDelete) לכאן ולחץ Enter:"
+read -p "נתיב הפרויקט: " project_path
+
+# --- הסרת מרכאות ורווחים מיותרים ---
+project_path="${project_path//\'/}"
+project_path="${project_path//\"/}"
+project_path=$(echo "$project_path" | sed 's/ *$//g')
+
+if [ -z "$project_path" ]; then
+    echo "לא הוזן נתיב. יוצא מהסקריפט."
+    exit 1
+fi
+
+echo -e "\n🔍 מחפש את היסטוריית הצ'אט עבור: $project_path..."
+
+# --- מעבר על כל תיקיות ההיסטוריה ---
+for dir in "$CURSOR_STORAGE_DIR"/*; do
+    if [ -d "$dir" ]; then
+        json_file="$dir/workspace.json"
+        if [ -f "$json_file" ]; then
+            # שורה זו בודקת אם קיים המפתח folder בקובץ ה JSON
+            stored_uri=$(grep '"folder":' "$json_file" | sed -e 's/.*"folder":"file:\/\///' -e 's/".*//')
+            decoded_uri=$(printf '%b' "${stored_uri//%/\\x}")
+            if [ "$decoded_uri" == "$project_path" ]; then
+                PROJECT_HISTORY_DIR="$dir"
+                break
+            fi
+        fi
+    fi
+done
+
+# --- העתקת התיקייה לשולחן העבודה ---
+if [ -n "$PROJECT_HISTORY_DIR" ]; then
+    PROJECT_NAME=$(basename "$project_path")
+    DEST_DIR="$DESKTOP_DIR/Cursor_Chat_History_${PROJECT_NAME}"
+    echo "✅ נמצאה התיקייה המתאימה\!"
+    echo "העתקת התיקייה אל: $DEST_DIR"
+    cp -R "$PROJECT_HISTORY_DIR" "$DEST_DIR"
+    echo "✨ ההעתקה הושלמה בהצלחה\!"
+else
+    echo "❌ לא נמצאה היסטוריית צ'אט תואמת לפרויקט שהוזן."
+    echo "ודא שגררת את התיקייה הנכונה."
+fi

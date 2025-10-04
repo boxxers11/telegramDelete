@@ -1,0 +1,94 @@
+{
+  "account_id": "1",
+  "data_type": "scan_data",
+  "timestamp": "2025-10-02T08:34:16.806448",
+  "data": {
+    "current_chat": "הכרויות שליטה סאדו סטוצים",
+    "current_chat_id": -1001748346980,
+    "chat_id": -1002091903868,
+    "status": "completed",
+    "total_chats": 173,
+    "current_index": 5,
+    "completed": 6,
+    "skipped": 0,
+    "errors": 0,
+    "total_messages": 0,
+    "scanned_chats": [
+      {
+        "id": -1001774450599,
+        "title": "שלישיות ומעלה +++ פרסומים אחרים ייחסמו",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:33:55.006966",
+        "member_count": 576
+      },
+      {
+        "id": -1002127424462,
+        "title": "הכרויות ישראליות סטוצים חדשות",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:34:12.292698",
+        "member_count": 17542
+      },
+      {
+        "id": -1001655090842,
+        "title": "😈בזאר ההכרויות👿",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:34:13.171155",
+        "member_count": 2222
+      },
+      {
+        "id": -1001197673203,
+        "title": "FETISH CLUB",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:34:14.251997",
+        "member_count": 46771
+      },
+      {
+        "id": -1001258862444,
+        "title": "Girl Boy il🇮🇱 סטרייטים ישראלים בלבד🇮🇱",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:34:16.234222",
+        "member_count": 1968
+      },
+      {
+        "id": -1002091903868,
+        "title": "הכרויות שליטה סאדו סטוצים",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:34:16.797962",
+        "member_count": 1392
+      }
+    ],
+    "messages_found": 0,
+    "progress_percent": 1
+  },
+  "hash": "e2f4273b55d546791f577fa175385c2e"
+}

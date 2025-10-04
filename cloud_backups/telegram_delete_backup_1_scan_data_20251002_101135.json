@@ -1,0 +1,94 @@
+{
+  "account_id": "1",
+  "data_type": "scan_data",
+  "timestamp": "2025-10-02T10:11:35.204732",
+  "data": {
+    "current_chat": "Pretty girls💋 -חילופי זוגות,אורגיות,קוקהולד וסקס",
+    "current_chat_id": -1001714965735,
+    "chat_id": -1001714965735,
+    "status": "completed",
+    "total_chats": 173,
+    "current_index": 7,
+    "completed": 6,
+    "skipped": 0,
+    "errors": 0,
+    "total_messages": 0,
+    "scanned_chats": [
+      {
+        "id": -1002127424462,
+        "title": "הכרויות ישראליות סטוצים חדשות",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T10:11:20.249079",
+        "member_count": 17542
+      },
+      {
+        "id": -1001258862444,
+        "title": "Girl Boy il🇮🇱 סטרייטים ישראלים בלבד🇮🇱",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T10:11:23.405155",
+        "member_count": 1968
+      },
+      {
+        "id": -1001344573395,
+        "title": "סקס הכרויות הכול מהכול!",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T10:11:27.025538",
+        "member_count": 334
+      },
+      {
+        "id": -1001627260938,
+        "title": "הכרויות חילופי סטוצים טינדר",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T10:11:30.215849",
+        "member_count": 3635
+      },
+      {
+        "id": -1001139387742,
+        "title": "Gays & Sisi's",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T10:11:32.704711",
+        "member_count": 1142
+      },
+      {
+        "id": -1001714965735,
+        "title": "Pretty girls💋 -חילופי זוגות,אורגיות,קוקהולד וסקס",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T10:11:35.196815",
+        "member_count": 757
+      }
+    ],
+    "messages_found": 0,
+    "progress_percent": 2
+  },
+  "hash": "934c8c183872db74b6a75e285655fad1"
+}

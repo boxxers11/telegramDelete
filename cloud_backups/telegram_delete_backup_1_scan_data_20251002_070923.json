@@ -1,0 +1,21 @@
+{
+  "account_id": "1",
+  "data_type": "scan_data",
+  "timestamp": "2025-10-02T07:09:23.443940",
+  "data": {
+    "current_chat": "הכרויות ישראליות סטוצים חדשות",
+    "current_chat_id": -1002127424462,
+    "chat_id": 0,
+    "status": "scanning",
+    "total_chats": 173,
+    "current_index": 1,
+    "completed": 0,
+    "skipped": 0,
+    "errors": 0,
+    "total_messages": 0,
+    "scanned_chats": [],
+    "messages_found": 0,
+    "progress_percent": 0
+  },
+  "hash": "1a2da3648268344d208ef74360f4c0c4"
+}

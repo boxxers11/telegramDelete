@@ -1,0 +1,58 @@
+{
+  "account_id": "1",
+  "data_type": "scan_data",
+  "timestamp": "2025-10-02T13:37:47.056468",
+  "data": {
+    "current_chat": "קרוסיות",
+    "current_chat_id": -1001239682653,
+    "chat_id": -1001239682653,
+    "status": "completed",
+    "total_chats": 173,
+    "current_index": 4,
+    "completed": 3,
+    "skipped": 0,
+    "errors": 0,
+    "total_messages": 0,
+    "scanned_chats": [
+      {
+        "id": -1002127424462,
+        "title": "הכרויות ישראליות סטוצים חדשות",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T13:37:42.425349",
+        "member_count": 17541
+      },
+      {
+        "id": -1001832527222,
+        "title": "גייז ישראל gay סטוץ וחתונה",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T13:37:44.728348",
+        "member_count": 3012
+      },
+      {
+        "id": -1001239682653,
+        "title": "קרוסיות",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T13:37:47.049728",
+        "member_count": 7209
+      }
+    ],
+    "messages_found": 0,
+    "progress_percent": 1
+  },
+  "hash": "342c2d7c21c5072ea2238e72e951fd44"
+}

@@ -1,0 +1,30 @@
+{
+  "account_id": "1",
+  "data_type": "scan_data",
+  "timestamp": "2025-10-02T00:11:56.830245",
+  "data": {
+    "current_chat": "קבוצת הכרויות",
+    "current_chat_id": -1002127424462,
+    "chat_id": -1002557279382,
+    "status": "completed",
+    "total_chats": 174,
+    "current_index": 2,
+    "completed": 1,
+    "skipped": 0,
+    "errors": 0,
+    "total_messages": 1,
+    "scanned_chats": [
+      {
+        "id": -1002557279382,
+        "title": "קבוצת הכרויות",
+        "status": "completed",
+        "messages_found": 1,
+        "error": null,
+        "skipped_reason": null
+      }
+    ],
+    "messages_found": 1,
+    "progress_percent": 0
+  },
+  "hash": "2f56b8453d0134ec991d96949eccfee2"
+}

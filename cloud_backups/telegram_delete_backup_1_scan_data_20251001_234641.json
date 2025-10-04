@@ -1,0 +1,110 @@
+{
+  "account_id": "1",
+  "data_type": "scan_data",
+  "timestamp": "2025-10-01T23:46:41.176464",
+  "data": {
+    "current_chat": "יוצרות תוכן מהממות מפרסמות",
+    "current_chat_id": -1002657525227,
+    "chat_id": -1001297706770,
+    "status": "completed",
+    "total_chats": 174,
+    "current_index": 23,
+    "completed": 12,
+    "skipped": 0,
+    "errors": 0,
+    "total_messages": 0,
+    "scanned_chats": [
+      {
+        "id": -1002379626147,
+        "title": "טרנסיות ישראל 🏳️‍⚧️ Trans Israel",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002316307431,
+        "title": "|ⓀⓄⓀⓈⒾ🫦ⓁⒶⓃⒹ②|©",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001832527222,
+        "title": "גייז ישראל gay סטוץ וחתונה",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002657525227,
+        "title": "החרמניות של תל אביב",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001757858757,
+        "title": "דו ישראלים ואורגיות",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001684740037,
+        "title": "🔥נותנים בראש🔥",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002602980351,
+        "title": "דיבורים למבוגרים 18+",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001353207512,
+        "title": "❤️ המסיבות של עמית וגולן 2025 ❤️",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002144252980,
+        "title": "♣️ שדונים ושולטות ♥️",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001392772096,
+        "title": "קרוזינג ישראל - סקס במקומות ציבוריים",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001297706770,
+        "title": "יוצרות תוכן מהממות מפרסמות",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      }
+    ],
+    "messages_found": 0,
+    "progress_percent": 12
+  },
+  "hash": "e4155befcc169490ced901d7ec500a13"
+}

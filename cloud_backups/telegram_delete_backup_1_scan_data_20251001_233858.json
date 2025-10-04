@@ -1,0 +1,118 @@
+{
+  "account_id": "1",
+  "data_type": "scan_data",
+  "timestamp": "2025-10-01T23:38:58.942428",
+  "data": {
+    "current_chat": "דיבורים 18+ ונתמכות",
+    "current_chat_id": -1002401762904,
+    "chat_id": -1002529310667,
+    "status": "completed",
+    "total_chats": 174,
+    "current_index": 61,
+    "completed": 16,
+    "skipped": 0,
+    "errors": 0,
+    "total_messages": 1,
+    "scanned_chats": [
+      {
+        "id": -1002254728142,
+        "title": "Sexy tlv סקסי ישראל 🇮🇱",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001684740037,
+        "title": "🔥נותנים בראש🔥",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002316307431,
+        "title": "|ⓀⓄⓀⓈⒾ🫦ⓁⒶⓃⒹ②|©",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001258862444,
+        "title": "Girl Boy il🇮🇱 סטרייטים ישראלים בלבד🇮🇱",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002401762904,
+        "title": "שולטים גייז שליטה פרופר",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001753882117,
+        "title": "🫦🍓🍆💦 מתלבשות מוצצות תל-אביב",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002642584963,
+        "title": "רק זורמות לסקס",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002127424462,
+        "title": "הכרויות ישראליות סטוצים חדשות",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002368174978,
+        "title": "🏳️‍🌈 Gay room 🏳️‍🌈",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001711634296,
+        "title": "РУССКИЕ ПАРНИ",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002282499461,
+        "title": "ישבן כחול לבן || סטוצים",
+        "status": "completed",
+        "messages_found": 1,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002529310667,
+        "title": "דיבורים 18+ ונתמכות",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      }
+    ],
+    "messages_found": 0,
+    "progress_percent": 33
+  },
+  "hash": "7b50774b7fd5d74881e53780a26a4032"
+}

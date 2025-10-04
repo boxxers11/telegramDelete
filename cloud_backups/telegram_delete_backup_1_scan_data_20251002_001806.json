@@ -1,0 +1,158 @@
+{
+  "account_id": "1",
+  "data_type": "scan_data",
+  "timestamp": "2025-10-02T00:18:06.823111",
+  "data": {
+    "current_chat": "עיסוי מגבר לגבר 💆‍♂️ עיסויים לגברים - הקבוצה המקורית והמובילה בישראל",
+    "current_chat_id": -1002092081716,
+    "chat_id": -1002328262253,
+    "status": "completed",
+    "total_chats": 174,
+    "current_index": 27,
+    "completed": 25,
+    "skipped": 0,
+    "errors": 0,
+    "total_messages": 8,
+    "scanned_chats": [
+      {
+        "id": -1001707670315,
+        "title": "קרוסיות וקוקס מחפשות ערס⁨",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002544959919,
+        "title": "חרדים / חרדיות",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001516227057,
+        "title": "סטוצים כולם עם כולם",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001627260938,
+        "title": "הכרויות חילופי סטוצים טינדר",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001808712511,
+        "title": "סטוצים תל אביב 🌃🌆🏙",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002557279382,
+        "title": "קבוצת הכרויות",
+        "status": "completed",
+        "messages_found": 1,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001406113886,
+        "title": "חדשות מהשטח בטלגרם",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001711634296,
+        "title": "РУССКИЕ ПАРНИ",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002091903868,
+        "title": "הכרויות שליטה סאדו סטוצים",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002657525227,
+        "title": "החרמניות של תל אביב",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002030880695,
+        "title": "כיוונים בוטיק קרית גת ירוק",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001610769071,
+        "title": "Aizik-love (מסיבות ליברליות בישראל)",
+        "status": "completed",
+        "messages_found": 6,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002127424462,
+        "title": "הכרויות ישראליות סטוצים חדשות",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001446484767,
+        "title": "חילופי זוגות Naturis Team נטוריסטים",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001297706770,
+        "title": "יוצרות תוכן מהממות מפרסמות",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001613161072,
+        "title": "דניאל עמרם ללא צנזורה",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002328262253,
+        "title": "עיסוי מגבר לגבר 💆‍♂️ עיסויים לגברים - הקבוצה המקורית והמובילה בישראל",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      }
+    ],
+    "messages_found": 0,
+    "progress_percent": 13
+  },
+  "hash": "f75e7d96e3ded21b45da279bc882f6c4"
+}
