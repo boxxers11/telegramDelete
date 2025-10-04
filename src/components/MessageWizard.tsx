@@ -222,7 +222,7 @@ const MessageWizard: React.FC<MessageWizardProps> = ({ accountId, accountLabel, 
       </button>
       
       <div 
-        className="glass-advanced max-w-4xl w-full max-h-[80vh] overflow-y-auto rounded-2xl"
+        className="glass-advanced max-w-4xl w-full max-h-[60vh] overflow-y-auto rounded-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
