@@ -1,0 +1,54 @@
+{
+  "account_id": "2",
+  "data_type": "scan_data",
+  "timestamp": "2025-10-02T11:43:28.167107",
+  "data": {
+    "current_chat": "גבר פור אבר - ירושלים",
+    "current_chat_id": -1001444468254,
+    "chat_id": -1002268970047,
+    "status": "completed",
+    "total_chats": 130,
+    "current_index": 26,
+    "completed": 2,
+    "skipped": 0,
+    "errors": 0,
+    "total_messages": 1,
+    "scanned_chats": [
+      {
+        "id": -1001333488188,
+        "title": "צאט עירום",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T11:43:27.586915",
+        "member_count": 7533
+      },
+      {
+        "id": -1002268970047,
+        "title": "גבר פור אבר - ירושלים",
+        "status": "completed",
+        "messages_found": 1,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [
+          {
+            "id": 32831,
+            "content": "כוסית חמה מול פורנו מאוננות מחפשת גבר טעון דסקרטי שייכנס לדירה יאונן מעליי ישפריץ עליי וילך...",
+            "date": "2025-09-25T15:10:41+00:00",
+            "media_type": null,
+            "media_url": null
+          }
+        ],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T11:43:28.162616",
+        "member_count": 1410
+      }
+    ],
+    "messages_found": 1,
+    "progress_percent": 18
+  },
+  "hash": "9c78dfc84225ecc71a32e1bffb625e17"
+}

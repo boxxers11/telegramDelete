@@ -1,0 +1,54 @@
+{
+  "account_id": "2",
+  "data_type": "scan_data",
+  "timestamp": "2025-10-01T23:45:20.088205",
+  "data": {
+    "current_chat": "סטוצים ישראל🇮🇱",
+    "current_chat_id": -1002659641776,
+    "chat_id": -1002659641776,
+    "status": "completed",
+    "total_chats": 131,
+    "current_index": 5,
+    "completed": 4,
+    "skipped": 0,
+    "errors": 0,
+    "total_messages": 30,
+    "scanned_chats": [
+      {
+        "id": -1002282499461,
+        "title": "ישבן כחול לבן || סטוצים",
+        "status": "completed",
+        "messages_found": 10,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001239682653,
+        "title": "קרוסיות",
+        "status": "completed",
+        "messages_found": 11,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001439617993,
+        "title": "חילופי זוגות ואורגיות",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002659641776,
+        "title": "סטוצים ישראל🇮🇱",
+        "status": "completed",
+        "messages_found": 9,
+        "error": null,
+        "skipped_reason": null
+      }
+    ],
+    "messages_found": 9,
+    "progress_percent": 2
+  },
+  "hash": "64410eeec0b94212a91674b2926134b3"
+}

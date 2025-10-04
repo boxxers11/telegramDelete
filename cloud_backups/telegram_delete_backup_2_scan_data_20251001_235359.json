@@ -1,0 +1,46 @@
+{
+  "account_id": "2",
+  "data_type": "scan_data",
+  "timestamp": "2025-10-01T23:53:59.986783",
+  "data": {
+    "current_chat": "ישבן כחול לבן || סטוצים",
+    "current_chat_id": -1002887617085,
+    "chat_id": -1002282499461,
+    "status": "completed",
+    "total_chats": 131,
+    "current_index": 111,
+    "completed": 2,
+    "skipped": 0,
+    "errors": 1,
+    "total_messages": 10,
+    "scanned_chats": [
+      {
+        "id": -1002834787996,
+        "title": "קמגרה Kamagra ויאגרה",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002665240746,
+        "title": "ODAYA CABILI🍒",
+        "status": "error",
+        "messages_found": 0,
+        "error": "The channel specified is private and you lack permission to access it. Another reason may be that you were banned from it (caused by GetHistoryRequest)",
+        "skipped_reason": null
+      },
+      {
+        "id": -1002282499461,
+        "title": "ישבן כחול לבן || סטוצים",
+        "status": "completed",
+        "messages_found": 10,
+        "error": null,
+        "skipped_reason": null
+      }
+    ],
+    "messages_found": 10,
+    "progress_percent": 83
+  },
+  "hash": "829015877a45fafbcd5848fbcd227148"
+}

@@ -1,0 +1,38 @@
+{
+  "account_id": "1",
+  "data_type": "scan_data",
+  "timestamp": "2025-10-01T23:23:33.218843",
+  "data": {
+    "current_chat": "❤️מתענגים ומענגנים❤️",
+    "current_chat_id": -1002471565213,
+    "chat_id": -1002004400874,
+    "status": "completed",
+    "total_chats": 174,
+    "current_index": 47,
+    "completed": 2,
+    "skipped": 0,
+    "errors": 0,
+    "total_messages": 5,
+    "scanned_chats": [
+      {
+        "id": -1001254043455,
+        "title": "Gloryhole גלורי הול ת״א",
+        "status": "completed",
+        "messages_found": 5,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002004400874,
+        "title": "❤️מתענגים ומענגנים❤️",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      }
+    ],
+    "messages_found": 0,
+    "progress_percent": 25
+  },
+  "hash": "4f767e617390f3ec88ce6af6b4a52d0a"
+}

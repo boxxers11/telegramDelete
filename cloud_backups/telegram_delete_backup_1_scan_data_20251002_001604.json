@@ -1,0 +1,54 @@
+{
+  "account_id": "1",
+  "data_type": "scan_data",
+  "timestamp": "2025-10-02T00:16:04.318456",
+  "data": {
+    "current_chat": "סטוצים כולם עם כולם",
+    "current_chat_id": -1001801988049,
+    "chat_id": -1001516227057,
+    "status": "completed",
+    "total_chats": 174,
+    "current_index": 42,
+    "completed": 4,
+    "skipped": 0,
+    "errors": 0,
+    "total_messages": 0,
+    "scanned_chats": [
+      {
+        "id": -1001707670315,
+        "title": "קרוסיות וקוקס מחפשות ערס⁨",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001627260938,
+        "title": "הכרויות חילופי סטוצים טינדר",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002544959919,
+        "title": "חרדים / חרדיות",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001516227057,
+        "title": "סטוצים כולם עם כולם",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      }
+    ],
+    "messages_found": 0,
+    "progress_percent": 22
+  },
+  "hash": "ae7810a03faaf95aac67074af683e1e5"
+}

@@ -1,0 +1,34 @@
+{
+  "account_id": "1",
+  "data_type": "scan_data",
+  "timestamp": "2025-10-02T11:05:29.417887",
+  "data": {
+    "current_chat": "הכרויות ישראליות סטוצים חדשות",
+    "current_chat_id": -1002127424462,
+    "chat_id": -1002127424462,
+    "status": "completed",
+    "total_chats": 173,
+    "current_index": 2,
+    "completed": 1,
+    "skipped": 0,
+    "errors": 0,
+    "total_messages": 0,
+    "scanned_chats": [
+      {
+        "id": -1002127424462,
+        "title": "הכרויות ישראליות סטוצים חדשות",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T11:05:29.412297",
+        "member_count": 17541
+      }
+    ],
+    "messages_found": 0,
+    "progress_percent": 0
+  },
+  "hash": "c426e0cf9133dddcd0d10725645bc781"
+}

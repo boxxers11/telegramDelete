@@ -1,0 +1,94 @@
+{
+  "account_id": "2",
+  "data_type": "scan_data",
+  "timestamp": "2025-10-02T00:28:05.386967",
+  "data": {
+    "current_chat": "סטוץ וחתונה",
+    "current_chat_id": -1001444468254,
+    "chat_id": -1001444468254,
+    "status": "completed",
+    "total_chats": 131,
+    "current_index": 10,
+    "completed": 9,
+    "skipped": 0,
+    "errors": 0,
+    "total_messages": 24,
+    "scanned_chats": [
+      {
+        "id": -1002282499461,
+        "title": "ישבן כחול לבן || סטוצים",
+        "status": "completed",
+        "messages_found": 10,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001239682653,
+        "title": "קרוסיות",
+        "status": "completed",
+        "messages_found": 11,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002063974054,
+        "title": "הצינור - סקס ישראלי 🔞💢®️ ישראליות | חרדיות | דתיות | ערביות | זורמות | סטוצים | קבוצות סקס | קבוצת סקס |",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002124944331,
+        "title": "חילופי זוגות הכרויות | סווינגרס ⚜️🔞 ישראליות | חרדיות | דתיות | ערביות | זורמות | סטוצים | קבוצות סקס | קבוצת סקס |ישראלי",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002506520169,
+        "title": "מחפשי זיון",
+        "status": "completed",
+        "messages_found": 3,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001333488188,
+        "title": "צאט עירום",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001439617993,
+        "title": "חילופי זוגות ואורגיות",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001831915618,
+        "title": "סקס ישראלי - הקבוצה 🚩🔞",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001444468254,
+        "title": "סטוץ וחתונה",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      }
+    ],
+    "messages_found": 0,
+    "progress_percent": 6
+  },
+  "hash": "603f8d09ff8533ec37452383fd9ff170"
+}

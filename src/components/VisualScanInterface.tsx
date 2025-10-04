@@ -55,6 +55,7 @@ interface VisualScanInterfaceProps {
   onStartScan: () => void;
   onStopScan?: () => void;
   onFullScan?: () => void;
+  onRefresh?: () => void;
   isScanning: boolean;
   scanProgress?: {
     type?: string;
@@ -78,6 +79,7 @@ const VisualScanInterface: React.FC<VisualScanInterfaceProps> = ({
   onStartScan,
   onStopScan,
   onFullScan,
+  onRefresh,
   isScanning,
   scanProgress,
   lastScanResults
@@ -398,12 +400,75 @@ const VisualScanInterface: React.FC<VisualScanInterfaceProps> = ({
     }
   };
 
-  const handleDeleteAll = () => {
+  const handleDeleteAll = async () => {
     const totalMessages = chats.reduce((sum, chat) => sum + (chat.messages_found || 0), 0);
     
     if (confirm(`⚠️ אזהרה! פעולה זו תמחק את כל ${totalMessages} ההודעות שנסרקו מכל הקבוצות. האם אתה בטוח?`)) {
-      // TODO: Implement delete all logic
-      console.log('Deleting all scanned messages');
+      try {
+        const response = await fetch(`/api/accounts/${accountId}/delete-all-found-messages`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          alert(`✅ נמחקו ${result.total_deleted} הודעות מ-${result.deleted_chats.length} קבוצות`);
+          // רענון הנתונים
+          onRefresh?.();
+        } else {
+          alert(`❌ שגיאה במחיקה: ${result.error}`);
+        }
+      } catch (error) {
+        alert(`❌ שגיאה במחיקה: ${error}`);
+      }
+    }
+  };
+
+  const handleKeepMessage = async (chatId: number, messageId: number) => {
+    try {
+      const response = await fetch(`/api/accounts/${accountId}/keep-message`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          chat_id: chatId,
+          message_id: messageId,
+        }),
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        // הסרת ההודעה מהמצב המקומי
+        setChats(prev => prev.map(chat => {
+          if (chat.id === chatId) {
+            const updatedMessages = chat.messages?.filter(msg => msg.id !== messageId) || [];
+            return {
+              ...chat,
+              messages: updatedMessages,
+              messages_found: updatedMessages.length
+            };
+          }
+          return chat;
+        }));
+        
+        // הסרת ההודעה מהבחירה
+        setSelectedMessages(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(messageId);
+          return newSet;
+        });
+        
+        alert('✅ ההודעה סומנה כ"השאר" ולא תמחק');
+      } else {
+        alert(`❌ שגיאה: ${result.error}`);
+      }
+    } catch (error) {
+      alert(`❌ שגיאה: ${error}`);
     }
   };
 
@@ -734,6 +799,15 @@ const VisualScanInterface: React.FC<VisualScanInterfaceProps> = ({
                                   )}
                                 </div>
                               </div>
+                              
+                              <button
+                                onClick={() => handleKeepMessage(chat.id, message.id)}
+                                className="ml-2 px-2 py-1 text-xs bg-green-100 text-green-700 rounded hover:bg-green-200 transition-colors flex-shrink-0"
+                                title="השאר הודעה - לא תמחק"
+                              >
+                                <Eye className="w-3 h-3 mr-1" />
+                                השאר
+                              </button>
                             </div>
                           </div>
                         ))}

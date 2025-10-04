@@ -1,0 +1,126 @@
+{
+  "account_id": "2",
+  "data_type": "scan_data",
+  "timestamp": "2025-10-01T23:46:14.712261",
+  "data": {
+    "current_chat": "מדברים זיונים 🔞",
+    "current_chat_id": -1002274307761,
+    "chat_id": -1002274307761,
+    "status": "completed",
+    "total_chats": 131,
+    "current_index": 14,
+    "completed": 13,
+    "skipped": 0,
+    "errors": 0,
+    "total_messages": 126,
+    "scanned_chats": [
+      {
+        "id": -1002282499461,
+        "title": "ישבן כחול לבן || סטוצים",
+        "status": "completed",
+        "messages_found": 10,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001239682653,
+        "title": "קרוסיות",
+        "status": "completed",
+        "messages_found": 11,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001439617993,
+        "title": "חילופי זוגות ואורגיות",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002659641776,
+        "title": "סטוצים ישראל🇮🇱",
+        "status": "completed",
+        "messages_found": 9,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002769833051,
+        "title": "קהילת הלימונים 18+",
+        "status": "completed",
+        "messages_found": 20,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002253256227,
+        "title": "גייז ישראל🇮🇱",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002483719628,
+        "title": "סקס ישראל🔞",
+        "status": "completed",
+        "messages_found": 9,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002415330061,
+        "title": "פגישות ודיבורים - צפון",
+        "status": "completed",
+        "messages_found": 21,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001444468254,
+        "title": "סטוץ וחתונה",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002285067443,
+        "title": "באתי | ראיתי | זיינתי",
+        "status": "completed",
+        "messages_found": 9,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002268970047,
+        "title": "גבר פור אבר - ירושלים",
+        "status": "completed",
+        "messages_found": 1,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002837548146,
+        "title": "דיבורים 18+ ללא צנזורה!",
+        "status": "completed",
+        "messages_found": 21,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002274307761,
+        "title": "מדברים זיונים 🔞",
+        "status": "completed",
+        "messages_found": 15,
+        "error": null,
+        "skipped_reason": null
+      }
+    ],
+    "messages_found": 15,
+    "progress_percent": 9
+  },
+  "hash": "c31d132f73015012aa5ed0da999c65c6"
+}

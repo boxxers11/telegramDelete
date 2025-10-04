@@ -1,0 +1,46 @@
+{
+  "account_id": "1",
+  "data_type": "scan_data",
+  "timestamp": "2025-10-01T23:24:36.087105",
+  "data": {
+    "current_chat": "הכרויות ישראליות סטוצים חדשות",
+    "current_chat_id": -1001392772096,
+    "chat_id": -1002127424462,
+    "status": "completed",
+    "total_chats": 174,
+    "current_index": 5,
+    "completed": 6,
+    "skipped": 0,
+    "errors": 0,
+    "total_messages": 0,
+    "scanned_chats": [
+      {
+        "id": -1001505561877,
+        "title": "מחפשות:ים עבודה",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001258862444,
+        "title": "Girl Boy il🇮🇱 סטרייטים ישראלים בלבד🇮🇱",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002127424462,
+        "title": "הכרויות ישראליות סטוצים חדשות",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      }
+    ],
+    "messages_found": 0,
+    "progress_percent": 1
+  },
+  "hash": "28f2cf05c6f73acafc1a975d0f0b5da8"
+}

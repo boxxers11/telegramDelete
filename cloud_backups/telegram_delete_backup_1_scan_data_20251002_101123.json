@@ -1,0 +1,46 @@
+{
+  "account_id": "1",
+  "data_type": "scan_data",
+  "timestamp": "2025-10-02T10:11:23.414423",
+  "data": {
+    "current_chat": "Girl Boy il🇮🇱 סטרייטים ישראלים בלבד🇮🇱",
+    "current_chat_id": -1001258862444,
+    "chat_id": -1001258862444,
+    "status": "completed",
+    "total_chats": 173,
+    "current_index": 3,
+    "completed": 2,
+    "skipped": 0,
+    "errors": 0,
+    "total_messages": 0,
+    "scanned_chats": [
+      {
+        "id": -1002127424462,
+        "title": "הכרויות ישראליות סטוצים חדשות",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T10:11:20.249079",
+        "member_count": 17542
+      },
+      {
+        "id": -1001258862444,
+        "title": "Girl Boy il🇮🇱 סטרייטים ישראלים בלבד🇮🇱",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T10:11:23.405155",
+        "member_count": 1968
+      }
+    ],
+    "messages_found": 0,
+    "progress_percent": 0
+  },
+  "hash": "14d32fc5669eebda3c0e4aba4e208a2e"
+}

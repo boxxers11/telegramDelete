@@ -1,0 +1,74 @@
+{
+  "account_id": "2",
+  "data_type": "scan_data",
+  "timestamp": "2025-10-02T11:43:56.529456",
+  "data": {
+    "current_chat": "צאט עירום",
+    "current_chat_id": -1002458655360,
+    "chat_id": -1001333488188,
+    "status": "completed",
+    "total_chats": 130,
+    "current_index": 29,
+    "completed": 4,
+    "skipped": 0,
+    "errors": 0,
+    "total_messages": 2,
+    "scanned_chats": [
+      {
+        "id": -1002268970047,
+        "title": "גבר פור אבר - ירושלים",
+        "status": "completed",
+        "messages_found": 1,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [
+          {
+            "id": 32831,
+            "content": "כוסית חמה מול פורנו מאוננות מחפשת גבר טעון דסקרטי שייכנס לדירה יאונן מעליי ישפריץ עליי וילך...",
+            "date": "2025-09-25T15:10:41+00:00",
+            "media_type": null,
+            "media_url": null
+          }
+        ],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T11:43:28.162616",
+        "member_count": 1410
+      },
+      {
+        "id": -1002263815913,
+        "title": "גבר פור אבר - מרכז",
+        "status": "completed",
+        "messages_found": 1,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [
+          {
+            "id": 38285,
+            "content": "כוסית חמה מול פורנו מאוננות מחפשת גבר טעון דסקרטי שייכנס לדירה יאונן מעליי ישפריץ עליי וילך...",
+            "date": "2025-09-25T15:10:00+00:00",
+            "media_type": null,
+            "media_url": null
+          }
+        ],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T11:43:29.057649",
+        "member_count": 1487
+      },
+      {
+        "id": -1001333488188,
+        "title": "צאט עירום",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T11:43:56.524057",
+        "member_count": 7533
+      }
+    ],
+    "messages_found": 0,
+    "progress_percent": 20
+  },
+  "hash": "a14be001612b1c15231726cc5a4b8ca4"
+}

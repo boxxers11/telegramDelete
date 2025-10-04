@@ -1,0 +1,38 @@
+{
+  "account_id": "1",
+  "data_type": "scan_data",
+  "timestamp": "2025-10-01T23:27:40.864206",
+  "data": {
+    "current_chat": "חילופי זוגות ואורגיות",
+    "current_chat_id": -1001971027448,
+    "chat_id": -1001439617993,
+    "status": "completed",
+    "total_chats": 174,
+    "current_index": 53,
+    "completed": 2,
+    "skipped": 0,
+    "errors": 0,
+    "total_messages": 0,
+    "scanned_chats": [
+      {
+        "id": -1002396772338,
+        "title": "Xxx",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001439617993,
+        "title": "חילופי זוגות ואורגיות",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      }
+    ],
+    "messages_found": 0,
+    "progress_percent": 29
+  },
+  "hash": "e4992d91e9674199b184aa4bf9044523"
+}

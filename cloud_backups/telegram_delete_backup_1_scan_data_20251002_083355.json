@@ -1,0 +1,33 @@
+{
+  "account_id": "1",
+  "data_type": "scan_data",
+  "timestamp": "2025-10-02T08:33:55.014823",
+  "data": {
+    "current_chat": "שלישיות ומעלה +++ פרסומים אחרים ייחסמו",
+    "current_chat_id": 0,
+    "chat_id": -1001774450599,
+    "status": "completed",
+    "total_chats": 173,
+    "current_index": 1,
+    "completed": 1,
+    "skipped": 0,
+    "errors": 0,
+    "total_messages": 0,
+    "scanned_chats": [
+      {
+        "id": -1001774450599,
+        "title": "שלישיות ומעלה +++ פרסומים אחרים ייחסמו",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T08:33:55.006966",
+        "member_count": 576
+      }
+    ],
+    "messages_found": 0
+  },
+  "hash": "bd2e7292fd629541e979fe7b784b7bb2"
+}

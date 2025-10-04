@@ -1,0 +1,102 @@
+{
+  "account_id": "2",
+  "data_type": "scan_data",
+  "timestamp": "2025-10-01T23:19:53.685979",
+  "data": {
+    "current_chat": "הנקודה 🔴🔞",
+    "current_chat_id": -1001919825789,
+    "chat_id": -1001919825789,
+    "status": "completed",
+    "total_chats": 131,
+    "current_index": 11,
+    "completed": 10,
+    "skipped": 0,
+    "errors": 0,
+    "total_messages": 33,
+    "scanned_chats": [
+      {
+        "id": -1002282499461,
+        "title": "ישבן כחול לבן || סטוצים",
+        "status": "completed",
+        "messages_found": 10,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001239682653,
+        "title": "קרוסיות",
+        "status": "completed",
+        "messages_found": 11,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002063974054,
+        "title": "הצינור - סקס ישראלי 🔞💢®️ ישראליות | חרדיות | דתיות | ערביות | זורמות | סטוצים | קבוצות סקס | קבוצת סקס |",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001444468254,
+        "title": "סטוץ וחתונה",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001333488188,
+        "title": "צאט עירום",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001768427006,
+        "title": "©|🍓 הסיוופלה 🍓|",
+        "status": "completed",
+        "messages_found": 9,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001556819872,
+        "title": "הכרויות/סטוץ/צפון/חיפה",
+        "status": "completed",
+        "messages_found": 3,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001993975740,
+        "title": "סקס ישראלי - הלוח 🔞💢✏️| הכרויות | סטוצים | מפגשים |זורמות |זורמים | אירוח | ליווי | סקס | דתיות | ערביות | פינדום",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001631575696,
+        "title": "גט סקסי 🔞 - ישראליות ישראלים הכרויות חילופים זוגות דתיים דתיות ערבים ערביות",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001919825789,
+        "title": "הנקודה 🔴🔞",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      }
+    ],
+    "messages_found": 0,
+    "progress_percent": 6
+  },
+  "hash": "b1bd1217919c612d43c09cc43dda008c"
+}

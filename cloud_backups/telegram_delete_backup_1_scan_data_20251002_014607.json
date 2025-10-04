@@ -1,0 +1,53 @@
+{
+  "account_id": "1",
+  "data_type": "scan_data",
+  "timestamp": "2025-10-02T01:46:07.976536",
+  "data": {
+    "current_chat": "מסיבות סודיות בישראל",
+    "current_chat_id": 0,
+    "chat_id": -1001179753797,
+    "status": "completed",
+    "total_chats": 4568,
+    "current_index": 4,
+    "completed": 4,
+    "skipped": 0,
+    "errors": 0,
+    "total_messages": 0,
+    "scanned_chats": [
+      {
+        "id": -1002619541414,
+        "title": "התפריט של דון🇮🇱",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002024537775,
+        "title": "Gifts Keeper",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002762447788,
+        "title": "😍 Sale Top Shelf ‼️",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001179753797,
+        "title": "מסיבות סודיות בישראל",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      }
+    ],
+    "messages_found": 0
+  },
+  "hash": "d9805dc4f80f00da6ba94a5e1afed594"
+}

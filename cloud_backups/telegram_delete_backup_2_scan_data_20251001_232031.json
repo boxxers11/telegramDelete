@@ -1,0 +1,166 @@
+{
+  "account_id": "2",
+  "data_type": "scan_data",
+  "timestamp": "2025-10-01T23:20:31.051939",
+  "data": {
+    "current_chat": "סקס ישראל🔞",
+    "current_chat_id": -1002483719628,
+    "chat_id": -1002483719628,
+    "status": "completed",
+    "total_chats": 131,
+    "current_index": 19,
+    "completed": 18,
+    "skipped": 0,
+    "errors": 0,
+    "total_messages": 42,
+    "scanned_chats": [
+      {
+        "id": -1002282499461,
+        "title": "ישבן כחול לבן || סטוצים",
+        "status": "completed",
+        "messages_found": 10,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001239682653,
+        "title": "קרוסיות",
+        "status": "completed",
+        "messages_found": 11,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002063974054,
+        "title": "הצינור - סקס ישראלי 🔞💢®️ ישראליות | חרדיות | דתיות | ערביות | זורמות | סטוצים | קבוצות סקס | קבוצת סקס |",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001444468254,
+        "title": "סטוץ וחתונה",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001333488188,
+        "title": "צאט עירום",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001768427006,
+        "title": "©|🍓 הסיוופלה 🍓|",
+        "status": "completed",
+        "messages_found": 9,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001556819872,
+        "title": "הכרויות/סטוץ/צפון/חיפה",
+        "status": "completed",
+        "messages_found": 3,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001993975740,
+        "title": "סקס ישראלי - הלוח 🔞💢✏️| הכרויות | סטוצים | מפגשים |זורמות |זורמים | אירוח | ליווי | סקס | דתיות | ערביות | פינדום",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001631575696,
+        "title": "גט סקסי 🔞 - ישראליות ישראלים הכרויות חילופים זוגות דתיים דתיות ערבים ערביות",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001919825789,
+        "title": "הנקודה 🔴🔞",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001439617993,
+        "title": "חילופי זוגות ואורגיות",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001799287047,
+        "title": "⚜️ סטוץ דרום 🔞 996",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002657525227,
+        "title": "החרמניות של תל אביב",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001603907672,
+        "title": "כולם על כולם 🔞 😇 ⚡️",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001929434240,
+        "title": "פנויים | פנויות 🔞",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002685871429,
+        "title": "Femdom world queens&slave",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001704991367,
+        "title": "⚜️ סטוץ מרכז 🔞 998",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002483719628,
+        "title": "סקס ישראל🔞",
+        "status": "completed",
+        "messages_found": 9,
+        "error": null,
+        "skipped_reason": null
+      }
+    ],
+    "messages_found": 9,
+    "progress_percent": 12
+  },
+  "hash": "485cc2a00e0680f97d10d3b3ed5939ba"
+}

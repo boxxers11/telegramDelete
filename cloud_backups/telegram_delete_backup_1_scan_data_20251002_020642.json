@@ -1,0 +1,86 @@
+{
+  "account_id": "1",
+  "data_type": "scan_data",
+  "timestamp": "2025-10-02T02:06:42.923925",
+  "data": {
+    "current_chat": "מחירון -SuperWeed",
+    "current_chat_id": -1003091341972,
+    "chat_id": -1003091341972,
+    "status": "completed",
+    "total_chats": 174,
+    "current_index": 106,
+    "completed": 8,
+    "skipped": 0,
+    "errors": 0,
+    "total_messages": 0,
+    "scanned_chats": [
+      {
+        "id": -1002163098708,
+        "title": "HOT ISRAELI GUYS 🔥",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001420779020,
+        "title": "נתי מדיה 228",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002128794891,
+        "title": "The King Rom",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002370446945,
+        "title": "©|האקסלוסיבים פרימיום|",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002090167786,
+        "title": "משתמשים לא רציניים ומסוכנים !",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002004400874,
+        "title": "❤️מתענגים ומענגנים❤️",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001544217801,
+        "title": "קרוסיות טרנסיות וסטרייטים בלבד ! סקס, הכרות ושיחה מכבדת",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1003091341972,
+        "title": "מחירון -SuperWeed",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      }
+    ],
+    "messages_found": 0,
+    "progress_percent": 59
+  },
+  "hash": "28b0ec810cf93645dd0d372c3180f25e"
+}

@@ -1,0 +1,54 @@
+{
+  "account_id": "1",
+  "data_type": "scan_data",
+  "timestamp": "2025-10-01T23:25:06.497245",
+  "data": {
+    "current_chat": "הנשים הכי יפות באינסטגרם !!!😜💋",
+    "current_chat_id": -1001258862444,
+    "chat_id": -1001394527357,
+    "status": "completed",
+    "total_chats": 174,
+    "current_index": 7,
+    "completed": 5,
+    "skipped": 0,
+    "errors": 0,
+    "total_messages": 0,
+    "scanned_chats": [
+      {
+        "id": -1001343247145,
+        "title": "Gay’s Boy IL 🏳️‍🌈 טרמפיסטים גייז ודו מיניים בכל הארץ 🏳️‍🌈",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002316307431,
+        "title": "|ⓀⓄⓀⓈⒾ🫦ⓁⒶⓃⒹ②|©",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001243182454,
+        "title": "שוק הפשפושים יד 2",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001394527357,
+        "title": "הנשים הכי יפות באינסטגרם !!!😜💋",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      }
+    ],
+    "messages_found": 0,
+    "progress_percent": 1
+  },
+  "hash": "0cb52acdb25d870dd20404bfc5eaba9a"
+}

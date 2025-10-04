@@ -25,8 +25,14 @@ function App() {
   const [selectedAccountForScan, setSelectedAccountForScan] = useState<{id: string, label: string} | null>(null);
   const [selectedAccountForMessage, setSelectedAccountForMessage] = useState<{id: string, label: string} | null>(null);
   const [selectedAccountForSemanticSearch, setSelectedAccountForSemanticSearch] = useState<{id: string, label: string} | null>(null);
-  const [language, setLanguage] = useState<'he' | 'en'>('he');
-  const [uiMode, setUiMode] = useState<'simple' | 'advanced' | 'diamond'>('diamond');
+  const [language, setLanguage] = useState<'he' | 'en'>(() => {
+    const saved = localStorage.getItem('telegram_app_language');
+    return (saved as 'he' | 'en') || 'he';
+  });
+  const [uiMode, setUiMode] = useState<'simple' | 'advanced' | 'diamond'>(() => {
+    const saved = localStorage.getItem('telegram_app_ui_mode');
+    return (saved as 'simple' | 'advanced' | 'diamond') || 'diamond';
+  });
 
     // Custom hooks
     const {
@@ -53,18 +59,47 @@ function App() {
     } = useSemanticSearch();
 
 
-    // Load accounts on component mount
+    // Load accounts and restore state on component mount
   useEffect(() => {
         const loadData = async () => {
             try {
+                console.log('🚀 App.tsx: Starting to load accounts and restore state...');
                 await loadAccounts();
+                
+                // Restore modal states from localStorage
+                const savedModalState = localStorage.getItem('telegram_app_modal_state');
+                console.log('🔍 Checking for saved modal state:', savedModalState);
+                if (savedModalState) {
+                    try {
+                        const modalState = JSON.parse(savedModalState);
+                        console.log('📱 Restoring modal state:', modalState);
+                        if (modalState.showScanModal && modalState.selectedAccountForScan) {
+                            console.log('🔍 Restoring scan modal for account:', modalState.selectedAccountForScan);
+                            setSelectedAccountForScan(modalState.selectedAccountForScan);
+                            setShowScanModal(true);
+                        }
+                        if (modalState.showMessageWizard && modalState.selectedAccountForMessage) {
+                            console.log('💬 Restoring message wizard for account:', modalState.selectedAccountForMessage);
+                            setSelectedAccountForMessage(modalState.selectedAccountForMessage);
+                            setShowMessageWizard(true);
+                        }
+                        if (modalState.showSemanticSearch && modalState.selectedAccountForSemanticSearch) {
+                            console.log('🔍 Restoring semantic search for account:', modalState.selectedAccountForSemanticSearch);
+                            setSelectedAccountForSemanticSearch(modalState.selectedAccountForSemanticSearch);
+                            setShowSemanticSearch(true);
+                        }
+                    } catch (error) {
+                        console.error('❌ Error parsing modal state:', error);
+                    }
+                } else {
+                    console.log('ℹ️ No saved modal state found');
+                }
     } catch (error) {
                 console.error('App.tsx: Error loading accounts:', error);
             }
         };
         loadData();
     }, []); // Empty dependency array - only run once on mount
-
 
     // Update groups data when accounts are loaded (NOT restore!)
     useEffect(() => {
@@ -105,6 +140,7 @@ function App() {
             updateGroupsData();
         }
     }, [accounts]);
+
     // Event handlers
     const handleAddAccount = async (accountData: {
         label: string;
@@ -139,24 +175,62 @@ function App() {
     const handleScan = async (accountId: string) => {
         const account = accounts.find(acc => acc.id === accountId);
         if (account) {
-            setSelectedAccountForScan({ id: accountId, label: account.label });
+            const accountData = { id: accountId, label: account.label };
+            setSelectedAccountForScan(accountData);
             setShowScanModal(true);
+            
+            // Save modal state to localStorage
+            const modalState = {
+                showScanModal: true,
+                selectedAccountForScan: accountData,
+                showMessageWizard: showMessageWizard,
+                selectedAccountForMessage: selectedAccountForMessage,
+                showSemanticSearch: showSemanticSearch,
+                selectedAccountForSemanticSearch: selectedAccountForSemanticSearch
+            };
+            console.log('💾 Saving scan modal state:', modalState);
+            localStorage.setItem('telegram_app_modal_state', JSON.stringify(modalState));
+            console.log('✅ Scan modal state saved to localStorage');
         }
     };
 
     const handleSendMessage = (accountId: string) => {
         const account = accounts.find(acc => acc.id === accountId);
         if (account) {
-            setSelectedAccountForMessage({ id: accountId, label: account.label });
+            const accountData = { id: accountId, label: account.label };
+            setSelectedAccountForMessage(accountData);
             setShowMessageWizard(true);
+            
+            // Save modal state to localStorage
+            const modalState = {
+                showScanModal: showScanModal,
+                selectedAccountForScan: selectedAccountForScan,
+                showMessageWizard: true,
+                selectedAccountForMessage: accountData,
+                showSemanticSearch: showSemanticSearch,
+                selectedAccountForSemanticSearch: selectedAccountForSemanticSearch
+            };
+            localStorage.setItem('telegram_app_modal_state', JSON.stringify(modalState));
         }
     };
 
     const handleSemanticSearch = (accountId: string) => {
         const account = accounts.find(acc => acc.id === accountId);
         if (account) {
-            setSelectedAccountForSemanticSearch({ id: accountId, label: account.label });
+            const accountData = { id: accountId, label: account.label };
+            setSelectedAccountForSemanticSearch(accountData);
             setShowSemanticSearch(true);
+            
+            // Save modal state to localStorage
+            const modalState = {
+                showScanModal: showScanModal,
+                selectedAccountForScan: selectedAccountForScan,
+                showMessageWizard: showMessageWizard,
+                selectedAccountForMessage: selectedAccountForMessage,
+                showSemanticSearch: true,
+                selectedAccountForSemanticSearch: accountData
+            };
+            localStorage.setItem('telegram_app_modal_state', JSON.stringify(modalState));
         }
     };
 
@@ -289,9 +363,15 @@ function App() {
                 isOpen={showSettings}
                 onClose={() => setShowSettings(false)}
                 language={language}
-                onLanguageChange={setLanguage}
+                onLanguageChange={(newLanguage) => {
+                    setLanguage(newLanguage);
+                    localStorage.setItem('telegram_app_language', newLanguage);
+                }}
                 uiMode={uiMode}
-                onUiModeChange={setUiMode}
+                onUiModeChange={(newUiMode) => {
+                    setUiMode(newUiMode);
+                    localStorage.setItem('telegram_app_ui_mode', newUiMode);
+                }}
             />
 
             {/* Scan Modal */}
@@ -301,6 +381,8 @@ function App() {
                     onClose={() => {
                         setShowScanModal(false);
                         setSelectedAccountForScan(null);
+                        // Clear modal state from localStorage
+                        localStorage.removeItem('telegram_app_modal_state');
                     }}
                     accountId={selectedAccountForScan.id}
                     accountLabel={selectedAccountForScan.label}
@@ -314,6 +396,8 @@ function App() {
                     onClose={() => {
                         setShowMessageWizard(false);
                         setSelectedAccountForMessage(null);
+                        // Clear modal state from localStorage
+                        localStorage.removeItem('telegram_app_modal_state');
                     }}
                     accountId={selectedAccountForMessage.id}
                     accountLabel={selectedAccountForMessage.label}
@@ -327,6 +411,8 @@ function App() {
                     onClose={() => {
                         setShowSemanticSearch(false);
                         setSelectedAccountForSemanticSearch(null);
+                        // Clear modal state from localStorage
+                        localStorage.removeItem('telegram_app_modal_state');
                     }}
                     accountId={selectedAccountForSemanticSearch.id}
                     onSearchStart={startSearch}

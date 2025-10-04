@@ -1,0 +1,30 @@
+{
+  "account_id": "2",
+  "data_type": "scan_data",
+  "timestamp": "2025-10-02T00:27:29.286361",
+  "data": {
+    "current_chat": "ישבן כחול לבן || סטוצים",
+    "current_chat_id": -1002282499461,
+    "chat_id": -1002282499461,
+    "status": "completed",
+    "total_chats": 131,
+    "current_index": 2,
+    "completed": 1,
+    "skipped": 0,
+    "errors": 0,
+    "total_messages": 10,
+    "scanned_chats": [
+      {
+        "id": -1002282499461,
+        "title": "ישבן כחול לבן || סטוצים",
+        "status": "completed",
+        "messages_found": 10,
+        "error": null,
+        "skipped_reason": null
+      }
+    ],
+    "messages_found": 10,
+    "progress_percent": 0
+  },
+  "hash": "672b6cf1a90c4c4cd8580f7ba4744752"
+}

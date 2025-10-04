@@ -1,0 +1,26 @@
+{
+  "acc_1": {
+    "id": "acc_1",
+    "label": "btr",
+    "api_id": 27728537,
+    "api_hash": "e18fe312381a759cc4439a79290b15d9",
+    "phone": "+972557042518",
+    "session_path": "sessions/tg_ui_session_acc_1.session"
+  },
+  "acc_2": {
+    "id": "acc_2",
+    "label": "XNI",
+    "api_id": 21561633,
+    "api_hash": "39a2165988d51e0b04e21571a1f7223d",
+    "phone": "+972557254749",
+    "session_path": "sessions/tg_ui_session_acc_2.session"
+  },
+  "acc_3": {
+    "id": "acc_3",
+    "label": "crks",
+    "api_id": 26985676,
+    "api_hash": "9cbd353afea49da5cd541202d58baf73",
+    "phone": "+972539822245",
+    "session_path": "sessions/tg_ui_session_acc_3.session"
+  }
+}

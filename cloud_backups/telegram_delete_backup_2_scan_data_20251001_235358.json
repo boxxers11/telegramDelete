@@ -1,0 +1,30 @@
+{
+  "account_id": "2",
+  "data_type": "scan_data",
+  "timestamp": "2025-10-01T23:53:58.476907",
+  "data": {
+    "current_chat": "קמגרה Kamagra ויאגרה",
+    "current_chat_id": -1002282499461,
+    "chat_id": -1002834787996,
+    "status": "completed",
+    "total_chats": 131,
+    "current_index": 2,
+    "completed": 1,
+    "skipped": 0,
+    "errors": 0,
+    "total_messages": 0,
+    "scanned_chats": [
+      {
+        "id": -1002834787996,
+        "title": "קמגרה Kamagra ויאגרה",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      }
+    ],
+    "messages_found": 0,
+    "progress_percent": 0
+  },
+  "hash": "3f1246a38a4d7a342601d264f8f89596"
+}

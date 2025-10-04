@@ -1,0 +1,62 @@
+{
+  "account_id": "2",
+  "data_type": "scan_data",
+  "timestamp": "2025-10-02T00:27:40.492101",
+  "data": {
+    "current_chat": "מחפשי זיון",
+    "current_chat_id": -1002506520169,
+    "chat_id": -1002506520169,
+    "status": "completed",
+    "total_chats": 131,
+    "current_index": 6,
+    "completed": 5,
+    "skipped": 0,
+    "errors": 0,
+    "total_messages": 24,
+    "scanned_chats": [
+      {
+        "id": -1002282499461,
+        "title": "ישבן כחול לבן || סטוצים",
+        "status": "completed",
+        "messages_found": 10,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001239682653,
+        "title": "קרוסיות",
+        "status": "completed",
+        "messages_found": 11,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002063974054,
+        "title": "הצינור - סקס ישראלי 🔞💢®️ ישראליות | חרדיות | דתיות | ערביות | זורמות | סטוצים | קבוצות סקס | קבוצת סקס |",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002124944331,
+        "title": "חילופי זוגות הכרויות | סווינגרס ⚜️🔞 ישראליות | חרדיות | דתיות | ערביות | זורמות | סטוצים | קבוצות סקס | קבוצת סקס |ישראלי",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002506520169,
+        "title": "מחפשי זיון",
+        "status": "completed",
+        "messages_found": 3,
+        "error": null,
+        "skipped_reason": null
+      }
+    ],
+    "messages_found": 3,
+    "progress_percent": 3
+  },
+  "hash": "5674b0c5d73aa01e69cc905435937f9d"
+}

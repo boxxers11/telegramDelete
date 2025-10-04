@@ -1,0 +1,54 @@
+{
+  "account_id": "2",
+  "data_type": "scan_data",
+  "timestamp": "2025-10-01T23:54:00.889304",
+  "data": {
+    "current_chat": "Eden queen 👑👄💦",
+    "current_chat_id": -1001239682653,
+    "chat_id": -1002887617085,
+    "status": "completed",
+    "total_chats": 131,
+    "current_index": 3,
+    "completed": 3,
+    "skipped": 0,
+    "errors": 1,
+    "total_messages": 10,
+    "scanned_chats": [
+      {
+        "id": -1002834787996,
+        "title": "קמגרה Kamagra ויאגרה",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002665240746,
+        "title": "ODAYA CABILI🍒",
+        "status": "error",
+        "messages_found": 0,
+        "error": "The channel specified is private and you lack permission to access it. Another reason may be that you were banned from it (caused by GetHistoryRequest)",
+        "skipped_reason": null
+      },
+      {
+        "id": -1002282499461,
+        "title": "ישבן כחול לבן || סטוצים",
+        "status": "completed",
+        "messages_found": 10,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002887617085,
+        "title": "Eden queen 👑👄💦",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      }
+    ],
+    "messages_found": 0,
+    "progress_percent": 0
+  },
+  "hash": "d194d33b9eb94fcf436af1b7269c55a2"
+}

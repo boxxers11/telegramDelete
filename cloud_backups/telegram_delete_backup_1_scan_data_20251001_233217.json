@@ -1,0 +1,62 @@
+{
+  "account_id": "1",
+  "data_type": "scan_data",
+  "timestamp": "2025-10-01T23:32:17.610481",
+  "data": {
+    "current_chat": "ישבן כחול לבן || סטוצים",
+    "current_chat_id": -1002282499461,
+    "chat_id": -1002282499461,
+    "status": "completed",
+    "total_chats": 174,
+    "current_index": 5,
+    "completed": 6,
+    "skipped": 0,
+    "errors": 0,
+    "total_messages": 1,
+    "scanned_chats": [
+      {
+        "id": -1002379626147,
+        "title": "טרנסיות ישראל 🏳️‍⚧️ Trans Israel",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001444468254,
+        "title": "סטוץ וחתונה",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001392772096,
+        "title": "קרוזינג ישראל - סקס במקומות ציבוריים",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1001239682653,
+        "title": "קרוסיות",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null
+      },
+      {
+        "id": -1002282499461,
+        "title": "ישבן כחול לבן || סטוצים",
+        "status": "completed",
+        "messages_found": 1,
+        "error": null,
+        "skipped_reason": null
+      }
+    ],
+    "messages_found": 1,
+    "progress_percent": 1
+  },
+  "hash": "ff884f2289c982870191dd33e62821c2"
+}
