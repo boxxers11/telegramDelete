@@ -47,6 +47,17 @@ const SharedGroupsList: React.FC<SharedGroupsListProps> = ({
     setError(null);
     try {
       console.log(`Loading chats for account: ${accountId}`);
+      
+      // First, get quick summary
+      const summaryResponse = await fetch(`http://127.0.0.1:8001/accounts/${accountId}/chats/summary`);
+      if (summaryResponse.ok) {
+        const summaryData = await summaryResponse.json();
+        console.log(`Found ${summaryData.total} groups, loading details...`);
+        setChats([]); // Clear existing chats
+        setTotalGroups(summaryData.total);
+      }
+      
+      // Then load full details
       const response = await fetch(`http://127.0.0.1:8001/accounts/${accountId}/chats`);
       console.log(`Fetching chats for account: ${accountId}`);
       if (response.ok) {
