@@ -1,5 +1,5 @@
 import React from 'react';
-import MessageWizard from './MessageWizard';
+import MessageWizard from '../MessageWizard';
 import { X } from 'lucide-react';
 import { useAccounts } from '../../hooks/useAccounts';
 
@@ -27,29 +27,34 @@ const MessageWizardModal: React.FC<MessageWizardModalProps> = ({
     <div
       className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
       dir="rtl"
-      onClick={onClose} // Close on overlay click
+      onClick={onClose}
     >
-      {/* Modal Content */}
       <div
-        className="glass-advanced max-w-7xl w-full h-[95vh] flex flex-col rounded-2xl relative"
-        onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside
+        className="glass-elevated relative w-full max-w-6xl mx-4 rounded-2xl"
+        style={{
+          maxHeight: '90vh',
+          height: '90vh',
+          overflow: 'hidden'
+        }}
+        onClick={(e) => e.stopPropagation()}
       >
-        <MessageWizard
-          accountId={accountId}
-          accountLabel={accountLabel}
-          isAuthenticated={isAuthenticated} // Pass the authentication status
-          onBack={onClose}
-        />
-      </div>
+        <button
+          onClick={onClose}
+          className="absolute top-5 right-5 z-[60] bg-red-600 hover:bg-red-700 text-white rounded-full p-2 transition-colors"
+          title="סגור חלון"
+        >
+          <X className="w-5 h-5" />
+        </button>
 
-      {/* Close Button */}
-      <button
-        onClick={onClose}
-        className="absolute top-5 right-5 z-[60] bg-red-600 hover:bg-red-700 text-white rounded-full p-2 transition-colors"
-        title="סגור חלון"
-      >
-        <X className="w-5 h-5" />
-      </button>
+        <div className="h-full overflow-hidden">
+          <MessageWizard
+            accountId={accountId}
+            accountLabel={accountLabel}
+            isAuthenticated={isAuthenticated}
+            onBack={onClose}
+          />
+        </div>
+      </div>
     </div>
   );
 };
