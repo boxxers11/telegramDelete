@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { 
   ArrowLeft,
-  ArrowRight,
   MessageSquare,
   Users,
   CheckCircle,
@@ -14,7 +13,7 @@ import {
   Plus,
   History
 } from 'lucide-react';
-import SharedGroupsList from './SharedGroupsList';
+import SharedGroupsList from './ui/SharedGroupsList';
 
 interface MessageHistory {
   id: string;

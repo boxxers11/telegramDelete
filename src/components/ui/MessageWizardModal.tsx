@@ -1,6 +1,7 @@
 import React from 'react';
-import { X, MessageSquare } from 'lucide-react';
-import MessageWizard from '../MessageWizard';
+import MessageWizard from './MessageWizard';
+import { X } from 'lucide-react';
+import { useAccounts } from '../../hooks/useAccounts';
 
 interface MessageWizardModalProps {
   isOpen: boolean;
@@ -9,43 +10,46 @@ interface MessageWizardModalProps {
   accountLabel: string;
 }
 
-const MessageWizardModal: React.FC<MessageWizardModalProps> = ({ 
-  isOpen, 
-  onClose, 
-  accountId, 
-  accountLabel 
+const MessageWizardModal: React.FC<MessageWizardModalProps> = ({
+  isOpen,
+  onClose,
+  accountId,
+  accountLabel,
 }) => {
+  const { accounts } = useAccounts();
+  const currentAccount = accounts.find(acc => acc.id === accountId);
+  // Default to false if account is not found yet
+  const isAuthenticated = currentAccount ? currentAccount.is_authenticated : false;
+
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="glass-elevated p-8 max-w-7xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center space-x-4">
-            <div className="glass-card p-3">
-              <MessageSquare className="w-8 h-8 text-blue-400" />
-            </div>
-            <div>
-              <h2 className="text-2xl font-bold text-white">שליחת הודעות</h2>
-              <p className="text-gray-300">{accountLabel}</p>
-            </div>
-          </div>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-white p-2"
-          >
-            <X className="w-6 h-6" />
-          </button>
-        </div>
-
-        {/* Message Wizard Component */}
+    <div
+      className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+      dir="rtl"
+      onClick={onClose} // Close on overlay click
+    >
+      {/* Modal Content */}
+      <div
+        className="glass-advanced max-w-7xl w-full h-[95vh] flex flex-col rounded-2xl relative"
+        onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside
+      >
         <MessageWizard
           accountId={accountId}
           accountLabel={accountLabel}
+          isAuthenticated={isAuthenticated} // Pass the authentication status
           onBack={onClose}
         />
       </div>
+
+      {/* Close Button */}
+      <button
+        onClick={onClose}
+        className="absolute top-5 right-5 z-[60] bg-red-600 hover:bg-red-700 text-white rounded-full p-2 transition-colors"
+        title="סגור חלון"
+      >
+        <X className="w-5 h-5" />
+      </button>
     </div>
   );
 };
