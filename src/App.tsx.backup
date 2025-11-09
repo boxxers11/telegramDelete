@@ -144,8 +144,8 @@ function App() {
   const loadAccounts = async () => {
     setLoading(true);
     try {
-      console.log('Loading accounts from http://127.0.0.1:8000/accounts');
-      const response = await fetch('http://127.0.0.1:8000/accounts');
+      console.log('Loading accounts from http://127.0.0.1:8001/accounts');
+      const response = await fetch('http://127.0.0.1:8001/accounts');
       console.log('Response status:', response.status);
       console.log('Response ok:', response.ok);
       
@@ -177,7 +177,7 @@ function App() {
     setSuccess(null);
 
     try {
-      const response = await fetch('http://127.0.0.1:8000/accounts', {
+      const response = await fetch('http://127.0.0.1:8001/accounts', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -213,7 +213,7 @@ function App() {
     setError(null);
 
     try {
-      const response = await fetch(`http://127.0.0.1:8000/accounts/${accountId}/connect`, {
+      const response = await fetch(`http://127.0.0.1:8001/accounts/${accountId}/connect`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -263,7 +263,7 @@ function App() {
     setError(null);
 
     try {
-      const response = await fetch(`http://127.0.0.1:8000/accounts/${loginData.accountId}/connect`, {
+      const response = await fetch(`http://127.0.0.1:8001/accounts/${loginData.accountId}/connect`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -308,7 +308,7 @@ function App() {
 
     setLoading(true);
     try {
-      const response = await fetch(`http://127.0.0.1:8000/accounts/${accountId}`, {
+      const response = await fetch(`http://127.0.0.1:8001/accounts/${accountId}`, {
         method: 'DELETE',
       });
 
@@ -363,7 +363,7 @@ function App() {
       console.log(`Starting scan for account: ${selectedAccountForScan}, full scan: ${isFullScan}, batch size: ${batchSize}`);
       
       // Start the actual scan
-      const response = await fetch(`http://127.0.0.1:8000/accounts/${selectedAccountForScan}/scan`, {
+      const response = await fetch(`http://127.0.0.1:8001/accounts/${selectedAccountForScan}/scan`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -467,7 +467,7 @@ function App() {
       
       // Use SSE for real-time updates
       const eventSource = new EventSource(
-        `http://127.0.0.1:8000/accounts/${query.account_id}/semantic-scan-events?query_text=${encodeURIComponent(query.query_text)}&fidelity=${query.fidelity}&time_frame_hours=${query.time_frame_hours}`
+        `http://127.0.0.1:8001/accounts/${query.account_id}/semantic-scan-events?query_text=${encodeURIComponent(query.query_text)}&fidelity=${query.fidelity}&time_frame_hours=${query.time_frame_hours}`
       );
       
       eventSource.onmessage = (event) => {

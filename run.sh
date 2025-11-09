@@ -44,7 +44,7 @@ python3 -m pip install uvicorn
 mkdir -p sessions
 
 # Start the application
-echo "🌐 Starting FastAPI server at http://127.0.0.1:8000"
+echo "🌐 Starting FastAPI server at http://127.0.0.1:8001"
 echo "🌐 Starting React development server..."
 echo "📖 Check the README.md for setup instructions"
 echo ""
@@ -53,13 +53,13 @@ echo "To stop the servers, press Ctrl+C"
 cd "$(dirname "$0")"
 
 # Start Python server in background
-python3 -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload &
+python3 -m uvicorn app.main:app --host 127.0.0.1 --port 8001 --reload &
 PYTHON_PID=$!
 
 # Wait for Python server to be ready
 echo "⏳ Waiting for Python server to start..."
 for i in {1..30}; do
-    if curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8000/accounts | grep -q "200"; then
+    if curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8001/accounts | grep -q "200"; then
         echo "✅ Python server is ready!"
         break
     fi

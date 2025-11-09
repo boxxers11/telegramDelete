@@ -34,20 +34,20 @@ pip install uvicorn
 if not exist "sessions" mkdir sessions
 
 :: Start the application
-echo 🌐 Starting FastAPI server at http://127.0.0.1:8000
+echo 🌐 Starting FastAPI server at http://127.0.0.1:8001
 echo 🌐 Starting React development server...
 echo 📖 Check the README.md for setup instructions
 echo.
 echo To stop the servers, press Ctrl+C
 
 :: Start Python server in background
-start /B python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
+start /B python -m uvicorn app.main:app --host 127.0.0.1 --port 8001 --reload
 
 :: Wait for Python server to be ready
 echo 🔄 Waiting for Python server to start...
 set /a counter=0
 :wait_loop
-curl -s http://127.0.0.1:8000/accounts >nul 2>&1
+curl -s http://127.0.0.1:8001/accounts >nul 2>&1
 if %errorlevel% equ 0 (
     echo ✅ Python server is ready!
     goto start_react

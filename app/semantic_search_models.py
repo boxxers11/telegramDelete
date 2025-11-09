@@ -2,7 +2,7 @@
 Semantic Search Models for Telegram Message Search
 """
 from typing import List, Literal, Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from datetime import datetime
 
 
@@ -10,9 +10,10 @@ class SemanticSearchQuery(BaseModel):
     """Query model for semantic search requests"""
     query_text: str
     fidelity: Literal['exact', 'close', 'semantic'] = 'semantic'
-    time_frame_hours: int = 24
+    time_frame_hours: int = Field(default=24, ge=1, le=72)
     groups_to_scan: List[str] = []
     account_id: str
+    folder_id: Optional[int] = None
 
 
 class SearchResult(BaseModel):

@@ -98,6 +98,7 @@ const VisualScanInterface: React.FC<VisualScanInterfaceProps> = ({
     totalMessages: 0,
     totalDeleted: 0
   });
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Update chats and stats based on scan progress
   useEffect(() => {
@@ -389,15 +390,130 @@ const VisualScanInterface: React.FC<VisualScanInterfaceProps> = ({
     
     setSelectedMessages(newSelectedMessages);
   };
-  const handleDeleteSelected = () => {
-    if (selectedMessages.size === 0 && selectedChats.size === 0) return;
+  const handleDeleteSelected = async () => {
+    if (selectedMessages.size === 0 || isDeleting) return;
     
-    const messageCount = selectedMessages.size;
+    const messagesByChat = new Map<number, { messageIds: number[]; title: string }>();
+    chats.forEach(chat => {
+      if (!chat.messages || chat.messages.length === 0) return;
+      const messageIds = chat.messages
+        .filter(msg => selectedMessages.has(msg.id))
+        .map(msg => msg.id);
+      if (messageIds.length > 0) {
+        messagesByChat.set(chat.id, { messageIds, title: chat.title });
+      }
+    });
     
-    if (confirm(`האם אתה בטוח שברצונך למחוק ${messageCount} הודעות נבחרות?`)) {
-      // TODO: Implement delete logic
-      console.log('Deleting selected messages:', Array.from(selectedMessages));
+    if (messagesByChat.size === 0) {
+      return;
     }
+    
+    const messageCount = Array.from(messagesByChat.values()).reduce(
+      (sum, entry) => sum + entry.messageIds.length,
+      0
+    );
+    const chatCount = messagesByChat.size;
+    
+    if (!confirm(`האם אתה בטוח שברצונך למחוק ${messageCount} הודעות נבחרות מ-${chatCount} קבוצות?`)) {
+      return;
+    }
+    
+    setIsDeleting(true);
+    
+    const deletedByChat = new Map<number, { messageIds: number[]; deletedCount: number }>();
+    const failedChats: string[] = [];
+    
+    for (const [chatId, { messageIds, title }] of messagesByChat.entries()) {
+      try {
+        const response = await fetch(`/api/accounts/${accountId}/delete-messages`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            chat_id: chatId,
+            message_ids: messageIds,
+            revoke: true,
+          }),
+        });
+        
+        const result = await response.json();
+        if (result.success) {
+          const deletedCount = result.deleted_count ?? result.result?.deleted_count ?? messageIds.length;
+          deletedByChat.set(chatId, { messageIds, deletedCount });
+        } else {
+          failedChats.push(title);
+        }
+      } catch (error) {
+        console.error(`Delete error for chat ${chatId}:`, error);
+        failedChats.push(title);
+      }
+    }
+    
+    if (deletedByChat.size > 0) {
+      const totalDeleted = Array.from(deletedByChat.values()).reduce(
+        (sum, entry) => sum + entry.deletedCount,
+        0
+      );
+      const deletedMessageIds = new Set<number>();
+      deletedByChat.forEach(({ messageIds }) => {
+        messageIds.forEach(id => deletedMessageIds.add(id));
+      });
+      
+      const newSelectedMessages = new Set<number>();
+      selectedMessages.forEach(id => {
+        if (!deletedMessageIds.has(id)) {
+          newSelectedMessages.add(id);
+        }
+      });
+      
+      const updatedChats = chats.map(chat => {
+        const deletion = deletedByChat.get(chat.id);
+        if (!deletion) {
+          return {
+            ...chat,
+            selected: (chat.messages || []).some(msg => newSelectedMessages.has(msg.id))
+          };
+        }
+        const idsToRemove = new Set(deletion.messageIds);
+        const remainingMessages = (chat.messages || []).filter(msg => !idsToRemove.has(msg.id));
+        return {
+          ...chat,
+          messages: remainingMessages,
+          messages_found: remainingMessages.length,
+          messages_deleted: (chat.messages_deleted || 0) + deletion.deletedCount,
+          selected: remainingMessages.some(msg => newSelectedMessages.has(msg.id))
+        };
+      });
+      
+      setChats(updatedChats);
+      setStats(prev => ({
+        ...prev,
+        totalMessages: Math.max(0, prev.totalMessages - totalDeleted),
+        totalDeleted: prev.totalDeleted + totalDeleted
+      }));
+      setSelectedMessages(newSelectedMessages);
+      
+      const newSelectedChats = new Set<number>();
+      updatedChats.forEach(chat => {
+        if (chat.messages && chat.messages.some(msg => newSelectedMessages.has(msg.id))) {
+          newSelectedChats.add(chat.id);
+        }
+      });
+      setSelectedChats(newSelectedChats);
+      setAllChatsSelected(false);
+      
+      const successMessage = `✅ נמחקו ${totalDeleted} הודעות מ-${deletedByChat.size} קבוצות`;
+      if (failedChats.length === 0) {
+        alert(successMessage);
+      } else {
+        alert(`${successMessage}, אך התהליך נכשל בקבוצות: ${failedChats.join(', ')}`);
+      }
+    } else if (failedChats.length > 0) {
+      alert(`❌ שגיאה במחיקה בקבוצות: ${failedChats.join(', ')}`);
+    }
+    
+    setIsDeleting(false);
   };
 
   const handleDeleteAll = async () => {
@@ -598,11 +714,11 @@ const VisualScanInterface: React.FC<VisualScanInterfaceProps> = ({
               <div className="flex items-center space-x-2">
                 <button
                   onClick={handleDeleteSelected}
-                  disabled={selectedMessages.size === 0}
+                  disabled={selectedMessages.size === 0 || isDeleting}
                   className="flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
                 >
                   <Trash2 className="w-4 h-4 mr-2" />
-                  מחק הודעות נבחרות ({totalSelectedMessages})
+                  {isDeleting ? 'מוחק...' : `מחק הודעות נבחרות (${totalSelectedMessages})`}
                 </button>
                 
                 <button

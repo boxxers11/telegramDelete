@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  ArrowLeft,
   Play, 
   Square, 
   CheckCircle, 
@@ -18,6 +17,9 @@ import {
   ChevronDown,
   FolderX
 } from 'lucide-react';
+import ScanGuidancePanel from './ScanGuidancePanel';
+import HeaderFullScreen from './ui/HeaderFullScreen';
+import type { GuidanceStage, ScanGuidance } from '../hooks/useScan';
 
 interface Message {
   id: number;
@@ -51,6 +53,9 @@ interface SimpleScanInterfaceProps {
   scanProgress?: any;
   lastScanResults?: ChatInfo[];
   uiMode?: 'simple' | 'advanced';
+  onShowRecentMessages: () => void;
+  guidance: ScanGuidance;
+  onUpdateGuidance?: (stage: GuidanceStage, overrides?: Partial<ScanGuidance>) => void;
 }
 
 const SimpleScanInterface: React.FC<SimpleScanInterfaceProps> = ({
@@ -62,7 +67,10 @@ const SimpleScanInterface: React.FC<SimpleScanInterfaceProps> = ({
   isScanning,
   scanProgress,
   lastScanResults,
-  uiMode = 'advanced'
+  uiMode = 'advanced',
+  onShowRecentMessages,
+  guidance,
+  onUpdateGuidance
 }) => {
   const [currentChat, setCurrentChat] = useState<ChatInfo | null>(null);
   const [scannedChats, setScannedChats] = useState<ChatInfo[]>([]);
@@ -191,6 +199,60 @@ const SimpleScanInterface: React.FC<SimpleScanInterfaceProps> = ({
       return () => clearInterval(interval);
     }
   }, [isScanning, accountId]);
+
+  useEffect(() => {
+    if (!onUpdateGuidance) {
+      return;
+    }
+
+    const totalGroups =
+      scanProgress?.total ??
+      localScanProgress?.total ??
+      stats.total ??
+      scannedChats.length;
+
+    const completedGroups = scannedChats.filter(chat => chat.status === 'completed').length;
+    const skippedGroups = scannedChats.filter(chat => chat.status === 'skipped').length;
+    const finishedGroups = completedGroups + skippedGroups;
+
+    if (isScanning) {
+      const messageSegments: string[] = [];
+
+      if (scanProgress?.chat_name) {
+        messageSegments.push(`כעת סורקים את "${scanProgress.chat_name}".`);
+      }
+
+      if (totalGroups) {
+        messageSegments.push(`התקדמות: ${finishedGroups}/${totalGroups} קבוצות.`);
+      }
+
+      onUpdateGuidance('scanning', {
+        message: messageSegments.join(' '),
+        batches: {
+          total: Math.max(1, Math.ceil(totalGroups / 10)),
+          completed: Math.min(
+            Math.max(0, Math.ceil(finishedGroups / 10)),
+            Math.max(1, Math.ceil(totalGroups / 10))
+          ),
+          size: 10
+        },
+        tips: [
+          'בכל עצירה ניתן להמשיך מאותה נקודה בזכות שמירת המטמון.',
+          'אם ההמתנה ארוכה, שקול לצמצם לטווח זמן קצר יותר או למספר קבוצות קטן.'
+        ]
+      });
+    } else if (scannedChats.length && guidance.stage === 'scanning') {
+      onUpdateGuidance('completed', {
+        message: 'הסריקה הסתיימה. ניתן לבחון את הממצאים או להגדיר סריקה חדשה.',
+        batches: guidance.batches,
+        tips: [
+          'הסריקות הבאות יהיו מהירות יותר אם תסמן לדלג על קבוצות שבהן לא נמצאו הודעות.',
+          'באפשרותך להפעיל סריקה מתוזמנת מהגדרות כדי להכין נתונים מראש.'
+        ]
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isScanning, scannedChats, scanProgress, localScanProgress, stats.total]);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleString('he-IL', {
@@ -524,9 +586,65 @@ const SimpleScanInterface: React.FC<SimpleScanInterfaceProps> = ({
     chat.messages.length > 0
   );
 
+  const hasScanData = scannedChats.length > 0 || currentChat;
+  const headerActions = (
+    <div className="flex flex-wrap items-center gap-2 text-sm">
+      <button
+        type="button"
+        onClick={onShowRecentMessages}
+        className="btn-secondary flex items-center gap-2"
+      >
+        <Clock className="h-4 w-4" />
+        הודעות אחרונות
+      </button>
+      {isScanning ? (
+        <button
+          type="button"
+          onClick={() => onStopScan?.()}
+          disabled={!onStopScan}
+          className="btn-destructive flex items-center gap-2 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          <Square className="h-4 w-4" />
+          עצור
+        </button>
+      ) : (
+        <>
+          <button
+            type="button"
+            onClick={() => onStartScan(false, 10)}
+            className="btn-primary flex items-center gap-2"
+          >
+            <Play className="h-4 w-4" />
+            התחל סריקה (10 קבוצות)
+          </button>
+          {hasScanData && (
+            <button
+              type="button"
+              onClick={handleResetScan}
+              className="btn-destructive flex items-center gap-2"
+            >
+              <RefreshCw className="h-4 w-4" />
+              איפוס סריקה
+            </button>
+          )}
+        </>
+      )}
+    </div>
+  );
+
   return (
-    <div className="min-h-screen" style={{background: 'linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%)'}}>
-      <div className="max-w-6xl mx-auto p-4">
+    <div
+      className="flex min-h-screen flex-col"
+      style={{ background: 'linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%)' }}
+    >
+      <HeaderFullScreen
+        title={uiMode === 'simple' ? 'סריקה פשוטה' : 'סריקה מתקדמת'}
+        onBack={onClose}
+        description={`חשבון: ${accountLabel}`}
+        actions={headerActions}
+      />
+      <div className="flex-1 overflow-y-auto">
+        <div className="mx-auto max-w-6xl p-4">
         {/* Success/Error Messages */}
         {success && (
           <div className="glass-card p-4 mb-4 bg-green-500/20 border-green-400/30 animate-fade-in-up">
@@ -558,55 +676,19 @@ const SimpleScanInterface: React.FC<SimpleScanInterfaceProps> = ({
           </div>
         )}
 
-        {/* Header */}
-        <div className="glass-elevated p-6 mb-6 animate-fade-in-up">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <button
-                onClick={onClose}
-                className="flex items-center px-4 py-2 text-white/70 hover:text-white mr-4 transition-colors"
-              >
-                <ArrowLeft className="w-5 h-5 mr-2" />
-                חזור
-              </button>
-              <div>
-                <h1 className="text-title text-white">סריקה פשוטה</h1>
-                <p className="text-body text-white/70">חשבון: {accountLabel}</p>
-              </div>
-            </div>
-            
-            <div className="flex items-center space-x-3">
-              {!isScanning ? (
-                <>
-                  <button
-                    onClick={() => onStartScan(false, 10)}
-                    className="btn-primary flex items-center"
-                  >
-                    <Play className="w-4 h-4 mr-2" />
-                    התחל סריקה (10 קבוצות)
-                  </button>
-                  {(scannedChats.length > 0 || currentChat) && (
-                    <button
-                      onClick={handleResetScan}
-                      className="btn-destructive flex items-center"
-                    >
-                      <Square className="w-4 h-4 mr-2" />
-                      איפוס סריקה
-                    </button>
-                  )}
-                </>
-              ) : (
-                <button
-                  onClick={onStopScan}
-                  className="btn-destructive flex items-center"
-                >
-                  <Square className="w-4 h-4 mr-2" />
-                  עצור
-                </button>
-              )}
-            </div>
-          </div>
+        <div className="mb-4">
+          <ScanGuidancePanel
+            guidance={guidance}
+            isScanning={isScanning}
+            stats={{
+              total: stats.total,
+              completed: stats.completed,
+              skipped: stats.skipped,
+              errors: stats.errors
+            }}
+          />
         </div>
+        
 
         {/* Stats */}
         <div className="glass-elevated p-8 mb-8">
@@ -1339,6 +1421,7 @@ const SimpleScanInterface: React.FC<SimpleScanInterfaceProps> = ({
             </div>
           </div>
         )}
+        </div>
       </div>
     </div>
   );
