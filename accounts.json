@@ -7,20 +7,36 @@
     "phone": "+972557042518",
     "session_path": "sessions/tg_ui_session_acc_1.session"
   },
+  "acc_4": {
+    "id": "acc_4",
+    "label": "psk",
+    "api_id": 23379423,
+    "api_hash": "0999810fa0e6271ffadd62b5d879b8f0",
+    "phone": "+972557253372",
+    "session_path": "sessions/tg_ui_session_acc_4.session"
+  },
   "acc_2": {
     "id": "acc_2",
-    "label": "XNI",
+    "label": "Xen",
     "api_id": 21561633,
     "api_hash": "39a2165988d51e0b04e21571a1f7223d",
     "phone": "+972557254749",
     "session_path": "sessions/tg_ui_session_acc_2.session"
   },
+  "acc_5": {
+    "id": "acc_5",
+    "label": "Nte",
+    "api_id": 20250775,
+    "api_hash": "8110a227371151f71877cc402a8e08a3",
+    "phone": "+972555196924",
+    "session_path": "sessions/tg_ui_session_acc_5.session"
+  },
   "acc_3": {
     "id": "acc_3",
-    "label": "crks",
-    "api_id": 26985676,
-    "api_hash": "9cbd353afea49da5cd541202d58baf73",
-    "phone": "+972539822245",
+    "label": "Gil",
+    "api_id": 22977659,
+    "api_hash": "f119db22f454d1380922b060f7aad4c1",
+    "phone": "+972526601919",
     "session_path": "sessions/tg_ui_session_acc_3.session"
   }
 }

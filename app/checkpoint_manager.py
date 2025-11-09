@@ -1,9 +1,10 @@
 import json
 import os
-from datetime import datetime
-from typing import Dict, Optional
+from datetime import datetime, timedelta, timezone
+from typing import Dict, Optional, Any, List
 from dataclasses import dataclass, asdict
 import logging
+from .group_store import GroupStore
 # Lazy import for cloud storage to avoid loading heavy modules on startup
 # from .cloud_storage import CloudStorageManager, LocalCloudStorage
 
@@ -24,11 +25,19 @@ class ChatCheckpoint:
     total_estimate: Optional[int] = None
     scanned_count: int = 0
     has_unscanned_dates: bool = False
+    group_rules: str = ''
+    last_sent_at: Optional[str] = None
+    send_status: Optional[str] = None
+    send_error: Optional[str] = None
 
 class CheckpointManager:
     def __init__(self, account_id: str):
         self.account_id = account_id
         self.checkpoints_file = f"sessions/checkpoints_{account_id}.json"
+        self.groups_cache_file = f"sessions/groups_{account_id}.json"
+        # Also try the old format for backward compatibility
+        self.groups_cache_file_alt = f"sessions/groups_{account_id.replace('acc_', '')}.json"
+        self.meta_file = f"sessions/account_meta_{account_id}.json"
         self.checkpoints: Dict[int, ChatCheckpoint] = {}
         self.current_progress = {
             'current_chat': '',
@@ -42,25 +51,52 @@ class CheckpointManager:
             'total_messages': 0,
             'scanned_chats': []
         }
+        self.backup_retention_days = int(os.getenv('CLOUD_BACKUP_RETENTION_DAYS', '7'))
+        self.groups_cache = {
+            'groups': [],
+            'updated_at': None,
+            'owner_id': None
+        }
+        self.group_store = GroupStore(account_id)
+        self.meta: Dict[str, Any] = {
+            'owner_id': None,
+            'updated_at': None
+        }
+        self.temporary_messages_file = f"sessions/temporary_messages_{account_id}.json"
+        self.temporary_messages: Dict[str, Dict[str, Any]] = {}
         
         # Initialize cloud storage (lazy loading)
         self.cloud_storage = None
         
         # Load checkpoints first, then try to restore from cloud only if no local data
         self.load_checkpoints()
-        # Only restore from cloud if we have no local data
+        self._load_meta()
+        self.load_groups_cache()
+        self.load_temporary_messages()
+        # Only restore from cloud if we have no local data (non-blocking, don't fail startup)
         if len(self.checkpoints) == 0 and len(self.current_progress.get('scanned_chats', [])) == 0:
-            self.restore_from_cloud()
+            try:
+                self.restore_from_cloud()
+            except Exception as restore_error:
+                # Don't fail startup if cloud restore fails (network issues, etc.)
+                logger.debug(f"Cloud restore failed during initialization (non-critical): {restore_error}")
     
     def _get_cloud_storage(self):
-        """Get cloud storage instance (lazy loading)"""
+        """Get cloud storage instance (lazy loading) - prioritize GitHub Gists, fallback to local"""
         if not self.cloud_storage:
             try:
                 # Lazy import to avoid loading heavy modules on startup
-                from .cloud_storage import CloudStorageManager, LocalCloudStorage
-                self.cloud_storage = CloudStorageManager()
-                if not self._get_cloud_storage().backup_enabled:
+                from .cloud_storage import GitHubGistsStorage, LocalCloudStorage
+                
+                # Try GitHub Gists first (free and reliable)
+                github_storage = GitHubGistsStorage()
+                if github_storage.backup_enabled:
+                    self.cloud_storage = github_storage
+                    logger.info(f"Using GitHub Gists for cloud storage for account {self.account_id}")
+                else:
+                    # Fallback to local storage
                     self.cloud_storage = LocalCloudStorage()
+                    logger.info(f"Using local storage for account {self.account_id}")
             except Exception as e:
                 logger.warning(f"Failed to initialize cloud storage, using local fallback: {e}")
                 from .cloud_storage import LocalCloudStorage
@@ -112,6 +148,172 @@ class CheckpointManager:
             
         except Exception as e:
             logger.error(f"Error saving checkpoints: {e}")
+
+    def load_groups_cache(self):
+        """Load cached group list from disk"""
+        # Try the new format first
+        if os.path.exists(self.groups_cache_file):
+            try:
+                with open(self.groups_cache_file, 'r', encoding='utf-8') as fh:
+                    data = json.load(fh)
+                    if isinstance(data, dict):
+                        self.groups_cache = {
+                            'groups': data.get('groups', []),
+                            'updated_at': data.get('updated_at'),
+                            'owner_id': data.get('owner_id')
+                        }
+                logger.info(f"Loaded cached group list for account {self.account_id} ({len(self.groups_cache.get('groups', []))} groups)")
+                return
+            except Exception as exc:
+                logger.error(f"Error loading group cache for {self.account_id}: {exc}")
+        
+        # Try the old format
+        if os.path.exists(self.groups_cache_file_alt):
+            try:
+                with open(self.groups_cache_file_alt, 'r', encoding='utf-8') as fh:
+                    data = json.load(fh)
+                    if isinstance(data, dict):
+                        self.groups_cache = {
+                            'groups': data.get('groups', []),
+                            'updated_at': data.get('updated_at'),
+                            'owner_id': data.get('owner_id')
+                        }
+                logger.info(f"Loaded cached group list for account {self.account_id} from old format ({len(self.groups_cache.get('groups', []))} groups)")
+                return
+            except Exception as exc:
+                logger.error(f"Error loading group cache for {self.account_id} from old format: {exc}")
+        
+        # If neither file exists or both failed, initialize empty cache
+        self.groups_cache = {
+            'groups': [],
+            'updated_at': None,
+            'owner_id': None
+        }
+
+    def save_groups_cache(self):
+        """Persist cached group list to disk"""
+        try:
+            os.makedirs(os.path.dirname(self.groups_cache_file), exist_ok=True)
+            with open(self.groups_cache_file, 'w', encoding='utf-8') as fh:
+                json.dump(self.groups_cache, fh, ensure_ascii=False, indent=2)
+        except Exception as exc:
+            logger.error(f"Error saving group cache for {self.account_id}: {exc}")
+
+    def get_groups_cache(self):
+        return {
+            'groups': self.groups_cache.get('groups', []),
+            'updated_at': self.groups_cache.get('updated_at'),
+            'owner_id': self.groups_cache.get('owner_id')
+        }
+
+    def _load_meta(self):
+        if os.path.exists(self.meta_file):
+            try:
+                with open(self.meta_file, 'r', encoding='utf-8') as fh:
+                    data = json.load(fh)
+                    if isinstance(data, dict):
+                        self.meta.update(data)
+            except Exception as exc:
+                logger.error(f"Error loading account meta for {self.account_id}: {exc}")
+
+    def _save_meta(self):
+        try:
+            os.makedirs(os.path.dirname(self.meta_file), exist_ok=True)
+            with open(self.meta_file, 'w', encoding='utf-8') as fh:
+                json.dump(self.meta, fh, ensure_ascii=False, indent=2)
+        except Exception as exc:
+            logger.error(f"Error saving account meta for {self.account_id}: {exc}")
+
+    def ensure_owner(self, owner_id: Optional[int]) -> bool:
+        if owner_id is None:
+            return False
+        current_owner = self.meta.get('owner_id')
+        if current_owner == owner_id:
+            return False
+        self._reset_for_new_owner(owner_id)
+        return True
+
+    def _reset_for_new_owner(self, owner_id: int):
+        logger.info(f"Owner change detected for {self.account_id}. Resetting local state.")
+        self.meta['owner_id'] = owner_id
+        self.meta['updated_at'] = datetime.utcnow().isoformat()
+        self._save_meta()
+
+        self.checkpoints = {}
+        self.current_progress = {
+            'status': 'idle',
+            'total': 0,
+            'current_index': 0,
+            'scanned_chats': []
+        }
+        self.save_checkpoints()
+
+        self.groups_cache = {
+            'groups': [],
+            'updated_at': None,
+            'owner_id': owner_id
+        }
+        self.save_groups_cache()
+
+        try:
+            self.group_store.reset()
+        except Exception as exc:
+            logger.warning(f"Failed to reset group store for {self.account_id}: {exc}")
+
+        try:
+            storage = self._get_cloud_storage()
+            if storage and getattr(storage, 'backup_enabled', False):
+                storage.backup_groups(self.account_id, self.groups_cache)
+        except Exception as exc:
+            logger.warning(f"Failed to backup group cache after owner reset for {self.account_id}: {exc}")
+
+    def list_persisted_groups(self):
+        try:
+            return {
+                'groups': self.group_store.list_groups(),
+                'synced_at': self.group_store.synced_at
+            }
+        except Exception as exc:
+            logger.error(f"Error listing persisted groups for {self.account_id}: {exc}")
+            return {
+                'groups': [],
+                'synced_at': self.group_store.synced_at
+            }
+
+    def mark_group_joined(self, chat_id: str, metadata: Optional[Dict[str, Any]] = None):
+        self.group_store.mark_joined(chat_id, metadata)
+
+    def mark_group_status(self, chat_id: str, status: str, metadata: Optional[Dict[str, Any]] = None):
+        self.group_store.mark_status(chat_id, status, metadata)
+
+    def mark_group_left(self, chat_id: str):
+        self.group_store.mark_left(chat_id)
+
+    def increment_group_sent(self, chat_id: str, count: int = 1):
+        self.group_store.increment_sent(chat_id, count)
+
+    def increment_group_deleted(self, chat_id: str, count: int = 1):
+        self.group_store.increment_deleted(chat_id, count)
+
+    def update_groups_cache(self, groups, owner_id: Optional[int] = None):
+        try:
+            updated_at = datetime.utcnow().isoformat()
+            self.groups_cache = {
+                'groups': groups,
+                'updated_at': updated_at,
+                'owner_id': owner_id if owner_id is not None else self.groups_cache.get('owner_id')
+            }
+            self.save_groups_cache()
+            try:
+                self.group_store.upsert_from_scan(groups)
+                self.group_store.set_synced_at(updated_at)
+            except Exception as exc:
+                logger.error(f"Failed to sync group store for {self.account_id}: {exc}")
+            storage = self._get_cloud_storage()
+            if storage and getattr(storage, 'backup_enabled', False):
+                storage.backup_groups(self.account_id, self.groups_cache)
+        except Exception as exc:
+            logger.error(f"Error updating group cache for {self.account_id}: {exc}")
     
     def get_checkpoint(self, chat_id: int, only_if_deleted: bool = False) -> Optional[ChatCheckpoint]:
         """Get checkpoint for a specific chat, optionally only if messages were deleted"""
@@ -195,6 +397,55 @@ class CheckpointManager:
         }
         self.save_checkpoints()
     
+    def clear_scan_cache(self):
+        """Clear all scan cache and checkpoints but keep session/auth data"""
+        # Clear checkpoints
+        self.checkpoints = {}
+        
+        # Clear scan progress
+        self.current_progress = {
+            'current_chat': '',
+            'current_chat_id': 0,
+            'chat_id': 0,
+            'status': 'idle',
+            'total_chats': 0,
+            'current_index': 0,
+            'completed': 0,
+            'skipped': 0,
+            'errors': 0,
+            'total_messages': 0,
+            'scanned_chats': []
+        }
+        
+        # Delete checkpoint files
+        try:
+            if os.path.exists(self.checkpoints_file):
+                os.remove(self.checkpoints_file)
+                logger.info(f"Deleted checkpoints file: {self.checkpoints_file}")
+        except Exception as e:
+            logger.error(f"Error deleting checkpoints file: {e}")
+        
+        # Clear groups cache scan data but keep groups list
+        # Keep groups list but reset scan-related fields
+        if self.groups_cache.get('groups'):
+            for group in self.groups_cache['groups']:
+                if isinstance(group, dict):
+                    # Remove scan-related fields but keep group info
+                    group.pop('last_scan_date', None)
+                    group.pop('messages_found', None)
+                    group.pop('messages_deleted', None)
+                    group.pop('progress_percent', None)
+                    group.pop('has_unscanned_dates', None)
+            self.save_groups_cache()
+        
+        # Clear group store scan data
+        try:
+            self.group_store.clear_scan_data()
+        except Exception as e:
+            logger.error(f"Error clearing group store scan data: {e}")
+        
+        logger.info(f"Cleared scan cache for account {self.account_id}")
+    
     def start_scan(self, total_chats: int):
         """Initialize scan progress"""
         self.current_progress = {
@@ -213,7 +464,9 @@ class CheckpointManager:
     
     def update_chat_progress(self, chat_id: int, chat_title: str, status: str, 
                            messages_found: int = 0, error: str = None, skipped_reason: str = None, 
-                           last_scan_date: str = None, messages: list = None):
+                           last_scan_date: str = None, messages: list = None,
+                           group_rules: str = '', last_sent_at: Optional[str] = None,
+                           send_status: Optional[str] = None, send_error: Optional[str] = None):
         """Update progress for current chat"""
         self.current_progress['current_chat'] = chat_title
         self.current_progress['chat_id'] = chat_id
@@ -238,7 +491,11 @@ class CheckpointManager:
                 'messages': messages or (existing_chat.get('messages', []) if existing_chat else []),
                 'messages_deleted': existing_chat.get('messages_deleted', 0) if existing_chat else 0,
                 'last_scan_date': last_scan_date or (existing_chat.get('last_scan_date') if existing_chat else None),
-                'member_count': existing_chat.get('member_count', 0) if existing_chat else 0
+                'member_count': existing_chat.get('member_count', 0) if existing_chat else 0,
+                'group_rules': group_rules or (existing_chat.get('group_rules') if existing_chat else ''),
+                'last_sent_at': last_sent_at or (existing_chat.get('last_sent_at') if existing_chat else None),
+                'send_status': send_status or (existing_chat.get('send_status') if existing_chat else None),
+                'send_error': send_error or (existing_chat.get('send_error') if existing_chat else None)
             }
             
             # Remove existing entry if exists
@@ -279,6 +536,7 @@ class CheckpointManager:
     def finish_scan(self):
         """Mark scan as finished"""
         self.current_progress['status'] = 'completed'
+        self.auto_backup()
     
     def get_current_progress(self):
         """Get current scan progress"""
@@ -302,20 +560,40 @@ class CheckpointManager:
             
             # Backup scan progress
             self._get_cloud_storage().backup_scan_data(self.account_id, self.current_progress)
+
+            # Backup cached group list
+            self._get_cloud_storage().backup_groups(self.account_id, self.groups_cache)
             
             logger.info(f"Successfully backed up data for account {self.account_id}")
             
         except Exception as e:
             logger.error(f"Error backing up to cloud: {e}")
     
+    def auto_backup(self) -> bool:
+        """Ensure scan data is synced to cloud and prune old backups"""
+        try:
+            storage = self._get_cloud_storage()
+            if not storage or not storage.backup_enabled:
+                logger.debug("Cloud backup not enabled; skipping auto backup")
+                return False
+            
+            self.backup_to_cloud()
+            retention_days = max(1, self.backup_retention_days)
+            storage.prune_old_backups(self.account_id, retention_days)
+            return True
+        except Exception as e:
+            logger.error(f"Error during automatic backup: {e}")
+            return False
+    
     def restore_from_cloud(self):
         """Restore data from cloud storage if local data is empty or outdated"""
         try:
             # Check if we have local data
-            has_local_data = len(self.checkpoints) > 0 or len(self.current_progress.get('scanned_chats', [])) > 0
+            has_checkpoints = len(self.checkpoints) > 0
+            has_scanned_chats = len(self.current_progress.get('scanned_chats', [])) > 0
             
-            if has_local_data:
-                logger.info(f"Local data exists for account {self.account_id}, skipping cloud restore")
+            if has_checkpoints and has_scanned_chats:
+                logger.info(f"Local checkpoints and scanned chats exist for account {self.account_id}, skipping cloud restore")
                 return
             
             # Try to restore checkpoints from cloud
@@ -355,6 +633,17 @@ class CheckpointManager:
             # Save restored data locally
             if cloud_checkpoints or cloud_scan_data:
                 self.save_checkpoints()
+            
+            # Restore cached group list if we don't have one locally
+            if not self.groups_cache.get('groups'):
+                cloud_groups = self._get_cloud_storage().restore_latest_data(self.account_id, 'groups')
+                if isinstance(cloud_groups, dict) and cloud_groups.get('groups') is not None:
+                    self.groups_cache = {
+                        'groups': cloud_groups.get('groups', []),
+                        'updated_at': cloud_groups.get('updated_at')
+                    }
+                    self.save_groups_cache()
+                    logger.info(f"Restored group cache from cloud for account {self.account_id} ({len(self.groups_cache.get('groups', []))} groups)")
                 
         except Exception as e:
             logger.error(f"Error restoring from cloud: {e}")
@@ -362,8 +651,11 @@ class CheckpointManager:
     def force_sync_to_cloud(self):
         """Force sync all current data to cloud storage"""
         try:
-            self.backup_to_cloud()
-            logger.info(f"Force sync completed for account {self.account_id}")
+            success = self.auto_backup()
+            if success:
+                logger.info(f"Force sync completed for account {self.account_id}")
+            else:
+                logger.warning(f"Cloud backup skipped for account {self.account_id}")
         except Exception as e:
             logger.error(f"Error in force sync: {e}")
     
@@ -379,3 +671,111 @@ class CheckpointManager:
         except Exception as e:
             logger.error(f"Error getting backup info: {e}")
             return {'backup_count': 0, 'latest_backup': None, 'all_backups': []}
+    
+    def load_temporary_messages(self):
+        """Load temporary messages from file"""
+        if os.path.exists(self.temporary_messages_file):
+            try:
+                with open(self.temporary_messages_file, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                    self.temporary_messages = data if isinstance(data, dict) else {}
+                logger.info(f"Loaded {len(self.temporary_messages)} temporary messages for account {self.account_id}")
+            except Exception as e:
+                logger.error(f"Error loading temporary messages: {e}")
+                self.temporary_messages = {}
+        else:
+            self.temporary_messages = {}
+    
+    def save_temporary_messages(self):
+        """Save temporary messages to file"""
+        try:
+            os.makedirs(os.path.dirname(self.temporary_messages_file), exist_ok=True)
+            with open(self.temporary_messages_file, 'w', encoding='utf-8') as f:
+                json.dump(self.temporary_messages, f, ensure_ascii=False, indent=2)
+        except Exception as e:
+            logger.error(f"Error saving temporary messages: {e}")
+    
+    def add_temporary_message(self, chat_id: int, chat_title: str, message_id: int, sent_at: str):
+        """Add a temporary message that should be deleted after 1 hour"""
+        message_key = f"{chat_id}_{message_id}"
+        deletes_at = (datetime.fromisoformat(sent_at.replace('Z', '+00:00')) + timedelta(hours=1)).isoformat()
+        
+        self.temporary_messages[message_key] = {
+            'account_id': self.account_id,
+            'chat_id': chat_id,
+            'chat_title': chat_title,
+            'message_id': message_id,
+            'sent_at': sent_at,
+            'deletes_at': deletes_at,
+            'deleted': False
+        }
+        self.save_temporary_messages()
+        logger.info(f"Added temporary message {message_id} in chat {chat_id} ({chat_title}), will delete at {deletes_at}")
+    
+    def get_expired_temporary_messages(self) -> list:
+        """Get list of temporary messages that should be deleted (expired more than 1 hour ago)"""
+        now = datetime.now(timezone.utc)
+        expired = []
+        for message_key, msg_data in self.temporary_messages.items():
+            if msg_data.get('deleted', False):
+                continue
+            try:
+                deletes_at_str = msg_data.get('deletes_at')
+                if not deletes_at_str:
+                    continue
+                # Handle both with and without timezone
+                deletes_at = datetime.fromisoformat(deletes_at_str.replace('Z', '+00:00'))
+                if deletes_at.tzinfo is None:
+                    deletes_at = deletes_at.replace(tzinfo=timezone.utc)
+                else:
+                    deletes_at = deletes_at.astimezone(timezone.utc)
+                
+                if deletes_at <= now:
+                    expired.append({
+                        'key': message_key,
+                        **msg_data
+                    })
+            except Exception as e:
+                logger.warning(f"Error checking expiration for temporary message {message_key}: {e}")
+        return expired
+    
+    def get_active_temporary_messages(self) -> list:
+        """Get list of all active temporary messages with time remaining"""
+        now = datetime.now(timezone.utc)
+        active = []
+        for message_key, msg_data in self.temporary_messages.items():
+            if msg_data.get('deleted', False):
+                continue
+            try:
+                deletes_at_str = msg_data.get('deletes_at')
+                if not deletes_at_str:
+                    continue
+                deletes_at = datetime.fromisoformat(deletes_at_str.replace('Z', '+00:00'))
+                if deletes_at.tzinfo is None:
+                    deletes_at = deletes_at.replace(tzinfo=timezone.utc)
+                else:
+                    deletes_at = deletes_at.astimezone(timezone.utc)
+                
+                if deletes_at > now:
+                    time_remaining = deletes_at - now
+                    minutes_remaining = int(time_remaining.total_seconds() / 60)
+                    active.append({
+                        'key': message_key,
+                        'minutes_remaining': minutes_remaining,
+                        **msg_data
+                    })
+            except Exception as e:
+                logger.warning(f"Error calculating time remaining for temporary message {message_key}: {e}")
+        return active
+    
+    def mark_temporary_message_deleted(self, message_key: str):
+        """Mark a temporary message as deleted"""
+        if message_key in self.temporary_messages:
+            self.temporary_messages[message_key]['deleted'] = True
+            self.save_temporary_messages()
+    
+    def remove_temporary_message(self, message_key: str):
+        """Remove a temporary message from storage"""
+        if message_key in self.temporary_messages:
+            del self.temporary_messages[message_key]
+            self.save_temporary_messages()

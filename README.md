@@ -15,6 +15,46 @@
 - **פעולה מקומית**: הכל רץ על המחשב שלך - שום מידע לא נשלח לשרתים חיצוניים
 - **גיבוי מומלץ**: כדאי לגבות הודעות חשובות לפני המחיקה
 
+## ⚙️ חלוקת טרמינלים מומלצת
+
+**טרמינל 1 – שרת FastAPI**
+
+```bash
+# ודא שאין שרת קודם שרץ (לא חובה אבל מסייע אם קיבלת Address already in use)
+lsof -iTCP:8001 -sTCP:LISTEN
+# אם יש PID פעיל:
+kill <PID>
+# ואז הפעל מחדש
+source venv/bin/activate
+uvicorn app.main:app --host 127.0.0.1 --port 8001 --reload
+```
+השאר את החלון פתוח; כאן תראה את לוגי ה־API ואת הסריקות.
+
+**טרמינל 2 – פרונט React**
+
+```bash
+# ודא שנקייה הפורט 5173 במידת הצורך
+lsof -iTCP:5173 -sTCP:LISTEN
+# אם צריך לעצור שרת קודם:
+kill <PID>
+npm run dev
+```
+אחרי שה־backend מוכן, זה מעלה את Vite בדפדפן ב-`http://127.0.0.1:5173`.
+
+**טרמינל 3 – פקודות תחזוקה**
+
+בצע כאן בדיקות/גיבויים בזמן אמת בלי להעמיס על לוגי השרת, למשל:
+
+```bash
+curl -s http://127.0.0.1:8001/accounts
+tail -f logs/backend.log
+python tools/something.py
+# אפשר גם לעצור שרתים:
+pkill -f "uvicorn app.main"
+pkill -f "npm run dev"
+```
+השאר את שלושת החלונות פתוחים במקביל; כך כל שלב מופרד וברור.
+
 ## 📥 הורדה והתקנה - צעד אחרי צעד
 
 הדמו האונליין הוא רק לתצוגה. כדי להשתמש בפונקציונליות האמיתית, יש להוריד ולהריץ מקומית:
@@ -78,7 +118,7 @@ run.bat
 **אם יש שגיאות:**
 - `python: command not found` → השתמש ב-`python3` במקום `python`
 - `npm: command not found` → התקן Node.js מ-https://nodejs.org
-- `ECONNREFUSED 127.0.0.1:8000` → חכה 30 שניות ורענן את הדפדפן
+- `ECONNREFUSED 127.0.0.1:8001` → חכה 30 שניות ורענן את הדפדפן
 
 ### שלב 4: פתיחת האפליקציה
 
@@ -113,6 +153,11 @@ run.bat
 - **Message limits**: Set maximum messages to delete per chat
 - **Deletion type**: Choose to delete for everyone (revoke) or just for yourself
 
+### Messaging Workflow
+- **Cached group list**: במסך שליחת ההודעות מתקבלת מיד הרשימה האחרונה ששמורה בשרת (ובענן), כך שאפשר להתחיל לעבוד מיידית.
+- **עדכון שקט**: בזמן שהרשימה מוצגת, מתבצע רענון ברקע; מוצג חיווי שמדובר ברשימה קודמת בזמן שהעדכון נמשך.
+- **סנכרון ענן**: כל רענון מלא נשמר גם בקבצים המקומיים וגם בענן, כך שהרשימה זמינה גם אחרי הפעלה מחדש או ממחשב אחר.
+
 ### Testing & Validation
 - **Test mode**: Process only first 5 chats for quick validation
 - **Detailed logging**: Real-time progress and error logs
@@ -123,6 +168,12 @@ run.bat
 - **Session Storage**: Your Telegram session is stored locally in `tg_ui_session.session`
 - **Credentials**: API credentials are only used locally and never transmitted elsewhere
 - **Privacy**: No analytics, tracking, or external connections except to Telegram's servers
+
+## ☁️ Cloud Backups
+
+- **Auto sync**: בסיום כל סריקה, הנתונים מסונכרנים אוטומטית לענן אם הוגדרו המשתנים `CLOUD_STORAGE_ENDPOINT` ו-`CLOUD_STORAGE_API_KEY`
+- **שבוע אחורה**: נשמרים רק גיבויים מה-7 ימים האחרונים (ניתן לשינוי עם `CLOUD_BACKUP_RETENTION_DAYS`)
+- **גיבוי ידני**: עדיין אפשר להריץ גיבוי או שחזור ידניים מהכרטיס של כל חשבון, גם מעבר לאוטומציה
 
 ## 📊 Understanding the Results
 

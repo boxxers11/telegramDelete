@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { Users, CheckCircle, XCircle, Loader, RefreshCw } from 'lucide-react';
+import React, { useEffect, useMemo, useState, useRef } from 'react';
+import { Users, CheckCircle, XCircle, Loader, RefreshCw, Trash2 } from 'lucide-react';
+import { groupsStore, useGroupsAccountState } from '../../state/groups.store';
 
 interface ChatInfo {
   id: number;
@@ -8,16 +9,29 @@ interface ChatInfo {
   type?: string;
   lastMessageTime?: number;
   lastMessageContent?: string;
+  folder_id?: number | null;
+  folder_name?: string;
+  group_rules?: string;
+  last_sent_at?: string | null;
+  is_blocked?: boolean;
+  is_new?: boolean;
 }
 
 interface SharedGroupsListProps {
   accountId: string;
-  isAuthenticated: boolean; // Prop to check connection status
+  isAuthenticated: boolean;
   onGroupsLoaded?: (groups: ChatInfo[]) => void;
   showSelection?: boolean;
   selectedChats?: Set<number>;
   onSelectionChange?: (selected: Set<number>) => void;
   showLastMessageTime?: boolean;
+  folderFilter?: string | null;
+  blockedChats?: Set<number>;
+  hideBlocked?: boolean;
+  lastSentMap?: Record<number, string>;
+  onDeleteAll?: () => void;
+  showDeleteAll?: boolean;
+  minMinutesSinceLastSend?: number;
 }
 
 const SharedGroupsList: React.FC<SharedGroupsListProps> = ({
@@ -27,204 +41,255 @@ const SharedGroupsList: React.FC<SharedGroupsListProps> = ({
   showSelection = false,
   selectedChats = new Set(),
   onSelectionChange,
-  showLastMessageTime = false
+  showLastMessageTime = false,
+  folderFilter = null,
+  blockedChats,
+  hideBlocked = false,
+  lastSentMap,
+  onDeleteAll,
+  showDeleteAll = false,
+  minMinutesSinceLastSend
 }) => {
-  const [allChats, setAllChats] = useState<ChatInfo[]>([]);
-  const [loadingChats, setLoadingChats] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const accountState = useGroupsAccountState(accountId);
   const [filterText, setFilterText] = useState('');
-
-  const loadAllChats = async () => {
-    // **THE FIX**: Don't fetch if the account is not connected
-    if (!isAuthenticated) {
-      setError("Account is not connected. Please connect the account first.");
-      setLoadingChats(false);
-      return;
-    }
-    setLoadingChats(true);
-    setError(null);
-    try {
-      const response = await fetch(`http://127.0.0.1:8001/accounts/${accountId}/chats`);
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success) {
-          const chats = data.chats || [];
-          setAllChats(chats);
-          localStorage.setItem(`groups_${accountId}`, JSON.stringify(chats));
-          onGroupsLoaded?.(chats);
-        } else {
-           throw new Error(data.error || 'Failed to load chats');
-        }
-      } else {
-        throw new Error(`Failed to load chats: ${response.statusText}`);
-      }
-    } catch (err) {
-      const error = err as Error;
-      console.error('Error loading chats:', error);
-      const savedGroups = localStorage.getItem(`groups_${accountId}`);
-      if (savedGroups) {
-        try {
-          const groups = JSON.parse(savedGroups);
-          setAllChats(groups);
-          onGroupsLoaded?.(groups);
-          setError("Couldn't refresh list, showing saved data.");
-        } catch {
-          setError('שגיאה בטעינת רשימת קבוצות.');
-        }
-      } else {
-        setError('שגיאה בטעינת רשימת קבוצות.');
-      }
-    } finally {
-      setLoadingChats(false);
-    }
-  };
 
   useEffect(() => {
     if (isAuthenticated) {
-      loadAllChats();
-    } else {
-      const savedGroups = localStorage.getItem(`groups_${accountId}`);
-      if (savedGroups) {
-          try {
-              const groups = JSON.parse(savedGroups);
-              setAllChats(groups);
-              onGroupsLoaded?.(groups);
-          } catch {}
-      }
-      setLoadingChats(false);
+      groupsStore.initialise(accountId, true);
     }
   }, [accountId, isAuthenticated]);
 
+  const getFolderKey = (chat: ChatInfo) => String(chat.folder_id ?? 'none');
+
+  const normalizedGroups = useMemo<ChatInfo[]>(() => {
+    return accountState.groups.map((group) => {
+      const metadata = (group.metadata ?? {}) as Record<string, unknown>;
+      const numericId = Number(group.id);
+      const folderIdRaw = metadata.folder_id ?? metadata.folderId;
+      const folderId = typeof folderIdRaw === 'number' ? folderIdRaw : Number(folderIdRaw ?? NaN);
+      const folderNameRaw = metadata.folder_name ?? metadata.folderName;
+      const lastMessageTimeRaw = metadata.lastMessageTime ?? metadata.last_message_time;
+      const lastMessageTime = typeof lastMessageTimeRaw === 'number'
+        ? lastMessageTimeRaw
+        : typeof lastMessageTimeRaw === 'string'
+          ? Number(lastMessageTimeRaw)
+          : undefined;
+      const lastMessageContent = typeof metadata.lastMessageContent === 'string'
+        ? metadata.lastMessageContent
+        : typeof metadata.last_message_content === 'string'
+          ? metadata.last_message_content as string
+          : undefined;
+
+      const mapped: ChatInfo = {
+        id: Number.isNaN(numericId) ? 0 : numericId,
+        title: group.title || group.username || String(group.id),
+        member_count: group.member_count ?? 0,
+        type: typeof metadata.type === 'string' ? metadata.type : 'group',
+        lastMessageTime,
+        lastMessageContent,
+        folder_id: Number.isNaN(folderId) ? null : folderId,
+        folder_name: typeof folderNameRaw === 'string' ? folderNameRaw : 'ללא תיקייה',
+        group_rules: typeof metadata.group_rules === 'string' ? metadata.group_rules : undefined,
+        last_sent_at: lastSentMap?.[numericId] ?? null,
+        is_blocked: blockedChats?.has(numericId) ?? false,
+        is_new: group.is_new ?? false
+      };
+
+      return mapped;
+    });
+  }, [accountState.groups, blockedChats, lastSentMap]);
+
+  const prevSigRef = useRef<string>('');
+  useEffect(() => {
+    if (!onGroupsLoaded) return;
+    const sig = JSON.stringify(normalizedGroups.map(g => [g.id, g.member_count, g.lastMessageTime]));
+    if (sig !== prevSigRef.current) {
+      prevSigRef.current = sig;
+      onGroupsLoaded(normalizedGroups);
+    }
+  }, [normalizedGroups]);
+
   const filteredChats = useMemo(() => {
-    if (!filterText) return allChats;
-    return allChats.filter(chat =>
-      chat.title.toLowerCase().includes(filterText.toLowerCase())
-    );
-  }, [allChats, filterText]);
+    return normalizedGroups.filter((chat) => {
+      const matchesText = filterText
+        ? chat.title.toLowerCase().includes(filterText.toLowerCase())
+        : true;
+      const matchesFolder = !folderFilter || folderFilter === getFolderKey(chat);
+      const isBlocked = blockedChats?.has(chat.id) ?? chat.is_blocked ?? false;
+      if (hideBlocked && isBlocked) {
+        return false;
+      }
+      if (minMinutesSinceLastSend && minMinutesSinceLastSend > 0) {
+        const lastSentAt = chat.last_sent_at ? Date.parse(chat.last_sent_at) : NaN;
+        if (!Number.isNaN(lastSentAt)) {
+          const minutesSince = (Date.now() - lastSentAt) / 60000;
+          if (minutesSince < minMinutesSinceLastSend) {
+            return false;
+          }
+        }
+      }
+      return matchesText && matchesFolder;
+    });
+  }, [normalizedGroups, filterText, folderFilter, blockedChats, hideBlocked, minMinutesSinceLastSend]);
 
-  const formatLastMessageTime = (timestamp?: number) => {
-    if (!timestamp) return 'לא ידוע';
-    const date = new Date(timestamp);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-    
-    if (diffHours < 1) return <span className="text-green-400">פחות משעה</span>;
-    if (diffHours < 24) return `${diffHours} שעות`;
-    const diffDays = Math.floor(diffHours / 24);
-    return `${diffDays} ימים`;
-  };
+  const sortedChats = useMemo(() => {
+    const chatsCopy = [...filteredChats];
+    return chatsCopy.sort((a, b) => {
+      // Keep "new" groups first
+      if (a.is_new && !b.is_new) return -1;
+      if (!a.is_new && b.is_new) return 1;
 
-  const handleChatSelection = (chatId: number, checked: boolean) => {
-    if (!onSelectionChange) return;
-    const newSelected = new Set(selectedChats);
-    if (checked) {
-      newSelected.add(chatId);
+      const aSent = a.last_sent_at ? new Date(a.last_sent_at).getTime() : 0;
+      const bSent = b.last_sent_at ? new Date(b.last_sent_at).getTime() : 0;
+      if (aSent !== bSent) {
+        return bSent - aSent;
+      }
+      const aActivity = a.lastMessageTime ?? 0;
+      const bActivity = b.lastMessageTime ?? 0;
+      if (aActivity !== bActivity) {
+        return bActivity - aActivity;
+      }
+      return a.title.localeCompare(b.title, 'he-IL');
+    });
+  }, [filteredChats]);
+
+  const totalGroups = normalizedGroups.length;
+  const lastUpdated = accountState.syncedAt ?? accountState.lastUpdated ?? null;
+  const isInitialLoading = accountState.loading && !accountState.loaded;
+  const isRefreshing = accountState.refreshing;
+  const error = accountState.error;
+
+  const toggleSelection = (chatId: number) => {
+    if (!showSelection || !onSelectionChange) return;
+    const updated = new Set(selectedChats);
+    if (updated.has(chatId)) {
+      updated.delete(chatId);
     } else {
-      newSelected.delete(chatId);
+      updated.add(chatId);
     }
-    onSelectionChange(newSelected);
-  };
-  
-  const allVisibleSelected = filteredChats.length > 0 && filteredChats.every(chat => selectedChats.has(chat.id));
-
-  const handleSelectAllVisible = () => {
-    if (!onSelectionChange) return;
-    const newSelected = new Set(selectedChats);
-    if (allVisibleSelected) {
-        filteredChats.forEach(chat => newSelected.delete(chat.id));
-    } else {
-        filteredChats.forEach(chat => newSelected.add(chat.id));
-    }
-    onSelectionChange(newSelected);
+    onSelectionChange(updated);
   };
 
-
-  if (loadingChats && allChats.length === 0) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <div className="text-center">
-          <Loader className="w-8 h-8 text-blue-400 animate-spin mx-auto" />
-          <div className="text-white/80 mt-4">טוען רשימת קבוצות...</div>
-        </div>
-      </div>
-    );
-  }
-  
-  if (error && allChats.length === 0) {
-    return (
-        <div className="text-center py-10 text-red-400">
-            <p>{error}</p>
-            <button onClick={loadAllChats} className="btn-secondary mt-4" disabled={!isAuthenticated}>נסה שוב</button>
-        </div>
-    );
-  }
+  const handleRefresh = () => {
+    groupsStore.refresh(accountId);
+  };
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex items-center justify-between mb-4 flex-shrink-0">
-         <input
-          type="text"
-          placeholder="חפש קבוצה..."
-          value={filterText}
-          onChange={(e) => setFilterText(e.target.value)}
-          className="w-full p-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50"
-        />
-        <button 
-          onClick={loadAllChats}
-          className="btn-secondary p-2 ml-2"
-          disabled={!isAuthenticated || loadingChats}
-          title="רענן רשימה"
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2 text-sm text-white/70">
+          <Users className="h-4 w-4" />
+          <span>סה"כ קבוצות: {totalGroups}</span>
+          {lastUpdated && (
+            <span className="text-xs text-white/40">
+              עודכן: {new Date(lastUpdated).toLocaleString('he-IL')}
+            </span>
+          )}
+        </div>
+        <button
+          type="button"
+          onClick={handleRefresh}
+          className="flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white hover:bg-white/10 disabled:opacity-50"
+          disabled={isRefreshing}
         >
-          <RefreshCw className={`w-4 h-4 ${loadingChats ? 'animate-spin' : ''}`} />
+          <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+          רענן
         </button>
       </div>
-      
-      {showSelection && (
-        <div className="flex items-center justify-between mb-2 flex-shrink-0">
-          <div className="flex items-center space-x-3">
-            <button 
-              onClick={handleSelectAllVisible} 
-              className="text-sm text-blue-400 hover:text-blue-300"
-            >
-              {allVisibleSelected ? "בטל בחירת הנראות" : "בחר את כל הנראות"}
-            </button>
-          </div>
-           <span className="text-white/60 text-sm">
-              {selectedChats.size} / {allChats.length} נבחרו
-            </span>
-        </div>
-      )}
-      
-      {/* **THE CSS FIX**: This div will now scroll correctly within the modal */}
-      <div className="flex-grow overflow-y-auto space-y-2 pr-2">
-        {filteredChats.map((chat) => (
-          <div key={chat.id} className="flex items-center justify-between p-2 bg-white/10 rounded-lg">
-            <div className="flex items-center space-x-2 overflow-hidden">
-              {showSelection && (
-                <input
-                  type="checkbox"
-                  checked={selectedChats.has(chat.id)}
-                  onChange={(e) => handleChatSelection(chat.id, e.target.checked)}
-                  className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded"
-                />
-              )}
-              <div className="overflow-hidden">
-                <div className="text-white font-medium text-sm truncate">{chat.title}</div>
-                <div className="text-white/60 text-xs">
-                  {chat.member_count.toLocaleString()} חברים
-                  {showLastMessageTime && ` • ${formatLastMessageTime(chat.lastMessageTime)}`}
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
-         {filteredChats.length === 0 && !loadingChats && (
-            <div className="text-center py-10 text-white/50">
-                לא נמצאו קבוצות התואמות לחיפוש.
-            </div>
+
+      <div className="flex items-center gap-3">
+        <input
+          type="text"
+          value={filterText}
+          onChange={(event) => setFilterText(event.target.value)}
+          placeholder="חיפוש לפי שם קבוצה או @username"
+          className="w-full rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm text-white placeholder-white/40 focus:border-white/40 focus:outline-none"
+        />
+        {showDeleteAll && onDeleteAll && (
+          <button
+            type="button"
+            onClick={onDeleteAll}
+            className="flex items-center gap-1 rounded-full border border-red-400/60 bg-red-500/20 px-3 py-2 text-xs text-red-200 hover:bg-red-500/30 transition-colors"
+          >
+            <Trash2 className="h-4 w-4" />
+            מחיקת הכל
+          </button>
         )}
       </div>
+
+      {error && (
+        <div className="flex items-center gap-2 rounded-2xl border border-rose-400/40 bg-rose-500/10 p-3 text-sm text-rose-200">
+          <XCircle className="h-5 w-5" />
+          {error}
+        </div>
+      )}
+
+      {!isAuthenticated ? (
+        <div className="flex h-48 flex-col items-center justify-center gap-3 text-sm text-white/60">
+          <Users className="h-10 w-10" />
+          <span>יש להתחבר לחשבון כדי להציג קבוצות</span>
+        </div>
+      ) : isInitialLoading ? (
+        <div className="flex h-48 items-center justify-center text-white/70">
+          <Loader className="mr-2 h-5 w-5 animate-spin" />
+          טוען רשימת קבוצות...
+        </div>
+      ) : (
+        <div className="max-h-[60vh] overflow-y-auto rounded-3xl border border-white/10 bg-white/5">
+          {sortedChats.length === 0 ? (
+            <div className="flex h-40 flex-col items-center justify-center gap-3 text-sm text-white/60">
+              <Users className="h-10 w-10" />
+              <span>לא נמצאו קבוצות תואמות</span>
+            </div>
+          ) : (
+            <ul className="divide-y divide-white/10">
+              {sortedChats.map((chat) => {
+                const selected = selectedChats.has(chat.id);
+                return (
+                  <li
+                    key={chat.id}
+                    className={`flex items-center justify-between px-4 py-3 text-sm transition hover:bg-white/5 ${selected ? 'bg-white/5' : ''}`}
+                  >
+                    <div className="flex flex-col">
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-white">{chat.title}</span>
+                        {chat.is_new && (
+                          <span className="rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-semibold text-emerald-200">
+                            חדש • 24 שעות
+                          </span>
+                        )}
+                        <span className="text-xs text-white/50">{chat.member_count} חברים</span>
+                      </div>
+                      {showLastMessageTime && chat.lastMessageTime && (
+                        <span className="text-xs text-white/40">
+                          פעילות אחרונה: {new Date(chat.lastMessageTime).toLocaleString('he-IL')}
+                        </span>
+                      )}
+                      {chat.lastMessageContent && (
+                        <span className="text-xs text-white/60">{chat.lastMessageContent}</span>
+                      )}
+                    </div>
+                    {showSelection && (
+                      <button
+                        type="button"
+                        onClick={() => toggleSelection(chat.id)}
+                        className={`flex items-center gap-1 rounded-full border px-3 py-1 text-xs ${
+                          selected
+                            ? 'border-emerald-400/60 bg-emerald-500/20 text-emerald-100'
+                            : 'border-white/20 bg-white/5 text-white hover:bg-white/10'
+                        }`}
+                      >
+                        {selected ? <CheckCircle className="h-4 w-4" /> : <Users className="h-4 w-4" />}
+                        {selected ? 'נבחרה' : 'בחר'}
+                      </button>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </div>
+      )}
     </div>
   );
 };

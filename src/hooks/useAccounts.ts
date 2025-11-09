@@ -1,4 +1,5 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
+import { apiFetch, apiUrl } from '../config/api';
 
 export interface Account {
     id: string;
@@ -8,6 +9,7 @@ export interface Account {
     api_hash: string;
     is_authenticated: boolean;
     username?: string;
+    last_connected_at?: string | null;
 }
 
 export interface LoginData {
@@ -17,18 +19,51 @@ export interface LoginData {
     needs2FA: boolean;
 }
 
+interface BulkConnectState {
+    active: boolean;
+    total: number;
+    completed: number;
+    currentAccountId: string | null;
+}
+
+interface ConnectAccountOptions {
+    suppressSuccess?: boolean;
+}
+
 export const useAccounts = () => {
     const [accounts, setAccounts] = useState<Account[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
     const [showLoginModal, setShowLoginModal] = useState<LoginData | null>(null);
+    const [bulkState, setBulkState] = useState<BulkConnectState>({
+        active: false,
+        total: 0,
+        completed: 0,
+        currentAccountId: null
+    });
+    const [isBulkConnecting, setIsBulkConnecting] = useState(false);
+    const bulkResolvers = useRef<Record<string, (result: boolean) => void>>({});
+
+    useEffect(() => {
+        return () => {
+            Object.values(bulkResolvers.current).forEach((resolve) => {
+                try {
+                    resolve(false);
+                } catch (error) {
+                    console.error('Bulk resolver cleanup error:', error);
+                }
+            });
+            bulkResolvers.current = {};
+        };
+    }, []);
 
     const loadAccounts = useCallback(async () => {
         setLoading(true);
         try {
-            console.log('Loading accounts from http://127.0.0.1:8001/accounts');
-            const response = await fetch('http://127.0.0.1:8001/accounts');
+            const endpoint = apiUrl('/accounts');
+            console.log('Loading accounts from', endpoint);
+            const response = await apiFetch('/accounts');
             console.log('Response status:', response.status);
             
             if (response.ok) {
@@ -36,7 +71,8 @@ export const useAccounts = () => {
                 console.log('Raw data from API:', data);
                 const updatedAccounts = data.map((acc: any) => ({
                     ...acc,
-                    is_authenticated: acc.is_authenticated || false
+                    is_authenticated: acc.is_authenticated || false,
+                    last_connected_at: acc.last_connected_at ?? acc.connected_at ?? null
                 }));
                 setAccounts(updatedAccounts);
                 console.log('Loaded accounts:', updatedAccounts);
@@ -82,7 +118,7 @@ export const useAccounts = () => {
         setSuccess(null);
 
         try {
-            const response = await fetch('http://127.0.0.1:8001/accounts', {
+            const response = await apiFetch('/accounts', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -114,12 +150,12 @@ export const useAccounts = () => {
         }
     }, [loadAccounts]);
 
-    const connectAccount = useCallback(async (accountId: string) => {
+    const connectAccount = useCallback(async (accountId: string, options: ConnectAccountOptions = {}) => {
         setLoading(true);
         setError(null);
 
         try {
-            const response = await fetch(`http://127.0.0.1:8001/accounts/${accountId}/connect`, {
+            const response = await apiFetch(`/accounts/${accountId}/connect`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -140,11 +176,18 @@ export const useAccounts = () => {
                     setSuccess('Verification code sent! Check your Telegram app.');
                     return { success: true, needsVerification: true };
                 } else if (data.status === 'AUTHENTICATED') {
-                    setSuccess(`Connected successfully as @${data.username}!`);
+                    if (!options.suppressSuccess) {
+                        setSuccess(`Connected successfully as @${data.username}!`);
+                    }
                     setAccounts(prev => {
                         const updated = prev.map(acc => 
                             acc.id === accountId 
-                                ? { ...acc, is_authenticated: true, username: data.username }
+                                ? { 
+                                    ...acc, 
+                                    is_authenticated: true, 
+                                    username: data.username,
+                                    last_connected_at: data.last_connected_at ?? new Date().toISOString()
+                                }
                                 : acc
                         );
                         // Save updated accounts to localStorage
@@ -153,6 +196,7 @@ export const useAccounts = () => {
                     });
                     return { success: true, needsVerification: false };
                 }
+                return { success: true, needsVerification: false };
             } else {
                 if (data.error === '2FA_REQUIRED') {
                     setShowLoginModal(prev => prev ? { ...prev, needs2FA: true } : null);
@@ -171,14 +215,98 @@ export const useAccounts = () => {
         }
     }, []);
 
+    const connectAllAccounts = useCallback(async () => {
+        if (accounts.length === 0) {
+            setError('לא נמצאו חשבונות לחיבור');
+            return { success: false, processed: 0 };
+        }
+
+        setError(null);
+        setSuccess(null);
+
+        const targetAccounts = [...accounts];
+        const total = targetAccounts.length;
+        const suppressIndividualSuccess = total > 1;
+        const failures: string[] = [];
+        let completed = 0;
+
+        setIsBulkConnecting(true);
+        setBulkState({
+            active: true,
+            total,
+            completed: 0,
+            currentAccountId: targetAccounts[0]?.id ?? null
+        });
+
+        for (const account of targetAccounts) {
+            setBulkState(prev => ({
+                active: true,
+                total,
+                completed,
+                currentAccountId: account.id
+            }));
+
+            const result = await connectAccount(account.id, { suppressSuccess: suppressIndividualSuccess });
+            if (!result.success) {
+                failures.push(account.label);
+                continue;
+            }
+
+            if (result.needsVerification) {
+                const verified = await new Promise<boolean>((resolve) => {
+                    bulkResolvers.current[account.id] = resolve;
+                });
+                if (!verified) {
+                    failures.push(account.label);
+                    break;
+                }
+            }
+
+            completed += 1;
+            setBulkState(prev => ({
+                ...prev,
+                completed,
+                currentAccountId: null
+            }));
+        }
+
+        setBulkState(prev => ({
+            ...prev,
+            active: false,
+            total,
+            completed,
+            currentAccountId: null
+        }));
+
+        setIsBulkConnecting(false);
+
+        Object.keys(bulkResolvers.current).forEach((key) => {
+            const resolver = bulkResolvers.current[key];
+            if (resolver) {
+                resolver(false);
+            }
+            delete bulkResolvers.current[key];
+        });
+
+        if (failures.length > 0) {
+            setError(`החיבור נעצר עבור: ${failures.join(', ')}`);
+        } else if (completed === total) {
+            setSuccess(total === 1 ? 'החשבון חובר בהצלחה' : 'כל החשבונות חוברו בהצלחה!');
+        }
+
+        return { success: failures.length === 0, processed: completed };
+    }, [accounts, connectAccount]);
+
     const verifyCode = useCallback(async (code: string, password?: string) => {
         if (!showLoginModal || !code) return { success: false, error: 'No login data or code' };
+
+        const accountId = showLoginModal.accountId;
 
         setLoading(true);
         setError(null);
 
         try {
-            const response = await fetch(`http://127.0.0.1:8001/accounts/${showLoginModal.accountId}/connect`, {
+            const response = await apiFetch(`/accounts/${accountId}/connect`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -196,8 +324,13 @@ export const useAccounts = () => {
                 setSuccess(`Connected successfully as @${data.username}!`);
                 setAccounts(prev => {
                     const updated = prev.map(acc => 
-                        acc.id === showLoginModal.accountId 
-                            ? { ...acc, is_authenticated: true, username: data.username }
+                        acc.id === accountId 
+                            ? { 
+                                ...acc, 
+                                is_authenticated: true, 
+                                username: data.username,
+                                last_connected_at: data.last_connected_at ?? new Date().toISOString()
+                            }
                             : acc
                     );
                     // Save updated accounts to localStorage
@@ -205,6 +338,11 @@ export const useAccounts = () => {
                     return updated;
                 });
                 setShowLoginModal(null);
+                const resolver = bulkResolvers.current[accountId];
+                if (resolver) {
+                    resolver(true);
+                    delete bulkResolvers.current[accountId];
+                }
                 return { success: true };
             } else {
                 if (data.error === '2FA_REQUIRED') {
@@ -213,11 +351,21 @@ export const useAccounts = () => {
                     return { success: false, error: '2FA_REQUIRED' };
                 } else {
                     setError(data.error || 'Verification failed');
+                    const resolver = bulkResolvers.current[accountId];
+                    if (resolver) {
+                        resolver(false);
+                        delete bulkResolvers.current[accountId];
+                    }
                     return { success: false, error: data.error };
                 }
             }
         } catch (error) {
             setError('Network error occurred');
+            const resolver = bulkResolvers.current[accountId];
+            if (resolver) {
+                resolver(false);
+                delete bulkResolvers.current[accountId];
+            }
             return { success: false, error: 'Network error occurred' };
         } finally {
             setLoading(false);
@@ -227,7 +375,7 @@ export const useAccounts = () => {
     const deleteAccount = useCallback(async (accountId: string) => {
         setLoading(true);
         try {
-            const response = await fetch(`http://127.0.0.1:8001/accounts/${accountId}`, {
+            const response = await apiFetch(`/accounts/${accountId}`, {
                 method: 'DELETE',
             });
 
@@ -258,8 +406,15 @@ export const useAccounts = () => {
     }, []);
 
     const closeLoginModal = useCallback(() => {
+        if (showLoginModal?.accountId) {
+            const resolver = bulkResolvers.current[showLoginModal.accountId];
+            if (resolver) {
+                resolver(false);
+                delete bulkResolvers.current[showLoginModal.accountId];
+            }
+        }
         setShowLoginModal(null);
-    }, []);
+    }, [showLoginModal]);
 
     return {
         // State
@@ -268,11 +423,14 @@ export const useAccounts = () => {
         error,
         success,
         showLoginModal,
+        bulkConnectState: bulkState,
+        isBulkConnecting,
         
         // Actions
         loadAccounts,
         addAccount,
         connectAccount,
+        connectAllAccounts,
         verifyCode,
         deleteAccount,
         clearMessages,

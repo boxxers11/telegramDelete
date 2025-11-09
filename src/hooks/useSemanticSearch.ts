@@ -39,6 +39,7 @@ export const useSemanticSearch = () => {
         fidelity: 'exact' | 'close' | 'semantic';
         time_frame_hours: number;
         groups_to_scan?: string[];
+        folder_id?: number;
     }) => {
         try {
             setIsSearching(true);
@@ -52,9 +53,24 @@ export const useSemanticSearch = () => {
                 eventSource.close();
             }
             
+            const clampedWindow = Math.max(1, Math.min(query.time_frame_hours, 72));
+            const params = new URLSearchParams({
+                query_text: query.query_text,
+                fidelity: query.fidelity,
+                time_frame_hours: String(clampedWindow)
+            });
+
+            if (typeof query.folder_id === 'number' && !Number.isNaN(query.folder_id)) {
+                params.set('folder_id', String(query.folder_id));
+            }
+
+            if (query.groups_to_scan && query.groups_to_scan.length > 0) {
+                params.set('groups_to_scan', query.groups_to_scan.join(','));
+            }
+
             // Use SSE for real-time updates
             const newEventSource = new EventSource(
-                `http://127.0.0.1:8001/accounts/${query.account_id}/semantic-scan-events?query_text=${encodeURIComponent(query.query_text)}&fidelity=${query.fidelity}&time_frame_hours=${query.time_frame_hours}`
+                `http://127.0.0.1:8001/accounts/${query.account_id}/semantic-scan-events?${params.toString()}`
             );
             
             setEventSource(newEventSource);
@@ -124,12 +140,19 @@ export const useSemanticSearch = () => {
                                 status: 'completed',
                                 message: `חיפוש הושלם! נמצאו ${data.total_matches} תוצאות מ-${data.total_messages} הודעות.`
                             }));
+                            setIsSearching(false);
                             newEventSource.close();
                             setEventSource(null);
                             break;
                             
                         case 'error':
                             console.error('Search error:', data.message);
+                            setSearchProgress(prev => ({
+                                ...prev!,
+                                status: 'error',
+                                message: data.message || 'אירעה שגיאה בחיפוש'
+                            }));
+                            setIsSearching(false);
                             newEventSource.close();
                             setEventSource(null);
                             break;
@@ -141,6 +164,7 @@ export const useSemanticSearch = () => {
             
             newEventSource.onerror = (error) => {
                 console.error('SSE error:', error);
+                setIsSearching(false);
                 newEventSource.close();
                 setEventSource(null);
             };
