@@ -1,0 +1,46 @@
+{
+  "account_id": "1",
+  "data_type": "scan_data",
+  "timestamp": "2025-10-20T05:46:05.760326",
+  "data": {
+    "current_chat": "הכרויות ישראליות סטוצים חדשות",
+    "current_chat_id": -1002127424462,
+    "chat_id": -1002127424462,
+    "status": "completed",
+    "total_chats": 10,
+    "current_index": 2,
+    "completed": 1,
+    "skipped": 0,
+    "errors": 0,
+    "total_messages": 1,
+    "scanned_chats": [
+      {
+        "id": -1002127424462,
+        "title": "הכרויות ישראליות סטוצים חדשות",
+        "status": "completed",
+        "messages_found": 1,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [
+          {
+            "id": 657977,
+            "content": "🟢🟢🟢🟢🟢🟢 ➖🟢🟢🟢🟢🟢🟢\n\n🔥** Special Offer**🔥**\n\nUse promo code and receive a free bonus **`BET50`** with no limits.\n\n**🔥** Over 100 games: slots, crash, sports events\n****💸**** Winnings are paid out instantly\n****🎲**** Available on any device, anytime\n\n****⭐️**** Activate the offer via the bot: \n****➡️****@Bcgame_Miniapp_tgbot****⬅️**\n\n🟢🟢🟢🟢🟢➖🟢🟢🟢5️⃣0️⃣",
+            "date": "2025-10-05T20:40:40+00:00",
+            "media_type": null,
+            "media_url": null
+          }
+        ],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-20T05:46:05.753819",
+        "member_count": 17445,
+        "group_rules": "שלום לכולם ברוך הבא לקבוצה הפרטית",
+        "last_sent_at": null,
+        "send_status": null,
+        "send_error": null
+      }
+    ],
+    "messages_found": 1,
+    "progress_percent": 0
+  },
+  "hash": "11790dbe1ab9dd01c7047b22ef65bf49"
+}

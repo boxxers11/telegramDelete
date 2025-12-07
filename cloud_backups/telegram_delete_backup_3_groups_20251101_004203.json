@@ -1,0 +1,11 @@
+{
+  "account_id": "3",
+  "data_type": "groups",
+  "timestamp": "2025-11-01T00:42:03.874672",
+  "data": {
+    "groups": [],
+    "updated_at": null,
+    "owner_id": 826564908
+  },
+  "hash": "1a818a7e49e19a66046a4f3c7ee20919"
+}

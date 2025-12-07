@@ -1,0 +1,38 @@
+{
+  "account_id": "4",
+  "data_type": "scan_data",
+  "timestamp": "2025-10-18T10:35:41.139713",
+  "data": {
+    "current_chat": "טרנסיות ישראל 🏳️‍⚧️ Trans Israel",
+    "current_chat_id": -1002379626147,
+    "chat_id": -1002379626147,
+    "status": "completed",
+    "total_chats": 136,
+    "current_index": 2,
+    "completed": 1,
+    "skipped": 0,
+    "errors": 0,
+    "total_messages": 0,
+    "scanned_chats": [
+      {
+        "id": -1002379626147,
+        "title": "טרנסיות ישראל 🏳️‍⚧️ Trans Israel",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-18T10:35:41.139089",
+        "member_count": 3866,
+        "group_rules": "קוקסינליות , טרנסיות , מתלבשות , הכרויות🏳️‍⚧️\nהקבוצה המקורית ! והטובה ביותר בישראל ❤️",
+        "last_sent_at": null,
+        "send_status": null,
+        "send_error": null
+      }
+    ],
+    "messages_found": 0,
+    "progress_percent": 0
+  },
+  "hash": "c4b09b93704f507fda40410ac91e493e"
+}

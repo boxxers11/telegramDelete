@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  telegram-deleter:
+    build: .
+    container_name: telegram-deleter
+    ports:
+      - "8001:8001"
+    volumes:
+      # Persist sessions and data
+      - ./sessions:/app/sessions
+      - ./cloud_backups:/app/cloud_backups
+      - ./accounts.json:/app/accounts.json
+      - ./logs:/app/logs
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/accounts"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+

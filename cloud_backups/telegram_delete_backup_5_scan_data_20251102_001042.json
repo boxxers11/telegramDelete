@@ -1,0 +1,13 @@
+{
+  "account_id": "5",
+  "data_type": "scan_data",
+  "timestamp": "2025-11-02T00:10:42.859457",
+  "data": {
+    "status": "idle",
+    "total": 0,
+    "current_index": 0,
+    "progress_percent": 0,
+    "scanned_chats": []
+  },
+  "hash": "2e7720c141e53fc5c175aba409f7e25b"
+}

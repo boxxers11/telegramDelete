@@ -1,0 +1,38 @@
+{
+  "account_id": "2",
+  "data_type": "scan_data",
+  "timestamp": "2025-10-20T04:11:48.827746",
+  "data": {
+    "current_chat": "ישבן כחול לבן || סטוצים",
+    "current_chat_id": -1002282499461,
+    "chat_id": -1002282499461,
+    "status": "completed",
+    "total_chats": 91,
+    "current_index": 2,
+    "completed": 1,
+    "skipped": 0,
+    "errors": 0,
+    "total_messages": 0,
+    "scanned_chats": [
+      {
+        "id": -1002282499461,
+        "title": "ישבן כחול לבן || סטוצים",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-20T04:11:48.819602",
+        "member_count": 13111,
+        "group_rules": "This Group Contains Adult Content 18+",
+        "last_sent_at": null,
+        "send_status": null,
+        "send_error": null
+      }
+    ],
+    "messages_found": 0,
+    "progress_percent": 0
+  },
+  "hash": "6f48b9cd4488e74b4d3c513e084bef8c"
+}

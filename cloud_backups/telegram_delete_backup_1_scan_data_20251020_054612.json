@@ -1,0 +1,1984 @@
+{
+  "account_id": "1",
+  "data_type": "scan_data",
+  "timestamp": "2025-10-20T05:46:12.955088",
+  "data": {
+    "current_chat": "Australia Trusted Pokie Sharing 🇦🇺",
+    "current_chat_id": -1001542676376,
+    "chat_id": -1001542676376,
+    "status": "completed",
+    "total_chats": 10,
+    "current_index": 4,
+    "completed": 3,
+    "skipped": 0,
+    "errors": 0,
+    "total_messages": 3,
+    "scanned_chats": [
+      {
+        "id": -1002127424462,
+        "title": "הכרויות ישראליות סטוצים חדשות",
+        "status": "completed",
+        "messages_found": 1,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [
+          {
+            "id": 657977,
+            "content": "🟢🟢🟢🟢🟢🟢 ➖🟢🟢🟢🟢🟢🟢\n\n🔥** Special Offer**🔥**\n\nUse promo code and receive a free bonus **`BET50`** with no limits.\n\n**🔥** Over 100 games: slots, crash, sports events\n****💸**** Winnings are paid out instantly\n****🎲**** Available on any device, anytime\n\n****⭐️**** Activate the offer via the bot: \n****➡️****@Bcgame_Miniapp_tgbot****⬅️**\n\n🟢🟢🟢🟢🟢➖🟢🟢🟢5️⃣0️⃣",
+            "date": "2025-10-05T20:40:40+00:00",
+            "media_type": null,
+            "media_url": null
+          }
+        ],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-20T05:46:05.753819",
+        "member_count": 17445,
+        "group_rules": "שלום לכולם ברוך הבא לקבוצה הפרטית",
+        "last_sent_at": null,
+        "send_status": null,
+        "send_error": null
+      },
+      {
+        "id": -1002004400874,
+        "title": "❤️מתענגים ומענגנים❤️",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T14:44:42.367386",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1002379626147,
+        "title": "טרנסיות ישראל 🏳️‍⚧️ Trans Israel",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T14:02:09.372774",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001333488188,
+        "title": "צאט עירום",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T13:38:25.555074",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001444468254,
+        "title": "סטוץ וחתונה",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T14:02:11.957387",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001832527222,
+        "title": "גייז ישראל gay סטוץ וחתונה",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T13:37:44.728348",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001768427006,
+        "title": "©|🍓 הסיוופלה 🍓|",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T17:37:04.082396",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001655090842,
+        "title": "😈בזאר ההכרויות👿",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T14:01:43.642993",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001258862444,
+        "title": "Girl Boy il🇮🇱 סטרייטים ישראלים בלבד🇮🇱",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T13:37:49.866682",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1002602980351,
+        "title": "דיבורים למבוגרים 18+",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T13:37:57.085385",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1002282499461,
+        "title": "ישבן כחול לבן || סטוצים",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T13:39:09.338203",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001989911962,
+        "title": "פורום שליטה",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T14:01:36.632549",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1002130658789,
+        "title": "שולטים ונשלטות הקבוצה הרשמית",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T13:39:55.882358",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1002217324161,
+        "title": "מותגים חברים ומה שביניהם",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T13:39:58.570702",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1002120778216,
+        "title": "FootFetish",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T13:40:28.104306",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1002471565213,
+        "title": "מאהבות וספונסרים",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T13:39:11.828619",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1002301157983,
+        "title": "מעסים ומעסות קבוצת העיסויים של ישראל",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T13:39:21.599065",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1002368174978,
+        "title": "🏳️‍🌈 Gay room 🏳️‍🌈",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T13:39:26.840234",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1002401762904,
+        "title": "שולטים גייז שליטה פרופר",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T13:39:14.200435",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1002370179741,
+        "title": "Secretime - סודות כמוסים",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T13:39:16.618315",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1002374031632,
+        "title": "קוקהולד זוגות מצרפים ישראל",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T13:39:19.073333",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1002396772338,
+        "title": "Xxx",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T14:02:13.009954",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1002250952206,
+        "title": "היכרויות מרכז",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T14:01:39.440705",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1002092081716,
+        "title": "קוקהולדים זוגות מאומתים",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T13:39:44.417683",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1002090566436,
+        "title": "אפטרים אחרי מסיבות | יוצרות תוכן | סקס והכרויות",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T13:39:47.148316",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001297706770,
+        "title": "יוצרות תוכן מהממות מפרסמות",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T13:39:50.085616",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1002144252980,
+        "title": "♣️ שדונים ושולטות ♥️",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T14:01:33.848711",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1002254728142,
+        "title": "Sexy tlv סקסי ישראל 🇮🇱",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T13:39:52.782125",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001757858757,
+        "title": "דו ישראלים ואורגיות",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T13:39:06.668809",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001310858390,
+        "title": "❤️חילופי זוגות הכרויות ומפגשים❤️",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T15:02:13.344756",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001439617993,
+        "title": "חילופי זוגות ואורגיות",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T13:38:22.732945",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001239682653,
+        "title": "קרוסיות",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T13:37:47.049728",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001684740037,
+        "title": "🔥נותנים בראש🔥",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T14:01:40.290779",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1002529310667,
+        "title": "דיבורים 18+ ונתמכות",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T14:44:45.337066",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001344573395,
+        "title": "סקס הכרויות הכול מהכול!",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T13:38:29.074345",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001677988324,
+        "title": "HOT TEENS 🔥👬 | Channel",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T19:55:19.844355",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1002091903868,
+        "title": "הכרויות שליטה סאדו סטוצים",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T18:11:29.101758",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1002557279382,
+        "title": "קבוצת הכרויות",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T18:11:25.853510",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001318162241,
+        "title": "🍌 Бля, я Кончил 👅🍑",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T15:20:10.264901",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001610769071,
+        "title": "Aizik-love (מסיבות ליברליות בישראל)",
+        "status": "completed",
+        "messages_found": 6,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T19:43:27.574240",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1002316307431,
+        "title": "|ⓀⓄⓀⓈⒾ🫦ⓁⒶⓃⒹ②|©",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T14:44:38.092451",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001139387742,
+        "title": "Gays & Sisi's",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T17:46:34.545565",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1002213830531,
+        "title": "The kinks🍹",
+        "status": "completed",
+        "messages_found": 13,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:01:10.640288",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001971027448,
+        "title": "חרמנים וחרמניות למפגשים💋",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T14:01:42.842774",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1002490992173,
+        "title": "טלטינדר - צ׳אט TeleTinder 🔞",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T13:39:04.260790",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001753882117,
+        "title": "🫦🍓🍆💦 מתלבשות מוצצות תל-אביב",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T14:44:49.364484",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001627260938,
+        "title": "הכרויות חילופי סטוצים טינדר",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T13:38:14.069899",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1002328262253,
+        "title": "עיסוי מגבר לגבר 💆‍♂️ עיסויים לגברים - הקבוצה המקורית והמובילה בישראל",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T14:44:35.149546",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001406113886,
+        "title": "חדשות מהשטח בטלגרם",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T18:11:56.342684",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001808712511,
+        "title": "סטוצים תל אביב 🌃🌆🏙",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T16:45:35.483300",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1002642584963,
+        "title": "רק זורמות לסקס",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T14:25:54.166777",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1002030880695,
+        "title": "כיוונים בוטיק קרית גת ירוק",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T13:37:53.834635",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1002043479086,
+        "title": "vip🫦top🫦sexxyytt🫦",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T18:11:51.999944",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1002657525227,
+        "title": "החרמניות של תל אביב",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T14:02:03.421853",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001709237823,
+        "title": "פרסום קבוצות למבוגרים",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T14:45:19.473262",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001392772096,
+        "title": "קרוזינג ישראל - סקס במקומות ציבוריים",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T14:44:30.997160",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001516227057,
+        "title": "סטוצים כולם עם כולם",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T15:53:43.112113",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001707670315,
+        "title": "קרוסיות וקוקס מחפשות ערס⁨",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T14:45:09.243919",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001193154875,
+        "title": "קרוסיות וקוקסינליות מהממות",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T14:45:12.391187",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001720476207,
+        "title": "קוקסיות מחפשות מוצץ",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T16:26:18.184125",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001328372400,
+        "title": "סטרייטים משתרללים",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T16:45:31.907321",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001301606845,
+        "title": "סקס קפה ורוקנרול 🎻🎼🎼🎻💓💋",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T17:02:15.348304",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001709986377,
+        "title": "kOkSi dReSs קוקסי דרס",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T17:02:18.502765",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001394527357,
+        "title": "הנשים הכי יפות באינסטגרם !!!😜💋",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T17:19:59.951177",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001361929514,
+        "title": "BDSM ISRAEL 👠🔞",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T14:45:16.507825",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001613161072,
+        "title": "דניאל עמרם ללא צנזורה",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T19:48:40.301942",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001748346980,
+        "title": "www.xzuza.com",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T14:02:06.829733",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1002544959919,
+        "title": "חרדים / חרדיות",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T14:02:15.774227",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001243182454,
+        "title": "שוק הפשפושים יד 2",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T14:02:18.786716",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001632829782,
+        "title": "קרוס קוקס וחברים 💄💋👠",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T19:24:28.896429",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001343247145,
+        "title": "Gay’s Boy IL 🏳️‍🌈 טרמפיסטים גייז ודו מיניים בכל הארץ 🏳️‍🌈",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T19:44:49.713122",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001665207655,
+        "title": "Trinity - Mrs. D PLAYGROUND",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T19:56:41.038327",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001220737535,
+        "title": "גייז טריניטי",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T19:56:37.605189",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001276084925,
+        "title": "ברטר - החלפת עיסויים",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T18:11:42.732238",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001692212602,
+        "title": "סקס ישראל 2024",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T17:37:00.455860",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001714965735,
+        "title": "Pretty girls💋 -חילופי זוגות,אורגיות,קוקהולד וסקס",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T14:01:46.405229",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001446484767,
+        "title": "חילופי זוגות Naturis Team נטוריסטים",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T18:11:39.922957",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001189219990,
+        "title": "💦 SHORT MAN VIDEOS 🔥",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T14:45:04.433942",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001505561877,
+        "title": "מחפשות:ים עבודה",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T13:38:20.074651",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1002875969121,
+        "title": "🔞 EROTICA- GAYS 🔞",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:09:57.876754",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001711634296,
+        "title": "РУССКИЕ ПАРНИ",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T18:11:21.352705",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1002860674305,
+        "title": "🤤🤤🤤כלים🤤🤤🤤",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T18:28:45.951224",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001179753797,
+        "title": "מסיבות סודיות בישראל",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:04:54.901713",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1002898656788,
+        "title": "Open your mouth 💋 XXL Cocks",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T18:11:22.803665",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001801988049,
+        "title": "Chat_-1001801988049",
+        "status": "completed",
+        "messages_found": 1,
+        "messages_deleted": 1,
+        "last_scan_date": "2025-10-03T07:55:19.316966",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1002386165110,
+        "title": "גייז שולטים ונשלטים יוצרי תוכן",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T13:39:23.927793",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001353207512,
+        "title": "❤️ המסיבות של עמית וגולן 2025 ❤️",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T17:46:37.699991",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001224554356,
+        "title": "Ibiza Guest List & Tickets",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:01:13.803959",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001268006873,
+        "title": "כלבי ישראל",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T13:38:17.279460",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001472080487,
+        "title": "Gay's Boy IL 🏳️‍🌈 גייז דיבורים סירטונים ומפגשים",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T18:46:42.440796",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001701535026,
+        "title": "♀️ ♂️ ⚧ ️ 🍊 📛 הכל הולך🍹 🎯 - חרמני חרמניות ישראל",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T18:11:58.908379",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001544217801,
+        "title": "קרוסיות טרנסיות וסטרייטים בלבד ! סקס, הכרות ושיחה מכבדת",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T18:12:01.515447",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001774450599,
+        "title": "שלישיות ומעלה +++ פרסומים אחרים ייחסמו",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T14:45:00.189416",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001197673203,
+        "title": "FETISH CLUB",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T18:11:34.566866",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001628005418,
+        "title": "SEX-See 🔞",
+        "status": "completed",
+        "messages_found": 1,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:01:15.252762",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001257998920,
+        "title": "קופיקו - נהג ישראלי השמח",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:10:28.695848",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1002324990562,
+        "title": "נשלטים משרתים עוזרים (לוח שקט)",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:04:51.898319",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001765354213,
+        "title": "👿angel of death🔥",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T19:43:31.336705",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001854640573,
+        "title": "IsraeIi guys ||| גברים ישראלים",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:05:01.094347",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001390339279,
+        "title": "👅 XXXL Болт 🍆",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:04:50.923047",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001402680842,
+        "title": "Wellcome to TiMc18+",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T19:04:41.272254",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001405007437,
+        "title": "נשואים בארון - גייז דו וכו'",
+        "status": "completed",
+        "messages_found": 34,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:10:00.908185",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1002163098708,
+        "title": "HOT ISRAELI GUYS 🔥",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T19:24:24.223100",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1002876839121,
+        "title": "מעבר גק to jack🍄❄️",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:11:43.246756",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1002024537775,
+        "title": "Gifts Keeper",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T19:43:23.872541",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001221122299,
+        "title": "דיווחים בזמן אמת",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T19:55:14.543961",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001793622430,
+        "title": "חילופי זוגות - קישורים לקבוצות",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:11:44.136494",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001796076404,
+        "title": "הפרעה מינית",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T19:04:40.430870",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001254043455,
+        "title": "Gloryhole גלורי הול ת״א",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T19:04:39.131205",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001302086064,
+        "title": "סטוצים סקס לחיילים בצהל",
+        "status": "completed",
+        "messages_found": 1,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:11:46.755007",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1002619541414,
+        "title": "התפריט של דון🇮🇱",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:11:47.485050",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1002434641539,
+        "title": "התפריט של הצל💜",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:11:48.413940",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1003091341972,
+        "title": "מחירון -SuperWeed",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:05:05.805500",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001764142554,
+        "title": "‍⚜️ Mistress Meg ⚜️",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:11:50.027158",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001809901028,
+        "title": "😋🔞🔐 שמים ז* ן 🔕 (מותר לפרסם זין)",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:05:05.049708",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1002762447788,
+        "title": "😍 Sale Top Shelf ‼️",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:11:50.818565",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001786472835,
+        "title": "🛍המוצרים הכי שווים באליאקספרס🛍",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:15:53.335686",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1002090167786,
+        "title": "משתמשים לא רציניים ומסוכנים !",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:15:54.351590",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001542658063,
+        "title": "קבוצות פרטיות",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:10:01.684606",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001688783512,
+        "title": "©|המצוידים של ישראל |",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:15:55.238579",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001420779020,
+        "title": "נתי מדיה 228",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:15:58.488870",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1002665243158,
+        "title": "🌎~💥מעבר ג׳מיקה💥~🇯🇲",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:15:59.229202",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1002128794891,
+        "title": "The King Rom",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:16:00.833706",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1002370446945,
+        "title": "©|האקסלוסיבים פרימיום|",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:16:01.568687",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1002364864642,
+        "title": "פיור לאב קהילת המאומתות",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:16:02.301796",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001534430638,
+        "title": "🌹יוצרות תוכן מאומתות🌹",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:16:03.202417",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1002075305471,
+        "title": "👑ערוץ המאומתים של הגבירה מג👑",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:16:04.125971",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1002162454490,
+        "title": "✨️ שיווק ומכירת קהילות ✨️",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:16:04.948802",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1002394825520,
+        "title": "❤️קהילת קבוצות שו\"ת ❤️",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:16:05.701281",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001253456782,
+        "title": "דיבורים הכרויות שיחות קבוצה קהילה",
+        "status": "completed",
+        "messages_found": 3,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:16:08.739093",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1002018313241,
+        "title": "𝔾👣𝔸𝕃𝔹ℕ𝔹",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:16:09.484694",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001665469017,
+        "title": "©|מאוננים ביחד | 💦",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:16:10.332300",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001703902817,
+        "title": "Findom 🇮🇱 פינדום",
+        "status": "completed",
+        "messages_found": 9,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:16:13.121820",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001616859872,
+        "title": "🍓גיבוי הסיוופלה 🍓",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:16:14.027901",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001843366156,
+        "title": "המאוננים",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:16:14.765569",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1002385876241,
+        "title": "ISRAELI GUYS 4RENT",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:16:15.535075",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001870168016,
+        "title": "nini_shani",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:16:16.312638",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001861107856,
+        "title": "𝕂𝕒𝕣𝕚𝕟𝕒 ᵗʰᵉ ᶜʰᵃⁿⁿᵉˡ",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:16:17.237307",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001966549246,
+        "title": "Gay boys from Prague 🔥",
+        "status": "completed",
+        "messages_found": 15,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T06:42:35.715825",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001527529402,
+        "title": "אישי שלי 😘",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:16:18.053232",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1002063052780,
+        "title": "ציצילנד",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:16:19.043289",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1002473660793,
+        "title": "ערוץ העיסויים Andi669 💆‍♂️💆‍♀️💆‍♂️",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:16:19.776156",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001717073145,
+        "title": "© |הערוץ של שניני|",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:16:20.514002",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001762978524,
+        "title": "הסבר ביצוע אימות לקבוצות @slslte",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:16:21.288850",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1002436376681,
+        "title": "Backup israeli men",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:16:22.078688",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001709470675,
+        "title": "©|דיווחי מתחזים ועוקצים בטלגרם|",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:16:23.451046",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1002410540317,
+        "title": "MistressMegan",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:16:24.186234",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001475300095,
+        "title": "הגרלות והטבות 🎁 Lotteries & Gifts",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:16:25.295490",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001860654337,
+        "title": "רק סרטונים ㅤ",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:16:26.063803",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001843048824,
+        "title": "©| המאוננות | לייב",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:16:26.857787",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1002018353105,
+        "title": "תפריט אתונה",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:16:27.640924",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001717709476,
+        "title": "קבוצת הכרויות ומפגשים 💖",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:16:28.464747",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001833337028,
+        "title": "‎סקס ישראלי ערוץ הקבוצות המובילות | סטוץ מרכז | סטוץ צפון | סטוץ דרום | הכרויות | מפגשים | סטוצים | זורמות | חילופי זוגות |",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:16:29.195454",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001900449635,
+        "title": "©| מכורה למין |",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:16:29.985176",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001985036924,
+        "title": "@slslte",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:16:30.726253",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001346000145,
+        "title": "כיוונים פראג בפראג מזומן",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:16:32.509355",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001575239802,
+        "title": "בלאק טקסי - דרייברים",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:16:33.521499",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001601497439,
+        "title": "מפגשים סטוצים פנטזיות 🍒💦",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:16:37.775657",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001768151256,
+        "title": "סקס אדיר חילופי זוגות",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:16:38.532669",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001605242182,
+        "title": "Picktime כל הארץ - קביעת תורים לחידוש דרכון",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:16:41.738093",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001362005161,
+        "title": "🍌 𝗛𝗘𝗧𝗘𝗥𝗢 ⚣ 𝗖𝗨𝗥𝗜𝗢𝗦𝗢 🏆",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:16:47.468871",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001735267103,
+        "title": "בודי עיסוי עיסויים מסאג",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:16:48.203670",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001601245261,
+        "title": "adenaConner",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:16:49.103177",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001120439485,
+        "title": "חילופי זוגות בישראל IsraelSwingers",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:16:50.616060",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001853111907,
+        "title": "©|חסימה עד לאימות|",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:16:51.327630",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001845852562,
+        "title": "טונה",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:16:52.037444",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001835671492,
+        "title": ".",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:16:52.756869",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001837985625,
+        "title": "כניסה לקבוצת היכרויות בכיף",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:16:53.520179",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001527211259,
+        "title": "︎סרטונים ונהנים",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:16:54.250228",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001398766871,
+        "title": "ערוץ סרטים",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:16:55.027336",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001228282793,
+        "title": "הכלוב | בדסמ | שליטה | The Cage",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:16:55.746171",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001259819588,
+        "title": "Demo Store",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:25:43.527322",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001143585869,
+        "title": "כיוונים מרכז תל אביב - טלגראס",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:25:47.093754",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001144597210,
+        "title": "נשואים ללא אהבה",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-02T20:25:47.825075",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": 123,
+        "title": "Chat_123",
+        "status": "completed",
+        "messages_found": 3,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-01T23:24:46.994903",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1002382602924,
+        "title": "MemeCore Community🐜",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-18T03:52:09.414462",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1002050730463,
+        "title": "Верификации,отзывы и актуальные способы заработка 👨‍💻",
+        "status": "completed",
+        "messages_found": 1,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-18T03:52:12.301640",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1002130946769,
+        "title": "BioMatrixAI Chat",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-18T03:52:15.149766",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1002682322036,
+        "title": "VIVA AGENT Chat",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-18T03:52:18.287978",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001754625717,
+        "title": "💸Verification_Gold💸 По всем вопросам сюда 💯💥 @DUM_DUdim 🤑💥💯",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-18T03:52:18.970167",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001818144115,
+        "title": "Grindery Community 🚀",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-18T03:52:38.533849",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1002472912025,
+        "title": "VOXEL Premium Access",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-18T03:52:41.440723",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001654480797,
+        "title": "🇨‌🇴‌🇷‌🇪 [ 𝗦𝗔𝗧𝗢𝗦𝗛𝗜 ]",
+        "status": "completed",
+        "messages_found": 1,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-18T03:52:44.043660",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001556387192,
+        "title": "Вериф и аренда аккаунтов у Yanko",
+        "status": "completed",
+        "messages_found": 1,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-18T03:52:46.646580",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1002133911235,
+        "title": "Blockscratch Community",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-18T03:52:49.040588",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001501531657,
+        "title": "Solana farm Group",
+        "status": "completed",
+        "messages_found": 1,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-18T03:52:51.207235",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1002332844016,
+        "title": "MonkeyHeroChat",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-18T03:53:10.080446",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001764709923,
+        "title": "Metazilla（元宇宙斯拉）中文社区🇨🇳",
+        "status": "completed",
+        "messages_found": 1,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-18T03:53:12.233449",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001869171980,
+        "title": "تبادل احالات بوتات ومواقع ربحية",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-18T03:53:13.354084",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1002670773076,
+        "title": "Tregrity USD",
+        "status": "completed",
+        "messages_found": 0,
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-18T03:53:14.165530",
+        "member_count": 0,
+        "messages": []
+      },
+      {
+        "id": -1001486015619,
+        "title": "BSC Degens",
+        "status": "completed",
+        "messages_found": 1,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [
+          {
+            "id": 5455685,
+            "content": "🟢🟢🟢🟢🟢🟢 ➖🟢🟢🟢🟢🟢🟢\n\n🔥** Special Offer**🔥**\n\nUse promo code and receive a free bonus **`BET50`** with no limits.\n\n**🔥** Over 100 games: slots, crash, sports events\n****💸**** Winnings are paid out instantly\n****🎲**** Available on any device, anytime\n\n****⭐️**** Activate the offer via the bot: \n****➡️****@Bcgame_Miniapp_tgbot****⬅️**\n\n🟢🟢🟢🟢🟢➖🟢🟢🟢5️⃣0️⃣",
+            "date": "2025-10-05T20:42:00+00:00",
+            "media_type": null,
+            "media_url": null
+          }
+        ],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-20T05:46:09.039231",
+        "member_count": 4454,
+        "group_rules": "⚠️High-risk & high-reward group. Here we can discuss DEGEN plays.\n🚫 Don’t share your community group. Projects only! \n❇️Our main group = @BSC_talks",
+        "last_sent_at": null,
+        "send_status": null,
+        "send_error": null
+      },
+      {
+        "id": -1001542676376,
+        "title": "Australia Trusted Pokie Sharing 🇦🇺",
+        "status": "completed",
+        "messages_found": 1,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [
+          {
+            "id": 378067,
+            "content": "🟢🟢🟢🟢🟢🟢 ➖🟢🟢🟢🟢🟢🟢\n\n🔥** Special Offer**🔥**\n\nUse promo code and receive a free bonus **`BET50`** with no limits.\n\n**🔥** Over 100 games: slots, crash, sports events\n****💸**** Winnings are paid out instantly\n****🎲**** Available on any device, anytime\n\n****⭐️**** Activate the offer via the bot: \n****➡️****@Bcgame_Miniapp_tgbot****⬅️**\n\n🟢🟢🟢🟢🟢➖🟢🟢🟢5️⃣0️⃣",
+            "date": "2025-10-05T20:42:21+00:00",
+            "media_type": null,
+            "media_url": null
+          }
+        ],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-20T05:46:12.947345",
+        "member_count": 0,
+        "group_rules": "🇦🇺Australia Free Sharing Group\n----------------------------\nFree Share Benefit & Free Credit🎁\n----------------------------",
+        "last_sent_at": null,
+        "send_status": null,
+        "send_error": null
+      }
+    ],
+    "messages_found": 1,
+    "progress_percent": 20
+  },
+  "hash": "ab361e68cd3a5cae3d5dab285698b23e"
+}

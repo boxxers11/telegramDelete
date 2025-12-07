@@ -1,0 +1,54 @@
+{
+  "account_id": "5",
+  "data_type": "scan_data",
+  "timestamp": "2025-10-21T10:25:14.192985",
+  "data": {
+    "current_chat": "סקס ישראלי - הלוח 🔞💢✏️| הכרויות | סטוצים | מפגשים |זורמות |זורמים | אירוח | ליווי | סקס | דתיות | ערביות | פינדום",
+    "current_chat_id": -1001993975740,
+    "chat_id": -1001993975740,
+    "status": "completed",
+    "total_chats": 15,
+    "current_index": 3,
+    "completed": 2,
+    "skipped": 0,
+    "errors": 0,
+    "total_messages": 0,
+    "scanned_chats": [
+      {
+        "id": -1001968523681,
+        "title": "סקס פלטינה - ישראלי 🔞 | ישראליות הכרויות וזרימה דתיים דתיות ערבים ערביות ישראלים ישראליות",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-21T10:25:10.950943",
+        "member_count": 5444,
+        "group_rules": "",
+        "last_sent_at": null,
+        "send_status": null,
+        "send_error": null
+      },
+      {
+        "id": -1001993975740,
+        "title": "סקס ישראלי - הלוח 🔞💢✏️| הכרויות | סטוצים | מפגשים |זורמות |זורמים | אירוח | ליווי | סקס | דתיות | ערביות | פינדום",
+        "status": "completed",
+        "messages_found": 0,
+        "error": null,
+        "skipped_reason": null,
+        "messages": [],
+        "messages_deleted": 0,
+        "last_scan_date": "2025-10-21T10:25:14.191138",
+        "member_count": 0,
+        "group_rules": null,
+        "last_sent_at": null,
+        "send_status": null,
+        "send_error": null
+      }
+    ],
+    "messages_found": 0,
+    "progress_percent": 6
+  },
+  "hash": "f93230c928cf696d9bfc7917de1358db"
+}

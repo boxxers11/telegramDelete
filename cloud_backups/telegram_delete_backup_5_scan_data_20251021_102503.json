@@ -1,0 +1,19 @@
+{
+  "account_id": "5",
+  "data_type": "scan_data",
+  "timestamp": "2025-10-21T10:25:03.964096",
+  "data": {
+    "current_chat": "",
+    "chat_id": 0,
+    "status": "completed",
+    "total_chats": 0,
+    "current_index": 0,
+    "completed": 0,
+    "skipped": 0,
+    "errors": 0,
+    "total_messages": 0,
+    "scanned_chats": [],
+    "current_chat_id": 0
+  },
+  "hash": "10ce97ad5cd2a75e0870dcaedebd902b"
+}
