@@ -43,24 +43,24 @@ const AccountsList: React.FC<AccountsListProps> = ({
 
     if (loading) {
         return (
-            <div className="max-w-4xl mx-auto space-y-4">
-                {[1, 2, 3].map((i) => (
-                    <div key={i} className="glass-elevated p-8 animate-pulse">
-                        <div className="flex items-start justify-between">
-                            <div className="flex items-start space-x-6">
-                                <div className="glass-card p-4 rounded-2xl w-16 h-16 bg-gray-600"></div>
-                                <div className="flex-1 min-w-0">
-                                    <div className="h-6 bg-gray-600 rounded mb-2 w-32"></div>
-                                    <div className="h-4 bg-gray-600 rounded w-24"></div>
+            <div className="max-w-[95vw] mx-auto">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    {[1, 2, 3, 4].map((i) => (
+                        <div key={i} className="account-card-shell animate-pulse">
+                            <div className="account-card-content">
+                                <div className="account-top-row">
+                                    <div className="account-identity">
+                                        <div className="account-avatar bg-gray-600"></div>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="h-5 bg-gray-600 rounded mb-2 w-24"></div>
+                                            <div className="h-4 bg-gray-600 rounded w-20"></div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            <div className="flex items-center space-x-3">
-                                <div className="h-8 bg-gray-600 rounded w-20"></div>
-                                <div className="h-8 bg-gray-600 rounded w-8"></div>
-                            </div>
                         </div>
-                    </div>
-                ))}
+                    ))}
+                </div>
             </div>
         );
     }
@@ -87,22 +87,24 @@ const AccountsList: React.FC<AccountsListProps> = ({
     }
 
     return (
-        <div className="max-w-4xl mx-auto space-y-4">
-            {sortedAccounts.map((account) => (
-                <AccountCard
-                    key={account.id}
-                    account={account}
-                    onConnect={onConnect}
-                    onDelete={onDelete}
-                    onScan={onScan}
-                    onSendMessage={onSendMessage}
-                    onSemanticSearch={onSemanticSearch}
-                    language={language}
-                    loading={loading}
-                    isBulkConnecting={isBulkConnecting}
-                    bulkConnectState={bulkConnectState}
-                />
-            ))}
+        <div className="max-w-[95vw] mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {sortedAccounts.map((account) => (
+                    <AccountCard
+                        key={account.id}
+                        account={account}
+                        onConnect={onConnect}
+                        onDelete={onDelete}
+                        onScan={onScan}
+                        onSendMessage={onSendMessage}
+                        onSemanticSearch={onSemanticSearch}
+                        language={language}
+                        loading={loading}
+                        isBulkConnecting={isBulkConnecting}
+                        bulkConnectState={bulkConnectState}
+                    />
+                ))}
+            </div>
         </div>
     );
 };

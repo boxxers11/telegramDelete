@@ -49,67 +49,54 @@ const DashboardPage: React.FC = () => {
 
   return (
     <div className="relative z-10 flex-1">
-      <div className="container mx-auto px-4 py-8">
-        <div className={`${isRTL ? 'text-right' : 'text-left md:text-center'} mb-12`}>
+      <div className="container mx-auto px-4 py-4">
+        <div className={`${isRTL ? 'text-right' : 'text-left'} mb-4`}>
           <div
-            className={`flex flex-col gap-4 md:items-center md:justify-between ${
-              isRTL ? 'md:flex-row-reverse' : 'md:flex-row'
+            className={`flex items-center justify-between gap-3 ${
+              isRTL ? 'flex-row-reverse' : ''
             }`}
           >
-            <div
-              className={`flex items-center gap-4 ${
-                isRTL ? 'flex-row-reverse text-right md:text-right' : 'text-left'
-              }`}
-            >
-              <div className="glass-elevated p-3 rounded-3xl shadow-xl">
-                <img src="/logo.png" alt="Messages Manager Logo" className="w-10 h-10 rounded-lg" />
-              </div>
-              <div>
-                <h1 className="text-headline text-white hebrew-semibold">
-                  {isRTL ? 'מנהל הודעות' : 'Messages Manager'}
-                </h1>
-                <p className="text-subtitle mt-1 max-w-xl">
-                  {isRTL
-                    ? 'נהל את הודעות הטלגרם שלך בבטחה על פני מספר חשבונות'
-                    : 'Safely manage your Telegram messages across multiple accounts'}
-                </p>
-              </div>
+            <div className={`flex items-center gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
+              <img src="/icon-512.png" alt="Gramanager Logo" className="w-[60px] h-[50px] object-contain" />
+              <h1 className="text-xl font-semibold text-white">
+                Gramanager
+              </h1>
             </div>
             <div
-              className={`flex gap-3 ${
-                isRTL ? 'justify-end md:justify-start md:flex-row-reverse' : 'justify-start'
+              className={`flex gap-2 ${
+                isRTL ? 'flex-row-reverse' : ''
               }`}
             >
-              <button
-                onClick={() => void connectAllAccounts()}
-                disabled={loading || isBulkConnecting || accounts.length === 0}
-                className={`btn-primary flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''} ${
-                  loading || isBulkConnecting || accounts.length === 0 ? 'opacity-60 cursor-not-allowed' : ''
-                }`}
-              >
-                {isBulkConnecting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Wifi className="w-4 h-4" />}
-                {isRTL ? 'חבר את כל החשבונות' : 'Connect all accounts'}
-              </button>
+                   <button
+                     onClick={() => void connectAllAccounts()}
+                     disabled={loading || isBulkConnecting || accounts.length === 0}
+                     className={`btn-secondary flex items-center gap-1.5 px-3 py-1.5 text-sm ${isRTL ? 'flex-row-reverse' : ''} ${
+                       loading || isBulkConnecting || accounts.length === 0 ? 'opacity-60 cursor-not-allowed' : ''
+                     }`}
+                   >
+                     {isBulkConnecting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Wifi className="w-3.5 h-3.5" />}
+                     {isRTL ? 'חבר הכל' : 'Connect All'}
+                   </button>
               <button
                 onClick={() => setShowUserLookup(true)}
-                className={`btn-secondary flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}
+                className={`btn-secondary flex items-center gap-1.5 px-3 py-1.5 text-sm ${isRTL ? 'flex-row-reverse' : ''}`}
               >
-                <Search className="w-4 h-4" />
-                {isRTL ? 'בדיקת משתמש' : 'User Lookup'}
+                <Search className="w-3.5 h-3.5" />
+                {isRTL ? 'משתמש' : 'User'}
               </button>
               <button
                 onClick={() => setShowSettings(true)}
-                className={`btn-secondary flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}
+                className={`btn-secondary flex items-center gap-1.5 px-3 py-1.5 text-sm ${isRTL ? 'flex-row-reverse' : ''}`}
               >
-                <Settings className="w-4 h-4" />
+                <Settings className="w-3.5 h-3.5" />
                 {isRTL ? 'הגדרות' : 'Settings'}
               </button>
               <button
                 onClick={() => openGroupsManager()}
-                className={`btn-secondary flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}
+                className={`btn-secondary flex items-center gap-1.5 px-3 py-1.5 text-sm ${isRTL ? 'flex-row-reverse' : ''}`}
               >
-                <Users className="w-4 h-4" />
-                ניהול קבוצות
+                <Users className="w-3.5 h-3.5" />
+                {isRTL ? 'ניהול קבוצות' : 'Manage Groups'}
               </button>
             </div>
           </div>
@@ -163,24 +150,22 @@ const DashboardPage: React.FC = () => {
           </div>
         )}
 
-        {!loading && (
-          <div className="max-w-4xl mx-auto mb-8">
-            <button
-              onClick={() => setShowAddForm(true)}
-              disabled={accounts.length >= 5}
-              className="w-full glass-elevated p-6 hover-lift disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <div className={`flex items-center justify-center ${isRTL ? 'flex-row-reverse gap-3' : 'gap-3'}`}>
-                <div className={`glass-card p-3 rounded-2xl ${isRTL ? 'ml-3' : 'mr-3'}`}>
-                  <Plus className="w-8 h-8 text-blue-400" />
-                </div>
-                <span className="text-title text-white">
-                  {isRTL ? `הוסף חשבון (${accounts.length}/5)` : `Add Account (${accounts.length}/5)`}
-                </span>
-              </div>
-            </button>
-          </div>
-        )}
+             {!loading && (
+               <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50" style={{ maxWidth: '470px', width: 'calc(100% - 2rem)' }}>
+                 <button
+                   onClick={() => setShowAddForm(true)}
+                   disabled={accounts.length >= 10}
+                   className="w-full glass-elevated p-3 hover-lift disabled:opacity-50 disabled:cursor-not-allowed rounded-2xl"
+                 >
+                   <div className={`flex items-center justify-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                     <Plus className="w-5 h-5 text-blue-400" />
+                     <span className="text-base font-semibold text-white">
+                       {isRTL ? `הוסף חשבון (${accounts.length}/10)` : `Add Account (${accounts.length}/10)`}
+                     </span>
+                   </div>
+                 </button>
+               </div>
+             )}
 
         <AccountsList
           accounts={accounts}
