@@ -1,8 +1,11 @@
 import json
 import os
+import logging
 from typing import List, Dict, Optional
 from dataclasses import dataclass, asdict
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 @dataclass
 class Account:
@@ -17,10 +20,48 @@ class AccountStore:
     def __init__(self, accounts_file: str = "accounts.json"):
         self.accounts_file = accounts_file
         self.accounts: Dict[str, Account] = {}
+        self.cloud_storage = None
         self.load()
     
+    def _get_cloud_storage(self):
+        """Get cloud storage instance (lazy loading)"""
+        if not self.cloud_storage:
+            try:
+                from .cloud_storage import BackblazeB2Storage
+                self.cloud_storage = BackblazeB2Storage()
+                if not self.cloud_storage.backup_enabled:
+                    self.cloud_storage = None
+            except Exception as e:
+                logger.debug(f"Cloud storage not available: {e}")
+                self.cloud_storage = None
+        return self.cloud_storage
+    
     def load(self):
-        """Load accounts from JSON file"""
+        """Load accounts from JSON file, try B2 first if available"""
+        # Try to restore from B2 first
+        cloud_storage = self._get_cloud_storage()
+        if cloud_storage:
+            try:
+                restored_data = cloud_storage.restore_accounts()
+                if restored_data:
+                    self.accounts = {
+                        acc_id: Account(**acc_data) 
+                        for acc_id, acc_data in restored_data.items()
+                    }
+                    # Save locally for faster access
+                    self._save_local()
+                    logger.info(f"Loaded {len(self.accounts)} accounts from B2")
+                    
+                    # Try to restore sessions from B2
+                    for account_id, account in self.accounts.items():
+                        if cloud_storage.restore_session(account_id, account.session_path):
+                            logger.info(f"Restored session from B2 for account {account_id}")
+                    
+                    return
+            except Exception as e:
+                logger.debug(f"Failed to restore from B2, trying local: {e}")
+        
+        # Fallback to local file
         if os.path.exists(self.accounts_file):
             try:
                 with open(self.accounts_file, 'r') as f:
@@ -29,15 +70,20 @@ class AccountStore:
                         acc_id: Account(**acc_data) 
                         for acc_id, acc_data in data.items()
                     }
+                
+                # Try to restore sessions from B2 even if accounts loaded locally
+                cloud_storage = self._get_cloud_storage()
+                if cloud_storage:
+                    for account_id, account in self.accounts.items():
+                        if not os.path.exists(account.session_path):
+                            cloud_storage.restore_session(account_id, account.session_path)
             except Exception as e:
-                print(f"Error loading accounts: {e}")
+                logger.error(f"Error loading accounts: {e}")
                 self.accounts = {}
     
-    def save(self):
-        """Save accounts to JSON file"""
+    def _save_local(self):
+        """Save accounts to local JSON file"""
         try:
-            # Ensure the directory exists
-            import os
             os.makedirs(os.path.dirname(self.accounts_file) if os.path.dirname(self.accounts_file) else '.', exist_ok=True)
             
             data = {
@@ -46,18 +92,31 @@ class AccountStore:
             }
             with open(self.accounts_file, 'w') as f:
                 json.dump(data, f, indent=2)
-            print(f"Saved {len(self.accounts)} accounts to {self.accounts_file}")
+            logger.info(f"Saved {len(self.accounts)} accounts to {self.accounts_file}")
+        except Exception as e:
+            logger.error(f"Error saving accounts locally: {e}")
+    
+    def save(self):
+        """Save accounts to JSON file and backup to B2"""
+        try:
+            data = {
+                acc_id: asdict(account) 
+                for acc_id, account in self.accounts.items()
+            }
             
-            # Verify the file was written correctly
-            if os.path.exists(self.accounts_file):
-                with open(self.accounts_file, 'r') as f:
-                    verify_data = json.load(f)
-                    print(f"Verified: {len(verify_data)} accounts in file")
-            else:
-                print("ERROR: accounts.json file was not created!")
+            # Save locally first
+            self._save_local()
+            
+            # Backup to B2 if available
+            cloud_storage = self._get_cloud_storage()
+            if cloud_storage:
+                try:
+                    cloud_storage.backup_accounts(data)
+                except Exception as e:
+                    logger.warning(f"Failed to backup accounts to B2: {e}")
                 
         except Exception as e:
-            print(f"Error saving accounts: {e}")
+            logger.error(f"Error saving accounts: {e}")
             import traceback
             traceback.print_exc()
     
@@ -89,7 +148,16 @@ class AccountStore:
         
         self.accounts[account_id] = account
         self.save()
-        print(f"Created account {account_id}: {label}")
+        
+        # Backup session file to B2 if available
+        cloud_storage = self._get_cloud_storage()
+        if cloud_storage and os.path.exists(session_path):
+            try:
+                cloud_storage.backup_session(account_id, session_path)
+            except Exception as e:
+                logger.warning(f"Failed to backup session to B2: {e}")
+        
+        logger.info(f"Created account {account_id}: {label}")
         return account
     
     def get_account(self, account_id: str) -> Optional[Account]:

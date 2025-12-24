@@ -801,3 +801,349 @@ class GitHubGistsStorage(CloudStorageManager):
         except Exception as e:
             logger.error(f"Error deleting GitHub backup: {e}")
             return False
+
+
+# Backblaze B2 cloud storage
+class BackblazeB2Storage(CloudStorageManager):
+    """Backblaze B2 cloud storage implementation"""
+    
+    def __init__(self, application_key_id: str = None, application_key: str = None, bucket_name: str = None):
+        self.application_key_id = application_key_id or os.getenv('B2_APPLICATION_KEY_ID')
+        self.application_key = application_key or os.getenv('B2_APPLICATION_KEY')
+        self.bucket_name = bucket_name or os.getenv('B2_BUCKET_NAME')
+        self.backup_enabled = bool(self.application_key_id and self.application_key and self.bucket_name)
+        self.retention_days = int(os.getenv('CLOUD_BACKUP_RETENTION_DAYS', '7'))
+        self.b2_api = None
+        self.bucket = None
+        
+        if not self.backup_enabled:
+            logger.warning("Backblaze B2 not configured. Missing: application_key_id, application_key, or bucket_name")
+        else:
+            try:
+                from b2sdk.v2 import InMemoryAccountInfo, B2Api
+                info = InMemoryAccountInfo()
+                self.b2_api = B2Api(info)
+                self.b2_api.authorize_account('production', self.application_key_id, self.application_key)
+                self.bucket = self.b2_api.get_bucket_by_name(self.bucket_name)
+                logger.info(f"Backblaze B2 initialized successfully with bucket: {self.bucket_name}")
+            except Exception as e:
+                logger.error(f"Failed to initialize Backblaze B2: {e}")
+                self.backup_enabled = False
+    
+    def _get_b2_path(self, account_id: str, data_type: str, filename: str = None) -> str:
+        """Generate B2 file path"""
+        if filename:
+            return f"telegram_delete/{account_id}/{filename}"
+        return f"telegram_delete/{account_id}/{data_type}/"
+    
+    def backup_checkpoints(self, account_id: str, checkpoints: Dict) -> bool:
+        """Backup checkpoints to Backblaze B2"""
+        if not self.backup_enabled:
+            return False
+        
+        try:
+            backup_data = {
+                'account_id': account_id,
+                'data_type': 'checkpoints',
+                'timestamp': datetime.now(timezone.utc).isoformat(),
+                'data': checkpoints,
+                'hash': self._calculate_hash(checkpoints)
+            }
+            
+            filename = self._get_backup_filename(account_id, 'checkpoints')
+            b2_path = self._get_b2_path(account_id, 'checkpoints', filename)
+            
+            # Convert to JSON string
+            content = json.dumps(backup_data, ensure_ascii=False, indent=2).encode('utf-8')
+            
+            # Upload to B2
+            self.bucket.upload_bytes(
+                data_bytes=content,
+                file_name=b2_path,
+                content_type='application/json'
+            )
+            
+            logger.info(f"Successfully backed up checkpoints to B2: {b2_path}")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Error backing up checkpoints to B2: {e}")
+            return False
+    
+    def backup_scan_data(self, account_id: str, scan_data: Dict) -> bool:
+        """Backup scan data to Backblaze B2"""
+        if not self.backup_enabled:
+            return False
+        
+        try:
+            backup_data = {
+                'account_id': account_id,
+                'data_type': 'scan_data',
+                'timestamp': datetime.now(timezone.utc).isoformat(),
+                'data': scan_data,
+                'hash': self._calculate_hash(scan_data)
+            }
+            
+            filename = self._get_backup_filename(account_id, 'scan_data')
+            b2_path = self._get_b2_path(account_id, 'scan_data', filename)
+            
+            content = json.dumps(backup_data, ensure_ascii=False, indent=2).encode('utf-8')
+            
+            self.bucket.upload_bytes(
+                data_bytes=content,
+                file_name=b2_path,
+                content_type='application/json'
+            )
+            
+            logger.info(f"Successfully backed up scan data to B2: {b2_path}")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Error backing up scan data to B2: {e}")
+            return False
+    
+    def backup_groups(self, account_id: str, groups_payload: Dict) -> bool:
+        """Backup groups to Backblaze B2"""
+        if not self.backup_enabled:
+            return False
+        
+        try:
+            backup_data = {
+                'account_id': account_id,
+                'data_type': 'groups',
+                'timestamp': datetime.now(timezone.utc).isoformat(),
+                'data': groups_payload or {},
+                'hash': self._calculate_hash(groups_payload or {})
+            }
+            
+            filename = self._get_backup_filename(account_id, 'groups')
+            b2_path = self._get_b2_path(account_id, 'groups', filename)
+            
+            content = json.dumps(backup_data, ensure_ascii=False, indent=2).encode('utf-8')
+            
+            self.bucket.upload_bytes(
+                data_bytes=content,
+                file_name=b2_path,
+                content_type='application/json'
+            )
+            
+            logger.info(f"Successfully backed up groups to B2: {b2_path}")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Error backing up groups to B2: {e}")
+            return False
+    
+    def restore_latest_data(self, account_id: str, data_type: str) -> Optional[Dict]:
+        """Restore latest data from Backblaze B2"""
+        if not self.backup_enabled:
+            return None
+        
+        try:
+            prefix = self._get_b2_path(account_id, data_type)
+            
+            # List files with this prefix
+            files = []
+            for file_info, _ in self.bucket.ls(prefix):
+                if file_info.file_name.endswith('.json'):
+                    files.append(file_info)
+            
+            if not files:
+                logger.warning(f"No B2 backup found for {account_id}/{data_type}")
+                return None
+            
+            # Sort by upload timestamp (newest first)
+            files.sort(key=lambda f: f.upload_timestamp, reverse=True)
+            latest_file = files[0]
+            
+            # Download file
+            downloaded_file = self.bucket.download_file_by_name(latest_file.file_name)
+            content = downloaded_file.read_bytes().decode('utf-8')
+            backup_data = json.loads(content)
+            
+            # Verify data integrity
+            if 'data' in backup_data and 'hash' in backup_data:
+                calculated_hash = self._calculate_hash(backup_data['data'])
+                if calculated_hash == backup_data['hash']:
+                    logger.info(f"Successfully restored {data_type} from B2 for {account_id}")
+                    return backup_data['data']
+                else:
+                    logger.error(f"Data integrity check failed for {data_type}")
+                    return None
+            else:
+                logger.error(f"Invalid backup data format for {data_type}")
+                return None
+                
+        except Exception as e:
+            logger.error(f"Error restoring {data_type} from B2: {e}")
+            return None
+    
+    def list_backups(self, account_id: str) -> List[Dict]:
+        """List available backups for an account"""
+        if not self.backup_enabled:
+            return []
+        
+        try:
+            prefix = f"telegram_delete/{account_id}/"
+            backups = []
+            
+            for file_info, _ in self.bucket.ls(prefix):
+                if file_info.file_name.endswith('.json'):
+                    backups.append({
+                        'filename': file_info.file_name.split('/')[-1],
+                        'size': file_info.size,
+                        'modified': datetime.fromtimestamp(file_info.upload_timestamp / 1000).isoformat(),
+                        'b2_file_id': file_info.id_
+                    })
+            
+            return sorted(backups, key=lambda x: x['modified'], reverse=True)
+            
+        except Exception as e:
+            logger.error(f"Error listing B2 backups: {e}")
+            return []
+    
+    def delete_backup(self, account_id: str, filename: str) -> bool:
+        """Delete a backup from Backblaze B2"""
+        if not self.backup_enabled:
+            return False
+        
+        try:
+            # Find the file
+            prefix = self._get_b2_path(account_id, '', filename)
+            
+            for file_info, _ in self.bucket.ls(prefix):
+                if file_info.file_name.endswith(filename):
+                    file_version = self.bucket.get_file_info_by_name(file_info.file_name)
+                    self.bucket.delete_file_version(file_version.id_, file_info.file_name)
+                    logger.info(f"Deleted B2 backup {file_info.file_name} for account {account_id}")
+                    return True
+            
+            logger.warning(f"Backup file {filename} not found in B2")
+            return False
+            
+        except Exception as e:
+            logger.error(f"Error deleting B2 backup {filename}: {e}")
+            return False
+    
+    def backup_accounts(self, accounts_data: Dict) -> bool:
+        """Backup accounts.json to Backblaze B2"""
+        if not self.backup_enabled:
+            return False
+        
+        try:
+            backup_data = {
+                'data_type': 'accounts',
+                'timestamp': datetime.now(timezone.utc).isoformat(),
+                'data': accounts_data,
+                'hash': self._calculate_hash(accounts_data)
+            }
+            
+            b2_path = "telegram_delete/accounts.json"
+            content = json.dumps(backup_data, ensure_ascii=False, indent=2).encode('utf-8')
+            
+            self.bucket.upload_bytes(
+                data_bytes=content,
+                file_name=b2_path,
+                content_type='application/json'
+            )
+            
+            logger.info(f"Successfully backed up accounts.json to B2")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Error backing up accounts.json to B2: {e}")
+            return False
+    
+    def restore_accounts(self) -> Optional[Dict]:
+        """Restore accounts.json from Backblaze B2"""
+        if not self.backup_enabled:
+            return None
+        
+        try:
+            b2_path = "telegram_delete/accounts.json"
+            
+            # Try to download the file
+            try:
+                downloaded_file = self.bucket.download_file_by_name(b2_path)
+                content = downloaded_file.read_bytes().decode('utf-8')
+                backup_data = json.loads(content)
+                
+                # Verify data integrity
+                if 'data' in backup_data and 'hash' in backup_data:
+                    calculated_hash = self._calculate_hash(backup_data['data'])
+                    if calculated_hash == backup_data['hash']:
+                        logger.info("Successfully restored accounts.json from B2")
+                        return backup_data['data']
+                    else:
+                        logger.error("Data integrity check failed for accounts.json")
+                        return None
+                else:
+                    logger.error("Invalid backup data format for accounts.json")
+                    return None
+            except Exception as e:
+                # File doesn't exist yet - that's OK
+                logger.debug(f"accounts.json not found in B2 (first run?): {e}")
+                return None
+                
+        except Exception as e:
+            logger.error(f"Error restoring accounts.json from B2: {e}")
+            return None
+    
+    def backup_session(self, account_id: str, session_path: str) -> bool:
+        """Backup session file to Backblaze B2"""
+        if not self.backup_enabled:
+            return False
+        
+        try:
+            if not os.path.exists(session_path):
+                return False
+            
+            # Read session file as binary
+            with open(session_path, 'rb') as f:
+                session_data = f.read()
+            
+            b2_path = f"telegram_delete/sessions/{account_id}/{os.path.basename(session_path)}"
+            
+            self.bucket.upload_bytes(
+                data_bytes=session_data,
+                file_name=b2_path,
+                content_type='application/octet-stream'
+            )
+            
+            logger.info(f"Successfully backed up session to B2: {b2_path}")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Error backing up session to B2: {e}")
+            return False
+    
+    def restore_session(self, account_id: str, session_path: str) -> bool:
+        """Restore session file from Backblaze B2"""
+        if not self.backup_enabled:
+            return False
+        
+        try:
+            b2_path = f"telegram_delete/sessions/{account_id}/{os.path.basename(session_path)}"
+            
+            # Try to download the file
+            try:
+                downloaded_file = self.bucket.download_file_by_name(b2_path)
+                session_data = downloaded_file.read_bytes()
+                
+                # Ensure directory exists
+                os.makedirs(os.path.dirname(session_path), exist_ok=True)
+                
+                # Write session file
+                with open(session_path, 'wb') as f:
+                    f.write(session_data)
+                
+                logger.info(f"Successfully restored session from B2: {session_path}")
+                return True
+            except Exception as e:
+                # File doesn't exist yet - that's OK
+                logger.debug(f"Session not found in B2: {e}")
+                return False
+                
+        except Exception as e:
+            logger.error(f"Error restoring session from B2: {e}")
+            return False

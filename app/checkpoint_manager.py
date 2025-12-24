@@ -82,21 +82,27 @@ class CheckpointManager:
                 logger.debug(f"Cloud restore failed during initialization (non-critical): {restore_error}")
     
     def _get_cloud_storage(self):
-        """Get cloud storage instance (lazy loading) - prioritize GitHub Gists, fallback to local"""
+        """Get cloud storage instance (lazy loading) - prioritize Backblaze B2, then GitHub Gists, fallback to local"""
         if not self.cloud_storage:
             try:
                 # Lazy import to avoid loading heavy modules on startup
-                from .cloud_storage import GitHubGistsStorage, LocalCloudStorage
+                from .cloud_storage import BackblazeB2Storage, GitHubGistsStorage, LocalCloudStorage
                 
-                # Try GitHub Gists first (free and reliable)
-                github_storage = GitHubGistsStorage()
-                if github_storage.backup_enabled:
-                    self.cloud_storage = github_storage
-                    logger.info(f"Using GitHub Gists for cloud storage for account {self.account_id}")
+                # Try Backblaze B2 first (if configured)
+                b2_storage = BackblazeB2Storage()
+                if b2_storage.backup_enabled:
+                    self.cloud_storage = b2_storage
+                    logger.info(f"Using Backblaze B2 for cloud storage for account {self.account_id}")
                 else:
-                    # Fallback to local storage
-                    self.cloud_storage = LocalCloudStorage()
-                    logger.info(f"Using local storage for account {self.account_id}")
+                    # Try GitHub Gists second (free and reliable)
+                    github_storage = GitHubGistsStorage()
+                    if github_storage.backup_enabled:
+                        self.cloud_storage = github_storage
+                        logger.info(f"Using GitHub Gists for cloud storage for account {self.account_id}")
+                    else:
+                        # Fallback to local storage
+                        self.cloud_storage = LocalCloudStorage()
+                        logger.info(f"Using local storage for account {self.account_id}")
             except Exception as e:
                 logger.warning(f"Failed to initialize cloud storage, using local fallback: {e}")
                 from .cloud_storage import LocalCloudStorage

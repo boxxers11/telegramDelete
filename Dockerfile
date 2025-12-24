@@ -1,4 +1,4 @@
-# Multi-stage build for Telegram Message Deleter
+# Multi-stage build for Traceless - Telegram Message Deleter
 FROM node:18-alpine AS frontend-builder
 
 WORKDIR /app
@@ -50,4 +50,3 @@ ENV PORT=8001
 
 # Run the application (use PORT env var if available, otherwise default to 8001)
 CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8001}"]
-

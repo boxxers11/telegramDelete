@@ -14,11 +14,9 @@ services:
         sync: false
       - key: GITHUB_TOKEN
         sync: false
-      - key: CLOUD_STORAGE_ENDPOINT
+      - key: B2_APPLICATION_KEY_ID
         sync: false
-      - key: CLOUD_STORAGE_API_KEY
+      - key: B2_APPLICATION_KEY
         sync: false
-    disk:
-      name: telegram-data
-      mountPath: /app
-      sizeGB: 1
+      - key: B2_BUCKET_NAME
+        sync: false

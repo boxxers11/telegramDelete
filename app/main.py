@@ -554,6 +554,7 @@ class ScanRequest(BaseModel):
     test_mode: bool = False
     full_scan: bool = False
     batch_size: Optional[int] = None
+    continue_scan: bool = False  # New: continue scanning unscanned ranges
 
 class BatchMessageRequest(BaseModel):
     message: str
@@ -751,6 +752,18 @@ async def connect_account(account_id: str, data: ConnectAccountRequest):
                 password=data.password
             )
             logger.info(f"Sign in result: {result}")
+            
+            # If authentication successful, backup session to B2
+            if result.get('success') and result.get('status') == 'AUTHENTICATED':
+                try:
+                    from app.cloud_storage import BackblazeB2Storage
+                    cloud_storage = BackblazeB2Storage()
+                    if cloud_storage.backup_enabled and os.path.exists(account.session_path):
+                        cloud_storage.backup_session(account_id, account.session_path)
+                        logger.info(f"Backed up session to B2 for account {account_id}")
+                except Exception as e:
+                    logger.warning(f"Failed to backup session to B2: {e}")
+            
             return result
         else:
             # No code provided, send verification code and return phone_code_hash
@@ -999,8 +1012,20 @@ async def get_recent_direct_messages(account_id: str, limit: int = 20):
                 continue
 
             display_name = _format_user_display(entity)
-
-            async for message in client.iter_messages(entity, limit=requested_limit * 3):
+            
+            # Optimized: Use fetch_messages_for_date_range instead of iter_messages
+            # Calculate date range (last 30 days)
+            end_date_dt = datetime.now(timezone.utc)
+            start_date_dt = end_date_dt - timedelta(days=30)
+            
+            messages_raw = await deleter.fetch_messages_for_date_range(
+                entity,
+                start_date_dt,
+                end_date_dt
+            )
+            
+            # Filter and format messages
+            for message in messages_raw:
                 if getattr(message, 'out', False):
                     continue  # Skip messages we sent
 
@@ -1009,11 +1034,11 @@ async def get_recent_direct_messages(account_id: str, limit: int = 20):
                     continue
 
                 collected.append({
-                    'message_id': message.id,
+                        'message_id': message.id,
                     'chat_id': entity.id,
                     'chat_name': display_name,
-                    'message_text': _format_message_text(message),
-                    'timestamp': message_date.isoformat(),
+                        'message_text': _format_message_text(message),
+                        'timestamp': message_date.isoformat(),
                     'username': getattr(entity, 'username', None),
                     'first_name': getattr(entity, 'first_name', None),
                     'last_name': getattr(entity, 'last_name', None)
@@ -1159,13 +1184,25 @@ async def get_user_history(
         max_fetch = max(requested_limit * 3, requested_limit)
         max_fetch = min(max_fetch, 2000)
 
+        # Optimized: Use fetch_messages_for_date_range instead of iter_messages
+        start_date_dt = parsed_from_date if parsed_from_date else datetime.now(timezone.utc) - timedelta(days=30)
+        end_date_dt = to_datetime_utc if to_datetime_utc else datetime.now(timezone.utc)
+
+        messages_raw = await deleter.fetch_messages_for_date_range(
+            entity,
+            start_date_dt,
+            end_date_dt
+        )
+
+        logger.info(f"✅ Optimized user history: fetched {len(messages_raw)} messages in date range")
+        if parsed_from_date:
+            logger.info(f"📊 Date range: {parsed_from_date.date()} to {end_date_dt.date()}")
+
         collected: List[Dict[str, Any]] = []
         has_more = False
-        async for history_message in client.iter_messages(
-            entity,
-            limit=max_fetch,
-            offset_date=offset_date
-        ):
+        
+        # Process and filter messages
+        for history_message in messages_raw[:max_fetch]:
             message_date = getattr(history_message, 'date', None)
             if parsed_from_date and message_date:
                 message_date_utc = message_date.astimezone(timezone.utc)
@@ -1218,6 +1255,54 @@ async def get_user_history(
         except ValueError:
             pass
         complete_operation()
+
+@app.get("/accounts/{account_id}/deletion-history")
+async def get_deletion_history(
+    account_id: str,
+    cursor: Optional[str] = None,
+    limit: int = 100,
+    sort: str = "deletedAt:desc",
+    chat_id: Optional[int] = None,
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None
+):
+    """
+    מחזיר את היסטוריית המחיקות עם אפשרות למיון וסינון
+    """
+    try:
+        deleter = get_deleter_for_account(account_id)
+        if not deleter:
+            return {"success": False, "error": "Account not found"}
+        
+        store = getattr(deleter, "found_messages_store", None)
+        if not store:
+            return {"success": False, "error": "Found messages store not initialised"}
+        
+        try:
+            limit_value = max(1, min(int(limit), 200))
+        except (TypeError, ValueError):
+            limit_value = 100
+        
+        items, next_cursor, total_count = store.get_deletion_history(
+            cursor=cursor,
+            limit=limit_value,
+            sort=sort,
+            chat_id=chat_id,
+            start_date=start_date,
+            end_date=end_date
+        )
+        
+        return {
+            "success": True,
+            "messages": items,
+            "next_cursor": next_cursor,
+            "total": total_count,
+            "page_size": limit_value
+        }
+    except Exception as e:
+        logger.error(f"Error getting deletion history for {account_id}: {str(e)}")
+        return {"success": False, "error": str(e)}
+
 
 @app.get("/accounts/{account_id}/found-messages")
 async def list_found_messages(
@@ -2317,8 +2402,9 @@ async def user_lookup(payload: UserLookupRequest):
         target_accounts = [acc for acc in target_accounts if acc.id in account_filter]
 
     results = []
-
-    for account in target_accounts:
+    
+    # Process accounts in parallel for faster response
+    async def process_account(account):
         account_result = {
             'account_id': account.id,
             'account_label': account.label,
@@ -2342,8 +2428,7 @@ async def user_lookup(payload: UserLookupRequest):
                     'status': 'error',
                     'error': 'Account session not initialized'
                 })
-                results.append(account_result)
-                continue
+                return account_result
 
             client = await _ensure_client_ready(deleter)
             if not client:
@@ -2351,8 +2436,7 @@ async def user_lookup(payload: UserLookupRequest):
                     'status': 'error',
                     'error': 'Failed to initialize Telegram client'
                 })
-                results.append(account_result)
-                continue
+                return account_result
 
             if not await client.is_user_authorized():
                 account_result.update({
@@ -2360,8 +2444,7 @@ async def user_lookup(payload: UserLookupRequest):
                     'conversation_state': 'not_authenticated',
                     'error': 'Account is not authenticated with Telegram'
                 })
-                results.append(account_result)
-                continue
+                return account_result
 
             matched_dialog = None
             matched_entity = None
@@ -2416,8 +2499,7 @@ async def user_lookup(payload: UserLookupRequest):
                     'notes': 'לא נמצאה שיחה או גישה לאיש הקשר בחשבון זה',
                     'lookup_errors': lookup_errors or None
                 })
-                results.append(account_result)
-                continue
+                return account_result
 
             account_result['target_user'] = {
                 'id': matched_entity.id,
@@ -2432,7 +2514,19 @@ async def user_lookup(payload: UserLookupRequest):
 
             messages: List[Dict[str, Any]] = []
             try:
-                async for message in client.iter_messages(matched_entity, limit=payload.max_messages):
+                # Optimized: Use fetch_messages_for_date_range instead of iter_messages
+                # Calculate date range (e.g., last 7 days for faster response)
+                end_date = datetime.now(timezone.utc)
+                start_date = end_date - timedelta(days=7)  # Reduced from 30 to 7 days for speed
+                
+                messages_raw = await deleter.fetch_messages_for_date_range(
+                    matched_entity,
+                    start_date,
+                    end_date
+                )
+                
+                # Limit to max_messages and format
+                for message in messages_raw[:payload.max_messages]:
                     text = _format_message_text(message)
                     record = {
                         'id': message.id,
@@ -2476,7 +2570,42 @@ async def user_lookup(payload: UserLookupRequest):
                 'error': str(account_error)
             })
 
-        results.append(account_result)
+        return account_result
+    
+    # Process all accounts concurrently with timeout per account (30 seconds)
+    import asyncio
+    tasks = []
+    for account in target_accounts:
+        task = asyncio.create_task(
+            asyncio.wait_for(process_account(account), timeout=30.0)
+        )
+        tasks.append(task)
+    
+    # Wait for all tasks with individual error handling
+    for task in tasks:
+        try:
+            account_result = await task
+            results.append(account_result)
+        except asyncio.TimeoutError:
+            # Add timeout result
+            results.append({
+                'account_id': 'unknown',
+                'account_label': 'unknown',
+                'status': 'timeout',
+                'conversation_state': 'unknown',
+                'error': 'הבקשה לחשבון זה לקחה יותר מדי זמן (יותר מ-30 שניות)',
+                'messages': []
+            })
+        except Exception as e:
+            # Add error result
+            results.append({
+                'account_id': 'unknown',
+                'account_label': 'unknown',
+                'status': 'error',
+                'conversation_state': 'unknown',
+                'error': str(e),
+                'messages': []
+            })
 
     return {
         'success': True,
@@ -2688,6 +2817,60 @@ async def execute_backlog_task(task_id: str, payload: BacklogExecuteRequest = Ba
     raise HTTPException(status_code=404, detail="Task not found")
 
 
+@app.get("/accounts/{account_id}/scan-date-ranges")
+async def get_scan_date_ranges(
+    account_id: str,
+    chat_id: Optional[int] = None
+):
+    """
+    מחזיר את כל הטווחים שנסרקו לכל קבוצה
+    """
+    try:
+        deleter = get_deleter_for_account(account_id)
+        if not deleter:
+            return {"success": False, "error": "Account not found"}
+        
+        scanned_dates = deleter.scanned_ranges_manager.get_scanned_dates(chat_id)
+        
+        # Convert to date ranges format for compatibility
+        result = {}
+        for cid, dates_set in scanned_dates.items():
+            if dates_set:
+                dates = sorted(dates_set)
+                # Group consecutive dates into ranges
+                ranges = []
+                if dates:
+                    start = dates[0]
+                    end = dates[0]
+                    for i in range(1, len(dates)):
+                        if dates[i] == end + timedelta(days=1):
+                            end = dates[i]
+                        else:
+                            ranges.append([start.isoformat(), end.isoformat()])
+                            start = dates[i]
+                            end = dates[i]
+                    ranges.append([start.isoformat(), end.isoformat()])
+                result[str(cid)] = {
+                    "scanned_date_ranges": ranges,
+                    "messages_per_date": {d.isoformat(): 1 for d in dates}  # Placeholder
+                }
+        
+        if chat_id:
+            return {
+                "success": True,
+                "scanned_date_ranges": result.get(str(chat_id), {}).get("scanned_date_ranges", []),
+                "messages_per_date": result.get(str(chat_id), {}).get("messages_per_date", {})
+            }
+        else:
+            return {
+                "success": True,
+                "scanned_date_ranges": result
+            }
+    except Exception as e:
+        logger.error(f"Error getting scan date ranges: {e}")
+        return {"success": False, "error": str(e)}
+
+
 @app.post("/backlog/questions")
 async def add_backlog_question(payload: BacklogQuestionRequest):
     content = payload.content.strip()
@@ -2773,7 +2956,12 @@ async def scan_account(account_id: str, data: ScanRequest, background_tasks: Bac
                     return
                 
                 logger.info(f"✅ Starting scan for authenticated account {account_id}")
-                result = await deleter.scan(filters)
+                # Use scan_continue if continue_scan is True
+                if data.continue_scan:
+                    logger.info(f"🔄 Using continue scan mode")
+                    result = await deleter.scan_continue(filters)
+                else:
+                    result = await deleter.scan(filters)
                 logger.info(f"✅ Scan completed for account {account_id}: {result.total_chats_processed} chats processed")
                 
                 # Save scan results
@@ -3497,9 +3685,9 @@ async def scan_events(account_id: str):
             last_status = None
             while True:
                 try:
-                    # Try to get update from queue (non-blocking)
+                    # Try to get update from queue (non-blocking) - faster polling
                     try:
-                        update = await asyncio.wait_for(update_queue.get(), timeout=0.5)
+                        update = await asyncio.wait_for(update_queue.get(), timeout=0.1)
                         
                         # Send the update
                         event_data = {
@@ -3508,31 +3696,9 @@ async def scan_events(account_id: str):
                             **update['data']
                         }
                         
-                        # Send different event types based on update type
-                        if update['data'].get('type') == 'group_discovered':
-                            # Phase 1 - group discovered
-                            yield f"data: {json.dumps(event_data)}\n\n"
-                        elif update['data'].get('type') == 'phase1_complete':
-                            # Phase 1 complete
-                            yield f"data: {json.dumps(event_data)}\n\n"
-                        elif update['data'].get('type') == 'phase2_start':
-                            # Phase 2 starting
-                            yield f"data: {json.dumps(event_data)}\n\n"
-                        elif update['data'].get('type') == 'chat_scanning':
-                            # Phase 2 - scanning chat
-                            yield f"data: {json.dumps(event_data)}\n\n"
-                        elif update['data'].get('type') == 'message_found':
-                            # Phase 2 - message found
-                            yield f"data: {json.dumps(event_data)}\n\n"
-                        elif update['data'].get('type') == 'chat_completed':
-                            # Phase 2 - chat completed
-                            yield f"data: {json.dumps(event_data)}\n\n"
-                        elif update['data'].get('type') == 'message_send_status':
-                            # Message send status - forward to frontend
-                            yield f"data: {json.dumps(event_data)}\n\n"
-                        else:
-                            # Generic status update
-                            yield f"data: {json.dumps(event_data)}\n\n"
+                        # Send all event types immediately - optimized for speed
+                        # All updates go through immediately without filtering delays
+                        yield f"data: {json.dumps(event_data)}\n\n"
                         
                         last_status = update['data'].get('type')
                         
@@ -3567,7 +3733,7 @@ async def scan_events(account_id: str):
                             yield f"data: {json.dumps({'type': 'scan_idle', 'message': 'Scan is idle'})}\n\n"
                             last_status = 'scan_idle'
                     
-                    await asyncio.sleep(0.1)  # Small delay
+                    await asyncio.sleep(0.05)  # Minimal delay for responsiveness
                     
                 except Exception as e:
                     logger.error(f"Error in event loop: {str(e)}")
