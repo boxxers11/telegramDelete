@@ -80,9 +80,17 @@ class AccountStore:
                 # Try to restore sessions from B2 even if accounts loaded locally
                 cloud_storage = self._get_cloud_storage()
                 if cloud_storage:
+                    restored_count = 0
                     for account_id, account in self.accounts.items():
                         if not os.path.exists(account.session_path):
-                            cloud_storage.restore_session(account_id, account.session_path)
+                            logger.info(f"Session file missing for {account_id}, attempting restore from B2: {account.session_path}")
+                            if cloud_storage.restore_session(account_id, account.session_path):
+                                restored_count += 1
+                                logger.info(f"Restored missing session from B2 for account {account_id}")
+                            else:
+                                logger.warning(f"Failed to restore missing session from B2 for account {account_id}")
+                    if restored_count > 0:
+                        logger.info(f"Restored {restored_count} missing sessions from B2")
             except Exception as e:
                 logger.error(f"Error loading accounts: {e}")
                 self.accounts = {}
