@@ -4199,6 +4199,12 @@ async def process_next_operation_endpoint():
 # Mount built frontend from dist (for production deployment) - MUST be after all routes
 dist_path = Path("dist")
 if dist_path.exists():
+    # Mount assets directory first for static files (CSS, JS, images)
+    assets_path = dist_path / "assets"
+    if assets_path.exists():
+        app.mount("/assets", StaticFiles(directory=str(assets_path)), name="frontend_assets")
+    
+    # Mount root for index.html and other files (favicon, etc.)
     app.mount("/", StaticFiles(directory="dist", html=True), name="frontend")
 
 if __name__ == "__main__":
