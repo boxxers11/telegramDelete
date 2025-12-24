@@ -1067,14 +1067,13 @@ class BackblazeB2Storage(CloudStorageManager):
             
             # Try to download the file
             try:
-                # Use DownloadDestBytes - in v2 download_file_by_name returns DownloadedFile
-                download_dest = self.DownloadDestBytes()
-                # Download file - returns DownloadedFile
-                downloaded_file = self.bucket.download_file_by_name(b2_path, download_dest)
-                # Save to DownloadDestBytes to get bytes
-                downloaded_file.save_to(download_dest)
-                # Get bytes from download destination
-                content = download_dest.get_bytes_written().decode('utf-8')
+                # Use BytesIO for v2 API - download_file_by_name accepts file-like object
+                from io import BytesIO
+                bytes_io = BytesIO()
+                downloaded_file = self.bucket.download_file_by_name(b2_path, bytes_io)
+                # Read from BytesIO
+                bytes_io.seek(0)
+                content = bytes_io.read().decode('utf-8')
                 backup_data = json.loads(content)
                 
                 # Verify data integrity
@@ -1136,10 +1135,11 @@ class BackblazeB2Storage(CloudStorageManager):
             
             # Try to download the file
             try:
-                download_dest = self.DownloadDestBytes()
-                downloaded_file = self.bucket.download_file_by_name(b2_path, download_dest)
-                downloaded_file.save_to(download_dest)
-                session_data = download_dest.get_bytes_written()
+                from io import BytesIO
+                bytes_io = BytesIO()
+                downloaded_file = self.bucket.download_file_by_name(b2_path, bytes_io)
+                bytes_io.seek(0)
+                session_data = bytes_io.read()
                 
                 # Ensure directory exists
                 os.makedirs(os.path.dirname(session_path), exist_ok=True)
