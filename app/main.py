@@ -4250,7 +4250,7 @@ async def get_b2_status():
                 from b2sdk.v1 import DownloadDestBytes
                 b2_path = "telegram_delete/accounts.json"
                 download_dest = DownloadDestBytes()
-                b2_storage.bucket.download_file_by_name(b2_path, download_dest)
+                b2_storage.bucket.download_file_by_name(b2_path, progress_listener=download_dest)
                 status["accounts_file_exists"] = True
                 status["accounts_file_size"] = len(download_dest.get_bytes_written())
             except Exception as e:

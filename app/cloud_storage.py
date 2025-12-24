@@ -960,7 +960,7 @@ class BackblazeB2Storage(CloudStorageManager):
             
             # Download file
             download_dest = self.DownloadDestBytes()
-            self.bucket.download_file_by_name(latest_file.file_name, download_dest)
+            self.bucket.download_file_by_name(latest_file.file_name, progress_listener=download_dest)
             content = download_dest.get_bytes_written().decode('utf-8')
             backup_data = json.loads(content)
             
@@ -1067,9 +1067,9 @@ class BackblazeB2Storage(CloudStorageManager):
             
             # Try to download the file
             try:
-                # Use DownloadDestBytes for B2 SDK v2
+                # Use DownloadDestBytes as progress_listener for B2 SDK v2
                 download_dest = self.DownloadDestBytes()
-                self.bucket.download_file_by_name(b2_path, download_dest)
+                self.bucket.download_file_by_name(b2_path, progress_listener=download_dest)
                 content = download_dest.get_bytes_written().decode('utf-8')
                 backup_data = json.loads(content)
                 
@@ -1133,7 +1133,7 @@ class BackblazeB2Storage(CloudStorageManager):
             # Try to download the file
             try:
                 download_dest = self.DownloadDestBytes()
-                self.bucket.download_file_by_name(b2_path, download_dest)
+                self.bucket.download_file_by_name(b2_path, progress_listener=download_dest)
                 session_data = download_dest.get_bytes_written()
                 
                 # Ensure directory exists
