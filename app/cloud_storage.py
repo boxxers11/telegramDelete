@@ -1128,8 +1128,7 @@ class BackblazeB2Storage(CloudStorageManager):
             
             # Try to download the file
             try:
-                downloaded_file = self.bucket.download_file_by_name(b2_path)
-                session_data = downloaded_file.read_bytes()
+                session_data = self.bucket.download_bytes_by_name(b2_path)
                 
                 # Ensure directory exists
                 os.makedirs(os.path.dirname(session_path), exist_ok=True)
