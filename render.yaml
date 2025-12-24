@@ -22,15 +22,3 @@ services:
       name: telegram-data
       mountPath: /app
       sizeGB: 1
-  - type: static
-    name: traceless-web
-    plan: free
-    branch: main
-    autoDeploy: true
-    buildCommand: npm install && npm run build
-    staticPublishPath: dist
-    envVars:
-      - key: VITE_API_BASE_URL
-        sync: false
-      - key: VITE_API_PORT
-        value: ""
