@@ -963,9 +963,10 @@ class BackblazeB2Storage(CloudStorageManager):
             import os
             with tempfile.NamedTemporaryFile(delete=False, mode='wb') as tmp:
                 tmp_path = tmp.name
-            try:
                 downloaded_file = self.bucket.download_file_by_name(latest_file.file_name)
-                downloaded_file.save(tmp_path)
+                downloaded_file.save(tmp)
+                tmp.flush()
+            try:
                 with open(tmp_path, 'rb') as f:
                     content = f.read().decode('utf-8')
                 backup_data = json.loads(content)
@@ -1081,9 +1082,10 @@ class BackblazeB2Storage(CloudStorageManager):
                 import os
                 with tempfile.NamedTemporaryFile(delete=False, mode='wb') as tmp:
                     tmp_path = tmp.name
-                try:
                     downloaded_file = self.bucket.download_file_by_name(b2_path)
-                    downloaded_file.save(tmp_path)
+                    downloaded_file.save(tmp)
+                    tmp.flush()
+                try:
                     with open(tmp_path, 'rb') as f:
                         content = f.read().decode('utf-8')
                     backup_data = json.loads(content)
@@ -1154,9 +1156,10 @@ class BackblazeB2Storage(CloudStorageManager):
                 import os
                 with tempfile.NamedTemporaryFile(delete=False, mode='wb') as tmp:
                     tmp_path = tmp.name
-                try:
                     downloaded_file = self.bucket.download_file_by_name(b2_path)
-                    downloaded_file.save(tmp_path)
+                    downloaded_file.save(tmp)
+                    tmp.flush()
+                try:
                     with open(tmp_path, 'rb') as f:
                         session_data = f.read()
                 finally:

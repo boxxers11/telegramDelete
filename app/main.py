@@ -4252,9 +4252,10 @@ async def get_b2_status():
                 b2_path = "telegram_delete/accounts.json"
                 with tempfile.NamedTemporaryFile(delete=False, mode='wb') as tmp:
                     tmp_path = tmp.name
-                try:
                     downloaded_file = b2_storage.bucket.download_file_by_name(b2_path)
-                    downloaded_file.save(tmp_path)
+                    downloaded_file.save(tmp)
+                    tmp.flush()
+                try:
                     status["accounts_file_exists"] = True
                     status["accounts_file_size"] = os.path.getsize(tmp_path)
                 finally:
