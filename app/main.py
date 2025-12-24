@@ -510,7 +510,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
-    allow_origin_regex=r"https?://.*",  # Allow any http/https origin
+    allow_origin_regex=r"https?://.*\.onrender\.com|https?://.*",  # Allow Render domains and any http/https origin
 )
 
 # Add logging middleware
@@ -524,6 +524,11 @@ async def log_requests(request, call_next):
 
 # Mount static files
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
+
+# Mount built frontend from dist (for production deployment)
+dist_path = Path("dist")
+if dist_path.exists():
+    app.mount("/", StaticFiles(directory="dist", html=True), name="frontend")
 
 # Templates
 templates = Jinja2Templates(directory="app/templates")
@@ -596,6 +601,12 @@ class MentionReplyRequest(BaseModel):
 
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request):
+    # Serve built React app from dist if it exists (production)
+    dist_index = Path("dist/index.html")
+    if dist_index.exists():
+        from fastapi.responses import FileResponse
+        return FileResponse("dist/index.html")
+    # Fallback to template (development)
     return templates.TemplateResponse("index.html", {"request": request})
 
 @app.options("/{path:path}")
