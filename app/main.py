@@ -525,11 +525,6 @@ async def log_requests(request, call_next):
 # Mount static files
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
-# Mount built frontend from dist (for production deployment)
-dist_path = Path("dist")
-if dist_path.exists():
-    app.mount("/", StaticFiles(directory="dist", html=True), name="frontend")
-
 # Templates
 templates = Jinja2Templates(directory="app/templates")
 
