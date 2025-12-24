@@ -1,0 +1,36 @@
+services:
+  - type: web
+    name: traceless-api
+    env: docker
+    plan: free
+    branch: main
+    autoDeploy: true
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /accounts
+    envVars:
+      - key: TELEGRAM_API_ID
+        sync: false
+      - key: TELEGRAM_API_HASH
+        sync: false
+      - key: GITHUB_TOKEN
+        sync: false
+      - key: CLOUD_STORAGE_ENDPOINT
+        sync: false
+      - key: CLOUD_STORAGE_API_KEY
+        sync: false
+    disk:
+      name: telegram-data
+      mountPath: /app
+      sizeGB: 1
+  - type: static_site
+    name: traceless-web
+    plan: free
+    branch: main
+    autoDeploy: true
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_BASE_URL
+        sync: false
+      - key: VITE_API_PORT
+        value: ""
