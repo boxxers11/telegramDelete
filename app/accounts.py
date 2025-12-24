@@ -53,9 +53,15 @@ class AccountStore:
                     logger.info(f"Loaded {len(self.accounts)} accounts from B2")
                     
                     # Try to restore sessions from B2
+                    restored_count = 0
                     for account_id, account in self.accounts.items():
+                        logger.info(f"Attempting to restore session for account {account_id} from path: {account.session_path}")
                         if cloud_storage.restore_session(account_id, account.session_path):
-                            logger.info(f"Restored session from B2 for account {account_id}")
+                            restored_count += 1
+                            logger.info(f"Successfully restored session from B2 for account {account_id}")
+                        else:
+                            logger.warning(f"Failed to restore session from B2 for account {account_id}")
+                    logger.info(f"Restored {restored_count}/{len(self.accounts)} sessions from B2")
                     
                     return
             except Exception as e:
