@@ -4191,6 +4191,75 @@ async def process_next_operation_endpoint():
         logger.error(f"Error processing next operation: {e}")
         return {"success": False, "error": str(e)}
 
+@app.post("/admin/restore-from-b2")
+async def restore_from_b2():
+    """Force restore accounts and sessions from B2"""
+    try:
+        from app.cloud_storage import BackblazeB2Storage
+        
+        b2_storage = BackblazeB2Storage()
+        if not b2_storage.backup_enabled:
+            return {"success": False, "error": "B2 not configured"}
+        
+        # Restore accounts
+        restored_data = b2_storage.restore_accounts()
+        if restored_data:
+            # Reload accounts store
+            account_store.accounts = {
+                acc_id: account_store.Account(**acc_data) 
+                for acc_id, acc_data in restored_data.items()
+            }
+            account_store._save_local()
+            
+            # Restore sessions
+            restored_sessions = 0
+            for account_id, account in account_store.accounts.items():
+                if b2_storage.restore_session(account_id, account.session_path):
+                    restored_sessions += 1
+            
+            return {
+                "success": True,
+                "accounts_restored": len(account_store.accounts),
+                "sessions_restored": restored_sessions,
+                "message": f"Restored {len(account_store.accounts)} accounts and {restored_sessions} sessions from B2"
+            }
+        else:
+            return {"success": False, "error": "No accounts found in B2"}
+            
+    except Exception as e:
+        logger.error(f"Error restoring from B2: {e}")
+        import traceback
+        traceback.print_exc()
+        return {"success": False, "error": str(e)}
+
+@app.get("/admin/b2-status")
+async def get_b2_status():
+    """Check B2 configuration and connection status"""
+    try:
+        from app.cloud_storage import BackblazeB2Storage
+        
+        b2_storage = BackblazeB2Storage()
+        status = {
+            "configured": b2_storage.backup_enabled,
+            "bucket_name": b2_storage.bucket_name if b2_storage.backup_enabled else None,
+        }
+        
+        if b2_storage.backup_enabled:
+            # Try to list files in B2
+            try:
+                b2_path = "telegram_delete/accounts.json"
+                downloaded_file = b2_storage.bucket.download_file_by_name(b2_path)
+                status["accounts_file_exists"] = True
+                status["accounts_file_size"] = len(downloaded_file.read_bytes())
+            except Exception as e:
+                status["accounts_file_exists"] = False
+                status["error"] = str(e)
+        
+        return status
+        
+    except Exception as e:
+        return {"configured": False, "error": str(e)}
+
 # Mount built frontend from dist (for production deployment) - MUST be after all routes
 dist_path = Path("dist")
 if dist_path.exists():
