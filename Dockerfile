@@ -10,6 +10,7 @@ COPY package*.json ./
 RUN npm ci
 
 # Copy frontend source
+COPY index.html ./
 COPY src ./src
 COPY public ./public
 COPY vite.config.ts tsconfig*.json tailwind.config.js postcss.config.js eslint.config.js ./
