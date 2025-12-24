@@ -959,10 +959,19 @@ class BackblazeB2Storage(CloudStorageManager):
             latest_file = files[0]
             
             # Download file
-            download_dest = self.DownloadDestBytes()
-            self.bucket.download_file_by_name(latest_file.file_name, progress_listener=download_dest)
-            content = download_dest.get_bytes_written().decode('utf-8')
-            backup_data = json.loads(content)
+            import tempfile
+            import os
+            with tempfile.NamedTemporaryFile(delete=False, mode='wb') as tmp:
+                tmp_path = tmp.name
+            try:
+                downloaded_file = self.bucket.download_file_by_name(latest_file.file_name)
+                downloaded_file.save(tmp_path)
+                with open(tmp_path, 'rb') as f:
+                    content = f.read().decode('utf-8')
+                backup_data = json.loads(content)
+            finally:
+                if os.path.exists(tmp_path):
+                    os.unlink(tmp_path)
             
             # Verify data integrity
             if 'data' in backup_data and 'hash' in backup_data:
@@ -1067,14 +1076,20 @@ class BackblazeB2Storage(CloudStorageManager):
             
             # Try to download the file
             try:
-                # Use BytesIO for v2 API - download_file_by_name accepts file-like object
-                from io import BytesIO
-                bytes_io = BytesIO()
-                downloaded_file = self.bucket.download_file_by_name(b2_path, bytes_io)
-                # Read from BytesIO
-                bytes_io.seek(0)
-                content = bytes_io.read().decode('utf-8')
-                backup_data = json.loads(content)
+                # Use temp file for v2 API - download_file_by_name returns DownloadedFile
+                import tempfile
+                import os
+                with tempfile.NamedTemporaryFile(delete=False, mode='wb') as tmp:
+                    tmp_path = tmp.name
+                try:
+                    downloaded_file = self.bucket.download_file_by_name(b2_path)
+                    downloaded_file.save(tmp_path)
+                    with open(tmp_path, 'rb') as f:
+                        content = f.read().decode('utf-8')
+                    backup_data = json.loads(content)
+                finally:
+                    if os.path.exists(tmp_path):
+                        os.unlink(tmp_path)
                 
                 # Verify data integrity
                 if 'data' in backup_data and 'hash' in backup_data:
@@ -1135,11 +1150,18 @@ class BackblazeB2Storage(CloudStorageManager):
             
             # Try to download the file
             try:
-                from io import BytesIO
-                bytes_io = BytesIO()
-                downloaded_file = self.bucket.download_file_by_name(b2_path, bytes_io)
-                bytes_io.seek(0)
-                session_data = bytes_io.read()
+                import tempfile
+                import os
+                with tempfile.NamedTemporaryFile(delete=False, mode='wb') as tmp:
+                    tmp_path = tmp.name
+                try:
+                    downloaded_file = self.bucket.download_file_by_name(b2_path)
+                    downloaded_file.save(tmp_path)
+                    with open(tmp_path, 'rb') as f:
+                        session_data = f.read()
+                finally:
+                    if os.path.exists(tmp_path):
+                        os.unlink(tmp_path)
                 
                 # Ensure directory exists
                 os.makedirs(os.path.dirname(session_path), exist_ok=True)

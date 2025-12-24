@@ -4247,13 +4247,19 @@ async def get_b2_status():
         if b2_storage.backup_enabled:
             # Try to list files in B2
             try:
-                from io import BytesIO
+                import tempfile
+                import os
                 b2_path = "telegram_delete/accounts.json"
-                bytes_io = BytesIO()
-                downloaded_file = b2_storage.bucket.download_file_by_name(b2_path, bytes_io)
-                bytes_io.seek(0)
-                status["accounts_file_exists"] = True
-                status["accounts_file_size"] = len(bytes_io.read())
+                with tempfile.NamedTemporaryFile(delete=False, mode='wb') as tmp:
+                    tmp_path = tmp.name
+                try:
+                    downloaded_file = b2_storage.bucket.download_file_by_name(b2_path)
+                    downloaded_file.save(tmp_path)
+                    status["accounts_file_exists"] = True
+                    status["accounts_file_size"] = os.path.getsize(tmp_path)
+                finally:
+                    if os.path.exists(tmp_path):
+                        os.unlink(tmp_path)
             except Exception as e:
                 status["accounts_file_exists"] = False
                 status["error"] = str(e)
