@@ -22,7 +22,7 @@ services:
       name: telegram-data
       mountPath: /app
       sizeGB: 1
-  - type: static_site
+  - type: static
     name: traceless-web
     plan: free
     branch: main
