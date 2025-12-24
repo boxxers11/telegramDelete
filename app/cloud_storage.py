@@ -1153,7 +1153,6 @@ class BackblazeB2Storage(CloudStorageManager):
             # Try to download the file
             try:
                 import tempfile
-                import os
                 with tempfile.NamedTemporaryFile(delete=False, mode='wb') as tmp:
                     tmp_path = tmp.name
                     downloaded_file = self.bucket.download_file_by_name(b2_path)
