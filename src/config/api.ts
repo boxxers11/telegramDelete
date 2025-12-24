@@ -40,6 +40,12 @@ const resolveBaseUrl = (): string => {
     return normalizeUrl(DEFAULT_BASE) ?? DEFAULT_BASE;
   }
 
+  // In production (not localhost), use the same origin (same domain, same port)
+  if (hostname !== 'localhost' && hostname !== '127.0.0.1') {
+    // Use same origin - frontend and backend are on the same domain
+    return normalizeUrl(`${protocol}//${hostname}${port ? `:${port}` : ''}`) ?? DEFAULT_BASE;
+  }
+
   const normalizedHost = hostname === 'localhost' ? '127.0.0.1' : hostname;
 
   const explicitPort =
@@ -53,28 +59,86 @@ const resolveBaseUrl = (): string => {
   return normalizeUrl(`${protocol}//${normalizedHost}:${explicitPort}`) ?? DEFAULT_BASE;
 };
 
-// Force initial base URL to DEFAULT_BASE to avoid using wrong ports from window.location
-let activeBaseUrl = configuredBaseUrl ?? DEFAULT_BASE;
+// Initialize base URL - use same origin in production, DEFAULT_BASE in development
+const getInitialBaseUrl = (): string => {
+  if (configuredBaseUrl) {
+    return configuredBaseUrl;
+  }
+  if (typeof window !== 'undefined') {
+    const { protocol, hostname, port } = window.location;
+    // In production (not localhost), use same origin
+    if (hostname && hostname !== 'localhost' && hostname !== '127.0.0.1') {
+      return `${protocol}//${hostname}${port ? `:${port}` : ''}`;
+    }
+  }
+  return DEFAULT_BASE;
+};
+
+let activeBaseUrl = getInitialBaseUrl();
 let detectionComplete = Boolean(configuredBaseUrl);
 let detectionPromise: Promise<string> | null = null;
-const FAILURE_BACKOFF_MS = 5000;
+const INITIAL_BACKOFF_MS = 500; // Very short backoff after first failure (0.5 seconds)
+const FAILURE_BACKOFF_MS = 5000; // Longer backoff after multiple failures
+const MAX_CONSECUTIVE_FAILURES = 2; // Reduced to activate backoff faster
 const isDev = import.meta.env.DEV;
 
 let lastFailure: { error: Error; timestamp: number } | null = null;
+let consecutiveFailures = 0;
+let firstFailureTime: number | null = null; // Track when first failure occurred
 
 const recordFailure = (error: unknown): Error => {
   const normalized = error instanceof Error ? error : new Error(String(error));
-  lastFailure = { error: normalized, timestamp: Date.now() };
+  const now = Date.now();
+  lastFailure = { error: normalized, timestamp: now };
+  consecutiveFailures += 1;
+  
+  // Record first failure time for faster backoff detection
+  if (consecutiveFailures === 1) {
+    firstFailureTime = now;
+  }
+  
   return normalized;
+};
+
+const recordSuccess = () => {
+  lastFailure = null;
+  consecutiveFailures = 0;
+  firstFailureTime = null;
 };
 
 const shouldShortCircuitFailure = (): Error | null => {
   if (!lastFailure) {
     return null;
   }
-  if (Date.now() - lastFailure.timestamp < FAILURE_BACKOFF_MS) {
-    return lastFailure.error;
+  
+  const now = Date.now();
+  const timeSinceLastFailure = now - lastFailure.timestamp;
+  
+  // After first failure, use very short backoff to prevent immediate retries
+  // Use firstFailureTime for more accurate timing
+  if (consecutiveFailures >= 1 && firstFailureTime) {
+    const timeSinceFirstFailure = now - firstFailureTime;
+    if (timeSinceFirstFailure < INITIAL_BACKOFF_MS) {
+      // Return a silent error that won't trigger browser console messages
+      // This prevents fetch calls and browser "Fetch failed loading" messages
+      return new Error('Backend unavailable');
+    }
   }
+  
+  // After too many consecutive failures, stop trying for longer
+  if (consecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
+    const extendedBackoff = FAILURE_BACKOFF_MS * (consecutiveFailures - 1);
+    if (timeSinceLastFailure < extendedBackoff) {
+      // Return a silent error that won't trigger browser console messages
+      // This prevents fetch calls and browser "Fetch failed loading" messages
+      return new Error('Backend unavailable');
+    }
+  } else if (timeSinceLastFailure < FAILURE_BACKOFF_MS) {
+    // Return a silent error that won't trigger browser console messages
+    // This prevents fetch calls and browser "Fetch failed loading" messages
+    return new Error('Backend unavailable');
+  }
+  
   return null;
 };
 
@@ -171,10 +235,24 @@ const isJsonResponse = (response: Response): boolean => {
 };
 
 const detectBaseUrl = async (): Promise<string> => {
+  // Check for short-circuit before attempting detection
+  const cachedError = shouldShortCircuitFailure();
+  if (cachedError) {
+    // If backend is known to be unavailable, skip detection
+    return activeBaseUrl;
+  }
+
   const candidates = buildCandidateBaseUrls();
   let lastError: unknown = null;
 
   for (const candidate of candidates) {
+    // Check for short-circuit before each probe
+    const probeError = shouldShortCircuitFailure();
+    if (probeError) {
+      // Skip remaining probes if backend is unavailable
+      break;
+    }
+
     try {
       if (isDev) {
         console.debug('[api] probing', candidate);
@@ -267,25 +345,45 @@ export const apiUrl = (path: string): string => {
   return joinUrl(activeBaseUrl, path);
 };
 
+// Export shouldShortCircuitFailure for use in other modules
+export { shouldShortCircuitFailure };
+
 export const apiFetch = async (path: string, options?: RequestInit): Promise<Response> => {
   const requestInit = options ?? {};
   const method = (requestInit.method ?? 'GET').toString().toUpperCase();
   const allowRetry = SAFE_METHODS.has(method);
 
+  // Check for short-circuit BEFORE making any fetch calls
+  // This prevents "Fetch failed loading" messages from the browser
+  const cachedError = shouldShortCircuitFailure();
+  if (cachedError) {
+    // Return a rejected promise immediately without making any fetch calls
+    // This prevents browser console errors
+    return Promise.reject(cachedError);
+  }
+
   if (!allowRetry) {
+    // Check for short-circuit again before ensureBaseUrl (which might make fetch calls)
+    const preCheckError = shouldShortCircuitFailure();
+    if (preCheckError) {
+      return Promise.reject(preCheckError);
+    }
+    
     await ensureBaseUrl();
+    
+    // Check for short-circuit again after ensureBaseUrl
+    const postCheckError = shouldShortCircuitFailure();
+    if (postCheckError) {
+      return Promise.reject(postCheckError);
+    }
+    
     try {
       const response = await performFetch(activeBaseUrl, path, requestInit);
-      lastFailure = null;
+      recordSuccess(); // Reset failure counter on success
       return response;
     } catch (error) {
       throw recordFailure(error);
     }
-  }
-
-  const cachedError = shouldShortCircuitFailure();
-  if (cachedError) {
-    throw cachedError;
   }
 
   const candidates = buildCandidateBaseUrls();
@@ -298,6 +396,13 @@ export const apiFetch = async (path: string, options?: RequestInit): Promise<Res
   }
 
   const targetBaseUrl = configuredBaseUrl || activeBaseUrl;
+  
+  // Check for short-circuit again before making the actual fetch call
+  const finalCheckError = shouldShortCircuitFailure();
+  if (finalCheckError) {
+    return Promise.reject(finalCheckError);
+  }
+  
   try {
     if (isDev) {
       console.debug('[api] request', method, targetBaseUrl, path);
@@ -313,7 +418,7 @@ export const apiFetch = async (path: string, options?: RequestInit): Promise<Res
     }
     activeBaseUrl = targetBaseUrl;
     detectionComplete = true;
-    lastFailure = null;
+    recordSuccess(); // Reset failure counter on success
     return response;
   } catch (error) {
     lastError = error;
