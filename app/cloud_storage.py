@@ -821,6 +821,8 @@ class BackblazeB2Storage(CloudStorageManager):
         else:
             try:
                 from b2sdk.v2 import InMemoryAccountInfo, B2Api
+                from b2sdk.v1 import DownloadDestBytes
+                self.DownloadDestBytes = DownloadDestBytes
                 info = InMemoryAccountInfo()
                 self.b2_api = B2Api(info)
                 self.b2_api.authorize_account('production', self.application_key_id, self.application_key)
@@ -957,8 +959,9 @@ class BackblazeB2Storage(CloudStorageManager):
             latest_file = files[0]
             
             # Download file
-            content_bytes = self.bucket.download_bytes_by_name(latest_file.file_name)
-            content = content_bytes.decode('utf-8')
+            download_dest = self.DownloadDestBytes()
+            self.bucket.download_file_by_name(latest_file.file_name, download_dest)
+            content = download_dest.get_bytes_written().decode('utf-8')
             backup_data = json.loads(content)
             
             # Verify data integrity
@@ -1064,9 +1067,10 @@ class BackblazeB2Storage(CloudStorageManager):
             
             # Try to download the file
             try:
-                # Use download_bytes for B2 SDK v2
-                content_bytes = self.bucket.download_bytes_by_name(b2_path)
-                content = content_bytes.decode('utf-8')
+                # Use DownloadDestBytes for B2 SDK v2
+                download_dest = self.DownloadDestBytes()
+                self.bucket.download_file_by_name(b2_path, download_dest)
+                content = download_dest.get_bytes_written().decode('utf-8')
                 backup_data = json.loads(content)
                 
                 # Verify data integrity
@@ -1128,7 +1132,9 @@ class BackblazeB2Storage(CloudStorageManager):
             
             # Try to download the file
             try:
-                session_data = self.bucket.download_bytes_by_name(b2_path)
+                download_dest = self.DownloadDestBytes()
+                self.bucket.download_file_by_name(b2_path, download_dest)
+                session_data = download_dest.get_bytes_written()
                 
                 # Ensure directory exists
                 os.makedirs(os.path.dirname(session_path), exist_ok=True)
