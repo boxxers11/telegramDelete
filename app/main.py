@@ -604,11 +604,6 @@ async def read_root(request: Request):
     # Fallback to template (development)
     return templates.TemplateResponse("index.html", {"request": request})
 
-@app.options("/{path:path}")
-async def options_handler(path: str):
-    """Handle CORS preflight requests"""
-    return {"message": "OK"}
-
 @app.post("/accounts")
 async def create_account(data: CreateAccountRequest):
     try:
