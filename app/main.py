@@ -4205,8 +4205,9 @@ async def restore_from_b2():
         restored_data = b2_storage.restore_accounts()
         if restored_data:
             # Reload accounts store
+            from app.accounts import Account
             account_store.accounts = {
-                acc_id: account_store.Account(**acc_data) 
+                acc_id: Account(**acc_data) 
                 for acc_id, acc_data in restored_data.items()
             }
             account_store._save_local()
