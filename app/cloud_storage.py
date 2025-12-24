@@ -1067,9 +1067,11 @@ class BackblazeB2Storage(CloudStorageManager):
             
             # Try to download the file
             try:
-                # Use DownloadDestBytes as progress_listener for B2 SDK v2
+                # Use DownloadDestBytes - in v2 it's passed as positional parameter
                 download_dest = self.DownloadDestBytes()
-                self.bucket.download_file_by_name(b2_path, progress_listener=download_dest)
+                # Download file - returns DownloadedFile but data is in download_dest
+                self.bucket.download_file_by_name(b2_path, download_dest)
+                # Get bytes from download destination
                 content = download_dest.get_bytes_written().decode('utf-8')
                 backup_data = json.loads(content)
                 
