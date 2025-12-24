@@ -957,8 +957,8 @@ class BackblazeB2Storage(CloudStorageManager):
             latest_file = files[0]
             
             # Download file
-            downloaded_file = self.bucket.download_file_by_name(latest_file.file_name)
-            content = downloaded_file.read_bytes().decode('utf-8')
+            content_bytes = self.bucket.download_bytes_by_name(latest_file.file_name)
+            content = content_bytes.decode('utf-8')
             backup_data = json.loads(content)
             
             # Verify data integrity
@@ -1064,8 +1064,9 @@ class BackblazeB2Storage(CloudStorageManager):
             
             # Try to download the file
             try:
-                downloaded_file = self.bucket.download_file_by_name(b2_path)
-                content = downloaded_file.read_bytes().decode('utf-8')
+                # Use download_bytes for B2 SDK v2
+                content_bytes = self.bucket.download_bytes_by_name(b2_path)
+                content = content_bytes.decode('utf-8')
                 backup_data = json.loads(content)
                 
                 # Verify data integrity
