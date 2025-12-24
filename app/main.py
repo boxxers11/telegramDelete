@@ -4200,6 +4200,7 @@ if dist_path.exists():
         app.mount("/assets", StaticFiles(directory=str(assets_path)), name="frontend_assets")
     
     # Mount root for index.html and other files (favicon, etc.)
+    # Note: html=True means it will serve index.html for any unmatched routes (SPA routing)
     app.mount("/", StaticFiles(directory="dist", html=True), name="frontend")
 
 if __name__ == "__main__":
