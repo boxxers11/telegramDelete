@@ -4196,6 +4196,11 @@ async def process_next_operation_endpoint():
         logger.error(f"Error processing next operation: {e}")
         return {"success": False, "error": str(e)}
 
+# Mount built frontend from dist (for production deployment) - MUST be after all routes
+dist_path = Path("dist")
+if dist_path.exists():
+    app.mount("/", StaticFiles(directory="dist", html=True), name="frontend")
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8001)
